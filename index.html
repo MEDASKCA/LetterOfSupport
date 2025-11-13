@@ -6,31 +6,38 @@
 <title>NHS CEP – Digital Letter of Support (Side-by-Side + Signature) – Alex Monterubio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-:root{ --brand:#0b57d0; --ink:#0b1220; --muted:#5b6676; --bg:#f7f9fb; --line:#e8eef5; }
+:root{ --brand:#2563eb; --ink:#1f2937; --muted:#6b7280; --bg:#f9fafb; --line:#e5e7eb; }
 *{ box-sizing:border-box; }
 html, body{ height:100%; }
-body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Aptos", "Segoe UI", Inter, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; }
-.container{ max-width:1300px; margin:24px auto; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.06); overflow:hidden; min-height: calc(100vh - 48px); display:flex; flex-direction:column; }
-header{ padding:18px 22px; border-bottom:1px solid var(--line); }
-header h1{ margin:0 0 4px; font-size:20px; }
-header p{ margin:0; color:var(--muted); }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height:1.6; }
+.container{ max-width:1400px; margin:20px auto; background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.06); overflow:hidden; min-height: calc(100vh - 40px); display:flex; flex-direction:column; }
+header{ padding:24px 28px; border-bottom:1px solid var(--line); background:#fff; }
+header h1{ margin:0 0 6px; font-size:24px; font-weight:700; color:var(--ink); }
+header p{ margin:0; color:var(--muted); font-size:15px; }
 main{ display:grid; grid-template-columns: 1fr 1fr; gap:0; min-height: 0; flex:1; }
-.panel{ padding:18px 22px; overflow:auto; }
+.panel{ padding:28px 28px; overflow:auto; }
 .left{ border-right:1px solid var(--line); }
-label{ display:block; font-weight:600; margin:10px 0 6px; font-size:14px; }
-input,select,textarea{ width:100%; padding:12px 12px; border:1px solid #d7e0ea; border-radius:10px; font-size:14px; font-family:inherit; }
-textarea{ min-height:120px; resize:vertical; }
-.grid{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+.section-title{ font-size:16px; font-weight:700; color:var(--ink); margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid var(--line); }
+.section-title:first-child{ margin-top:0; }
+label{ display:block; font-weight:500; margin:16px 0 6px; font-size:14px; color:var(--ink); }
+input,select,textarea{ width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; font-family:inherit; transition:border-color 0.2s; }
+input:focus,select:focus,textarea:focus{ outline:none; border-color:var(--brand); box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+textarea{ min-height:100px; resize:vertical; }
+.grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
 .col-2{ grid-column:span 2; }
-small.hint{ color:var(--muted); display:block; margin-top:4px; }
-.note{ background:#f0f6ff; border-left:4px solid var(--brand); padding:10px 12px; border-radius:8px; font-size:13px; margin-bottom:12px; }
-.actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-button{ background:var(--brand); color:#fff; border:none; padding:12px 16px; border-radius:10px; font-weight:600; cursor:pointer; }
-button.secondary{ background:#eef3ff; color:#123; }
-button.ghost{ background:#fff; color:#123; border:1px solid #d7e0ea; }
+small.hint{ color:var(--muted); display:block; margin-top:5px; font-size:13px; line-height:1.4; }
+.note{ background:#f0f9ff; border:1px solid #bae6fd; padding:14px 16px; border-radius:6px; font-size:14px; margin-bottom:20px; line-height:1.6; color:#0c4a6e; }
+.note a{ color:#0369a1; text-decoration:underline; }
+.actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+button{ background:var(--brand); color:#fff; border:none; padding:12px 20px; border-radius:6px; font-weight:600; cursor:pointer; font-size:14px; transition:background 0.2s; }
+button:hover{ background:#1d4ed8; }
+button.secondary{ background:#f3f4f6; color:var(--ink); border:1px solid var(--line); }
+button.secondary:hover{ background:#e5e7eb; }
+button.ghost{ background:#fff; color:var(--ink); border:1px solid #d1d5db; }
+button.ghost:hover{ background:#f9fafb; }
 
 /* Signature pad */
 .sig-wrap{ border:1px dashed #c9d7ea; border-radius:10px; background:#fafcff; padding:10px; }
@@ -38,28 +45,28 @@ button.ghost{ background:#fff; color:#123; border:1px solid #d7e0ea; }
 .sig-canvas{ width:100%; height:160px; background:#fff; border:1px solid #d7e0ea; border-radius:8px; }
 .sig-actions{ display:flex; gap:8px; }
 
-/* A4 paper-style preview (Merriweather) */
+/* A4 paper-style preview */
 .preview-wrap{ display:flex; justify-content:center; align-items:flex-start; padding: 10px 0 20px; }
 .paper{
   width: 210mm; min-height: 297mm;
   background: #fff;
-  box-shadow: 0 8px 20px rgba(0,0,0,.08);
-  border: 1px solid #e6edf5;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  border: 1px solid #e5e7eb;
   position: relative;
 }
 .paper .page{
-  padding: 15mm 20mm; /* reduced top margin */
-  font-family: "Merriweather", Georgia, "Times New Roman", serif;
-  color: #0c1325; line-height: 1.55; font-size: 12.5pt;
+  padding: 20mm 20mm;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1f2937; line-height: 1.65; font-size: 11pt;
 }
-.letter-header{ text-align:center; font-weight:700; margin-bottom: 8mm; }
-.letter-date{ text-align:right; white-space:pre; }
-.letter-body p{ margin: 0 0 10pt; }
-.letter-body p.sal{ margin-top: 10pt; }
-.letter-closing{ margin-top: 16pt; }
-.letter-sign{ margin-top: 10pt; height: 60px; }
+.letter-header{ text-align:center; font-weight:700; margin-bottom: 8mm; font-size:13pt; }
+.letter-date{ text-align:right; white-space:pre; margin-bottom:6mm; }
+.letter-body p{ margin: 0 0 12pt; }
+.letter-body p.sal{ margin-top: 12pt; font-weight:500; }
+.letter-closing{ margin-top: 18pt; }
+.letter-sign{ margin-top: 12pt; height: 60px; }
 .letter-sign img{ max-height: 60px; }
-.letter-signoff{ margin: 8pt 0 0; }
+.letter-signoff{ margin: 10pt 0 0; }
 .letter-signoff .name{ font-weight:700; }
 
 /* Toast (centered banner) */
@@ -257,16 +264,15 @@ button.ghost{ background:#fff; color:#123; border:1px solid #d7e0ea; }
     // Add a temporary footer element (only for PDF capture)
     const ref = formRef();
     const footer = document.createElement('div');
-    footer.style.fontFamily = 'Merriweather, Georgia, serif';
-    footer.style.fontSize = '9pt';
-    footer.style.color = '#fff';
+    footer.style.fontFamily = 'Inter, -apple-system, sans-serif';
+    footer.style.fontSize = '8pt';
+    footer.style.color = '#6b7280';
     footer.style.marginTop = '16px';
-    footer.style.paddingTop = '6px';
-    footer.style.borderTop = '1px solid #eee';
-    footer.style.color = '#777';
+    footer.style.paddingTop = '8px';
+    footer.style.borderTop = '1px solid #e5e7eb';
     footer.innerHTML = `
-      <div>Form Reference: ${ref}</div>
-      <div>This letter was securely generated through the NHS Clinical Entrepreneurs Programme Digital Endorsement Form developed by Alex Monterubio. Submitted electronically via https://www.nhscep.com. No patient or confidential data was collected.</div>
+      <div style="margin-bottom:4px;"><strong>Reference:</strong> ${ref}</div>
+      <div>This letter was generated through the NHS Clinical Entrepreneurs Programme Digital Endorsement Form developed by Alex Monterubio. Submitted electronically via https://www.nhscep.com. No patient or confidential data was collected.</div>
     `;
     previewPaper.appendChild(footer);
 
@@ -397,20 +403,22 @@ button.ghost{ background:#fff; color:#123; border:1px solid #d7e0ea; }
       <!-- LEFT: FORM -->
       <div class="panel left">
         <div class="note">
-          This endorsement supports Alex Monterubio’s application to the NHS Clinical Entrepreneurs Programme
+          <strong>About this form:</strong> This endorsement supports Alex Monterubio's application to the NHS Clinical Entrepreneurs Programme
           (see <a href="https://www.nhscep.com" target="_blank" rel="noopener">www.nhscep.com</a>).
           The generated PDF is a professional endorsement only and does not imply financial sponsorship.
         </div>
         <form id="endorsement-form" onsubmit="event.preventDefault();">
+
+          <div class="section-title">Your Information</div>
           <div class="grid">
             <div>
-              <label for="ref_name">Referee full name</label>
+              <label for="ref_name">Your full name *</label>
               <input id="ref_name" name="ref_name" required placeholder="e.g., Dr Jane Smith"/>
             </div>
             <div>
-              <label for="ref_role">Referee role</label>
+              <label for="ref_role">Your job title/role *</label>
               <select id="ref_role" name="ref_role" required>
-                <option value="">Select role…</option>
+                <option value="">Please select...</option>
                 <option>Associate Director of Nursing</option>
                 <option>Matron</option>
                 <option>Senior Team Leader</option>
@@ -425,18 +433,20 @@ button.ghost{ background:#fff; color:#123; border:1px solid #d7e0ea; }
             </div>
 
             <div>
-              <label for="org">Organisation</label>
+              <label for="org">Your organisation</label>
               <input id="org" name="org" placeholder="Royal London Hospital, Barts Health NHS Trust"/>
+              <small class="hint">Leave blank to use default: Royal London Hospital</small>
             </div>
             <div>
-              <label for="ref_email">Referee work email</label>
-              <input id="ref_email" name="ref_email" type="email" required/>
+              <label for="ref_email">Your work email *</label>
+              <input id="ref_email" name="ref_email" type="email" required placeholder="your.name@nhs.net"/>
+              <small class="hint">You'll receive a copy of the letter at this address</small>
             </div>
 
             <div class="col-2">
-              <label for="relationship">Relationship to Alex</label>
+              <label for="relationship">Your relationship to Alex *</label>
               <select id="relationship" name="relationship" required>
-                <option value="">Select…</option>
+                <option value="">Please select...</option>
                 <option>Line manager</option>
                 <option>Senior clinician</option>
                 <option>Peer / Team leader</option>
@@ -444,47 +454,53 @@ button.ghost{ background:#fff; color:#123; border:1px solid #d7e0ea; }
                 <option>Other</option>
               </select>
             </div>
+          </div>
 
+          <div class="section-title">Additional Comments (Optional)</div>
+          <div class="grid">
             <div class="col-2">
-              <label for="comments">Optional short remarks (1–3 sentences)</label>
-              <textarea id="comments" name="comments" placeholder="Short tenure (five months). Professional conduct, safety-focused, willing to learn. Supports NHS CEP application."></textarea>
-              <small class="hint">Please avoid confidential patient information.</small>
+              <label for="comments">Add any specific remarks about Alex's work or suitability</label>
+              <textarea id="comments" name="comments" placeholder="Example: Alex worked with us for five months. During this time they demonstrated professional conduct, attention to patient safety, and a willingness to learn."></textarea>
+              <small class="hint">Keep it brief (1-3 sentences). Please avoid any confidential patient information.</small>
             </div>
 
             <div>
-              <label for="date_line">Date</label>
+              <label for="date_line">Letter date</label>
               <input id="date_line" name="date_line"/>
-              <small class="hint">Prefilled with today’s date (UK). You can amend if needed.</small>
+              <small class="hint">Today's date is pre-filled. You can change it if needed.</small>
             </div>
           </div>
 
+          <div class="section-title">Sign Your Letter</div>
           <!-- Signature pad -->
-          <div class="col-2" style="margin-top:10px;">
-            <label>Digital signature</label>
+          <div class="col-2">
+            <label>Draw your signature below</label>
             <div class="sig-wrap">
               <canvas id="signature-canvas" class="sig-canvas"></canvas>
               <div class="sig-row">
                 <div class="sig-actions">
-                  <button type="button" class="ghost" onclick="sigPad.clear(); updatePreview();">Clear signature</button>
+                  <button type="button" class="ghost" onclick="sigPad.clear(); updatePreview();">Clear</button>
                 </div>
-                <small class="hint">Draw your signature above (mouse, trackpad, or touch).</small>
+                <small class="hint">Use your mouse, trackpad, or touchscreen to sign</small>
               </div>
             </div>
           </div>
 
-          <!-- Consent moved above actions -->
-          <div style="margin-top:10px;">
-            <label><input type="checkbox" required/>
-              I confirm this endorsement and consent to its electronic submission to Alex Monterubio for the NHS Clinical Entrepreneurs Programme. This serves as my digital signature.
+          <!-- Consent -->
+          <div style="margin-top:16px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">
+            <label style="display:flex; align-items:start; gap:10px; margin:0;">
+              <input type="checkbox" required style="width:auto; margin-top:3px;"/>
+              <span style="flex:1;">I confirm this endorsement is accurate and consent to its electronic submission to Alex Monterubio for the NHS Clinical Entrepreneurs Programme. This serves as my digital signature.</span>
             </label>
           </div>
 
+          <div class="section-title">Submit Your Letter</div>
           <div class="actions">
-            <button type="button" onclick="handleSubmit()">Submit</button>
-            <button type="button" class="secondary" onclick="printLetter()">Print letter</button>
-            <button type="button" class="ghost" onclick="updatePreview()">Refresh preview</button>
+            <button type="button" onclick="handleSubmit()">Submit Letter</button>
+            <button type="button" class="secondary" onclick="printLetter()">Print Preview</button>
+            <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
           </div>
-          <small class="hint">On submit: a PDF is downloaded and emailed to both you and Alex (if EmailJS is configured). No data is stored.</small>
+          <small class="hint">When you submit: A PDF will be downloaded to your computer and emailed to both you and Alex. No data is stored on any server.</small>
         </form>
       </div>
 
