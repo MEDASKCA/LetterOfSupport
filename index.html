@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 <title>NHS Clinical Entrepreneur Programme – Digital Letter of Support</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -250,7 +250,9 @@ button.ghost:hover{ background:#f9fafb; }
   padding: 10px 0 20px;
 }
 .paper{
-  width: 210mm; min-height: 297mm;
+  width: 210mm;
+  max-width: 100%;
+  min-height: 297mm;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
   border: 1px solid #e5e7eb;
@@ -288,7 +290,7 @@ button.ghost:hover{ background:#f9fafb; }
 /* NHS logo image */
 .nhs-logo-img{
   display:block;
-  width:72px;      /* adjust if you want it bigger/smaller */
+  width:72px;
   height:auto;
   margin-left:auto;
 }
@@ -320,7 +322,7 @@ button.ghost:hover{ background:#f9fafb; }
 }
 
 .letter-date{
-font-size: 12pt;
+  font-size: 12pt;
   margin-top: 12px;
   margin-bottom: 12px;
   text-align:left;
@@ -385,7 +387,7 @@ font-size: 12pt;
 /* Print */
 @media print{
   body{ background:#fff; }
-  .container{ border:0; box-shadow:none; }
+  .container{ border:0; box-shadow:none; margin:0; }
   main{ display:block; }
   .left{ display:none; }
   .panel{ padding:0; }
@@ -397,6 +399,218 @@ font-size: 12pt;
 @media (max-width: 980px){
   main{ grid-template-columns: 1fr; }
   .left{ border-right:0; border-bottom:1px solid var(--line); }
+}
+
+/* Mobile optimisation */
+@media (max-width: 768px){
+  body{ background:#fff; }
+  .container{
+    margin:0;
+    border-radius:0;
+    border:none;
+    min-height:100vh;
+  }
+  header{
+    padding:16px;
+  }
+  header h1{
+    font-size:20px;
+  }
+  header p{
+    font-size:14px;
+  }
+  .panel{
+    padding:16px;
+  }
+
+  /* Force all grids to single column on mobile */
+  .grid{
+    grid-template-columns: 1fr !important;
+    gap:12px;
+  }
+  .col-2{
+    grid-column: span 1;
+  }
+
+  /* Better input sizing for mobile */
+  input, select, textarea{
+    font-size:16px; /* Prevents zoom on iOS */
+    padding:12px;
+    min-height:44px; /* Better touch target */
+  }
+  textarea{
+    min-height:120px;
+  }
+
+  /* Button improvements for mobile */
+  button{
+    min-height:44px;
+    padding:12px 20px;
+    font-size:15px;
+    width:100%;
+  }
+  .actions{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+
+  /* Step navigation */
+  .steps-nav{
+    flex-direction:column;
+    gap:10px;
+  }
+  .steps-nav-right{
+    margin-left:0;
+  }
+  .step-labels{
+    font-size:10px;
+  }
+
+  /* Preview scaling for mobile */
+  .preview-wrap{
+    padding:16px;
+    background:#f5f5f5;
+  }
+  .paper{
+    width:100%;
+    min-height:auto;
+    transform-origin:top center;
+    transform:scale(0.95);
+    margin:0 auto;
+  }
+  .paper .page{
+    padding:12mm 10mm 15mm;
+    font-size:10pt;
+  }
+
+  /* Letter components scale */
+  .header-row{
+    flex-direction:column;
+    gap:16px;
+  }
+  .header-block{
+    justify-content:flex-start;
+  }
+  .trust-header{
+    text-align:left;
+  }
+  .nhs-logo-img{
+    width:60px;
+    margin-left:0;
+  }
+  .trust-header .trust-name{
+    font-size:16px;
+  }
+  .trust-header .trust-sub{
+    font-size:11px;
+  }
+  .trust-header .trust-hospital{
+    font-size:13px;
+  }
+  .trust-header .trust-address{
+    font-size:13px;
+  }
+  .sender-block{
+    font-size:13px;
+  }
+  .letter-date{
+    font-size:11pt;
+  }
+  .recipient-block{
+    font-size:11pt;
+  }
+  .letter-body p{
+    font-size:10pt;
+  }
+
+  /* Signature canvas for mobile */
+  .sig-canvas{
+    height:140px;
+    touch-action:none; /* Better touch handling */
+  }
+  .sig-row{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .sig-actions{
+    width:100%;
+  }
+  .sig-actions button{
+    flex:1;
+  }
+
+  /* Note box */
+  .note{
+    font-size:13px;
+    padding:12px;
+  }
+
+  /* Toast message */
+  .toast{
+    width:calc(100% - 24px);
+    bottom:12px;
+  }
+  .toast h4{
+    font-size:15px;
+  }
+  .toast p{
+    font-size:13px;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px){
+  header h1{
+    font-size:18px;
+  }
+  header p{
+    font-size:13px;
+  }
+  .panel{
+    padding:12px;
+  }
+  .section-title{
+    font-size:15px;
+  }
+  input, select, textarea{
+    font-size:16px;
+    padding:10px;
+  }
+  label{
+    font-size:13px;
+  }
+  small.hint{
+    font-size:12px;
+  }
+  .paper{
+    transform:scale(0.9);
+  }
+  .paper .page{
+    padding:10mm 8mm 12mm;
+    font-size:9pt;
+  }
+  .note{
+    font-size:12px;
+    padding:10px;
+  }
+  .inline-option{
+    font-size:13px;
+  }
+}
+
+/* Ensure form appears before preview on mobile */
+@media (max-width: 768px){
+  main{
+    display:flex;
+    flex-direction:column;
+  }
+  .panel.left{
+    order:1;
+  }
+  .panel:not(.left){
+    order:2;
+  }
 }
 </style>
 
@@ -587,7 +801,7 @@ function readForm(){
     hospitalCity: (document.getElementById('hospital_city')?.value || "").trim(),
     hospitalPostcode: (document.getElementById('hospital_postcode')?.value || "").trim(),
 
-    useHeader: document.getElementById('use_header')?.checked || false,
+    useHeader: true, // Always include NHS header
     dateLine: document.getElementById('date_line').value.trim(),
 
     qDurationSelect: document.getElementById('q_duration_select').value,
@@ -987,16 +1201,20 @@ function buildLetterHTML(data, signatureDataURL){
       pieces.push(qStrengthsOther);
     }
 
-    let strengthsPhrase = "";
-    if (pieces.length === 1){
-      strengthsPhrase = pieces[0];
-    } else if (pieces.length === 2){
-      strengthsPhrase = pieces.join(" and ");
-    } else {
-      strengthsPhrase = pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    }
+    // Make sure each phrase starts lowercase for smooth reading in lists
+    const verbPhrases = pieces.map(p =>
+      p.charAt(0).toLowerCase() + p.slice(1)
+    );
 
-    strengthsSentence = `In day-to-day practice, Alex has demonstrated ${strengthsPhrase}.`;
+    let strengthsPhrase = "";
+    if (verbPhrases.length === 1){
+      strengthsPhrase = verbPhrases[0];
+      strengthsSentence = `In day-to-day practice, Alex ${strengthsPhrase}.`;
+    } else {
+      const last = verbPhrases.pop();
+      strengthsPhrase = verbPhrases.join("; ") + "; and " + last;
+      strengthsSentence = `In day-to-day practice, Alex: ${strengthsPhrase}.`;
+    }
   }
 
   // Professionalism / safety
@@ -1175,19 +1393,19 @@ async function makePDF(){
   previewPaper.appendChild(footer);
 
   const canvas = await html2canvas(previewPaper, {
-    scale: 1.75,
+    scale: 2,
     useCORS: false,
     backgroundColor: '#ffffff'
   });
   footer.remove();
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  const imgData = canvas.toDataURL('image/png');
   const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const imgWidth = pageWidth;
   const imgHeight = canvas.height * imgWidth / canvas.width;
 
-  pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
   const blob = pdf.output('blob');
   const dataURI = pdf.output('datauristring');
@@ -1280,8 +1498,12 @@ function handleCapacityChange(){
 /* Stepper helpers */
 function showStep(step){
   currentStep = step;
+  let activeStep = null;
+
   document.querySelectorAll('.form-step').forEach(s => {
-    s.classList.toggle('active', parseInt(s.dataset.step,10) === step);
+    const isActive = parseInt(s.dataset.step,10) === step;
+    s.classList.toggle('active', isActive);
+    if (isActive) activeStep = s;
   });
 
   const progress = document.querySelector('.progress-bar');
@@ -1302,6 +1524,16 @@ function showStep(step){
   const leftPanel = document.querySelector('.panel.left');
   if (leftPanel && leftPanel.scrollTo){
     leftPanel.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  // guide referee to the next field on this step
+  if (activeStep){
+    setTimeout(() => {
+      const firstField = activeStep.querySelector('input, select, textarea');
+      if (firstField && typeof firstField.focus === 'function'){
+        firstField.focus();
+      }
+    }, 50);
   }
 
   // when going to step 4, ensure the signature canvas is sized
@@ -1507,7 +1739,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="note">
           <strong>About this form:</strong> This endorsement supports Alex Monterubio's application to the NHS Clinical Entrepreneur Programme
           (see <a href="https://www.nhscep.com" target="_blank" rel="noopener">www.nhscep.com</a>).
-          The generated PDF is a professional endorsement only and does not imply financial sponsorship.
+          <strong>The generated PDF is a professional endorsement only and does not imply financial sponsorship.</strong>
           <br/><br/>
           <strong>No data is stored by this tool – your details are used only to generate this one-off PDF and the confirmation emails.</strong>
         </div>
@@ -1621,38 +1853,8 @@ window.addEventListener('DOMContentLoaded', () => {
               <div>
                 <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
                 <input id="org" name="org" placeholder="Barts Health NHS Trust"/>
-                <small class="hint">Anything after “NHS” (e.g. NHS Trust / NHS Foundation Trust) will appear as the blue sub-header.</small>
-              </div>
-              <div>
-                <label for="ref_email">Your work email</label>
-                <input id="ref_email" name="ref_email" type="email" required placeholder="your.name@nhs.net"/>
-                <small class="hint">You'll receive a copy of the letter at this address.</small>
               </div>
 
-              <div>
-                <label for="ref_phone">Your contact number (optional)</label>
-                <input id="ref_phone" name="ref_phone" placeholder="020 1234 5678"/>
-                <small class="hint">Used for the “Tel:” line in the sender block.</small>
-              </div>
-
-              <div class="col-2">
-                <label for="relationship">Your relationship to Alex</label>
-                <select id="relationship" name="relationship" required>
-                  <option value="">Please select...</option>
-                  <option>Senior Line Manager</option>
-                  <option>Line Manager</option>
-                  <option>Senior Clinician</option>
-                  <option>Peer / Team Leader</option>
-                  <option>Service/Operations Manager</option>
-                  <option>Senior Nursing Colleague</option>
-                  <option>Senior Clinical Colleague</option>
-                  <option>Professional Colleague</option>
-                  <option>Clinical Supervisor</option>
-                  <option>Senior Clinical Colleague from Locum Assignments</option>
-                </select>
-              </div>
-
-              <!-- Hospital + Address -->
               <div class="col-2">
                 <label for="hospital_name">Hospital name</label>
                 <input id="hospital_name" name="hospital_name" placeholder="Royal London Hospital"/>
@@ -1674,15 +1876,33 @@ window.addEventListener('DOMContentLoaded', () => {
                 </small>
               </div>
 
-              <!-- NHS HEADER TOGGLE -->
-              <div class="col-2" style="margin-top:8px;">
-                <label class="inline-option" style="margin-top:0;">
-                  <input type="checkbox" id="use_header" name="use_header" />
-                  <span>Include NHS header with logo and hospital details</span>
-                </label>
-                <small class="hint">
-                  When ticked, the letter will show the NHS logo, Trust name and hospital address in the top-right, like your standard letterhead.
-                </small>
+              <div>
+                <label for="ref_email">Your work email</label>
+                <input id="ref_email" name="ref_email" type="email" required placeholder="your.name@nhs.net"/>
+                <small class="hint">You'll receive a copy of the letter at this address.</small>
+              </div>
+
+              <div>
+                <label for="ref_phone">Your contact number (optional)</label>
+                <input id="ref_phone" name="ref_phone" type="tel" placeholder="020 1234 5678"/>
+                <small class="hint">Used for the “Tel:” line in the sender block.</small>
+              </div>
+
+              <div class="col-2">
+                <label for="relationship">Your relationship to Alex</label>
+                <select id="relationship" name="relationship" required>
+                  <option value="">Please select...</option>
+                  <option>Senior Line Manager</option>
+                  <option>Line Manager</option>
+                  <option>Senior Clinician</option>
+                  <option>Peer / Team Leader</option>
+                  <option>Service/Operations Manager</option>
+                  <option>Senior Nursing Colleague</option>
+                  <option>Senior Clinical Colleague</option>
+                  <option>Professional Colleague</option>
+                  <option>Clinical Supervisor</option>
+                  <option>Senior Clinical Colleague from Locum Assignments</option>
+                </select>
               </div>
             </div>
 
@@ -1742,31 +1962,43 @@ window.addEventListener('DOMContentLoaded', () => {
                 <label>What key strengths has Alex demonstrated?</label>
                 <div class="grid">
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="calm leadership under pressure">
-                    <span>Calm leadership under pressure</span>
+                    <input type="checkbox" name="strengths" value="Promotes a positive, respectful and supportive team culture">
+                    <span>Promotes a positive, respectful, and supportive team culture</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="clear and respectful communication with the multidisciplinary team">
-                    <span>Clear MDT communication</span>
+                    <input type="checkbox" name="strengths" value="Delegates effectively while maintaining oversight of standards and safety">
+                    <span>Delegates effectively while maintaining oversight of standards and safety</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="a consistent focus on patient safety and escalation of concerns">
-                    <span>Patient safety focus</span>
+                    <input type="checkbox" name="strengths" value="Communicates clearly with surgeons, anaesthetists and wider MDT members">
+                    <span>Communicates clearly with surgeons, anaesthetists, and wider MDT members</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="reliable and organised management of theatre lists and resources">
-                    <span>Reliable and organised</span>
+                    <input type="checkbox" name="strengths" value="Escalates concerns appropriately and confidently">
+                    <span>Able to escalate concerns appropriately and confidently</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="supportive and constructive supervision of colleagues">
-                    <span>Supportive to colleagues</span>
+                    <input type="checkbox" name="strengths" value="Uses incident reports, utilisation data, KPIs and audit results to guide decisions">
+                    <span>Uses incident reports, utilisation data, KPIs, and audit results to guide decisions</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="a reflective and learning-oriented approach to practice">
-                    <span>Reflective, learning-oriented approach</span>
+                    <input type="checkbox" name="strengths" value="Builds strong working relationships with surgeons, anaesthetists, managers and procurement teams">
+                    <span>Builds strong working relationships with surgeons, anaesthetists, managers, and procurement teams</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="Is aware of financial constraints, transformation plans and long-term workforce challenges">
+                    <span>Aware of financial constraints, transformation plans, and long-term workforce challenges</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="Aligns team behaviour with organisational priorities">
+                    <span>Aligns team behaviour with organisational priorities</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="Advocates for improvements that enhance both quality and efficiency">
+                    <span>Advocates for improvements that enhance quality and efficiency</span>
                   </label>
                 </div>
-                <input id="q_strengths_other" name="q_strengths_other" style="margin-top:8px;" placeholder="Other strengths or a short description in your own words"/>
+                <input id="q_strengths_other" name="q_strengths_other" style="margin-top:8px;" placeholder="Other strengths or your own wording"/>
                 <small class="hint">Please select at least one option or add your own wording – this will be turned into a narrative sentence.</small>
               </div>
 
