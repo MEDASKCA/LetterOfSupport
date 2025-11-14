@@ -17,8 +17,11 @@ export default async function handler(req, res) {
       referee
     } = req.body;
 
+    console.log('Received payload:', { refCode, filename, referee });
+
     // Validate required fields
     if (!filename || !pdfBase64 || !referee || !referee.name || !referee.email) {
+      console.error('Missing fields:', { filename: !!filename, pdfBase64: !!pdfBase64, referee, refereeName: referee?.name, refereeEmail: referee?.email });
       return res.status(400).json({
         error: 'Missing required fields',
         required: ['filename', 'pdfBase64', 'referee.name', 'referee.email']
@@ -65,6 +68,7 @@ export default async function handler(req, res) {
     `;
 
     // Send email to referee
+    console.log('Sending email to referee:', referee.email);
     const refereeEmailResult = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: referee.email,
@@ -78,9 +82,10 @@ export default async function handler(req, res) {
       ],
     });
 
-    console.log('Email sent to referee:', refereeEmailResult);
+    console.log('Email sent to referee successfully:', refereeEmailResult);
 
     // Send email to Alex
+    console.log('Sending email to Alex:', ALEX_EMAIL);
     const alexEmailResult = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: ALEX_EMAIL,
@@ -94,7 +99,7 @@ export default async function handler(req, res) {
       ],
     });
 
-    console.log('Email sent to Alex:', alexEmailResult);
+    console.log('Email sent to Alex successfully:', alexEmailResult);
 
     // Return success response
     return res.status(200).json({
