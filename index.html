@@ -260,7 +260,7 @@ button.ghost:hover{ background:#f9fafb; }
   position: relative;
 }
 .paper .page{
-  padding: 15mm 20mm 20mm 20mm;
+  padding: 20mm 25mm 20mm 25mm;
   font-family: Arial, sans-serif;
   color: #1f2937;
   line-height: 1.5;
@@ -393,7 +393,7 @@ button.ghost:hover{ background:#f9fafb; }
   .left{ display:none; }
   .panel{ padding:0; }
   .paper{ box-shadow:none; border:0; width:auto; min-height:auto; }
-  .paper .page{ padding: 15mm 20mm; }
+  .paper .page{ padding: 20mm 25mm; }
 }
 
 /* Responsive */
@@ -1404,22 +1404,6 @@ async function makePDF(){
   const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const ref = formRef();
-  const footer = document.createElement('div');
-  footer.style.fontFamily = 'Arial, sans-serif';
-  footer.style.fontSize = '8pt';
-  footer.style.color = '#6b7280';
-  footer.style.marginTop = '16px';
-  footer.style.paddingTop = '8px';
-  footer.style.borderTop = '1px solid #e5e7eb';
-  footer.innerHTML = `
-    <div style="margin-bottom:4px;"><strong>Reference:</strong> ${ref}</div>
-    <div>
-      This letter was generated through the NHS Clinical Entrepreneur Programme Digital Endorsement Form developed by Alex Monterubio.
-      Submitted electronically via https://www.nhscep.com.
-      <strong>No patient or confidential data is stored by this tool – it is a one-off letter generator.</strong>
-    </div>
-  `;
-  previewPaper.appendChild(footer);
 
   // Use lower quality settings for mobile to avoid memory issues
   const scale = isMobile ? 1.2 : 1.75;
@@ -1434,8 +1418,6 @@ async function makePDF(){
     logging: false,
     removeContainer: true
   });
-
-  footer.remove();
 
   const imgData = canvas.toDataURL('image/jpeg', quality);
 
