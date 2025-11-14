@@ -1402,7 +1402,7 @@ async function makePDF(){
   // Get signature data URL
   const signatureDataURL = (sigPad && !sigPad.isEmpty()) ? sigPad.toDataURL() : "";
 
-  // Send form data to server-side PDF generation endpoint
+  // Try server-side PDF generation first
   try {
     const response = await fetch('/api/generate-pdf', {
       method: 'POST',
@@ -1413,40 +1413,89 @@ async function makePDF(){
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Unknown server error' }));
-      console.error('Server error:', errorData);
-      throw new Error(errorData.message || errorData.error || 'Server-side PDF generation failed');
+    if (response.ok) {
+      const result = await response.json();
+
+      if (result.pdfBase64) {
+        // Server-side generation succeeded
+        console.log('Using server-side PDF generation');
+
+        // Convert base64 to blob for download
+        const byteCharacters = atob(result.pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+        // Create data URI for email sending
+        const dataURI = `data:application/pdf;base64,${result.pdfBase64}`;
+
+        return {
+          pdfBlob: blob,
+          pdfDataURI: dataURI,
+          filename: result.filename,
+          ref
+        };
+      }
     }
-
-    const result = await response.json();
-
-    if (!result.pdfBase64) {
-      throw new Error('Server did not return PDF data');
-    }
-
-    // Convert base64 to blob for download
-    const byteCharacters = atob(result.pdfBase64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-    // Create data URI for email sending
-    const dataURI = `data:application/pdf;base64,${result.pdfBase64}`;
-
-    return {
-      pdfBlob: blob,
-      pdfDataURI: dataURI,
-      filename: result.filename,
-      ref
-    };
-  } catch (error) {
-    console.error('Server-side PDF generation failed:', error);
-    throw new Error(`PDF generation failed: ${error.message}`);
+  } catch (serverError) {
+    console.warn('Server-side PDF generation failed, falling back to client-side:', serverError);
   }
+
+  // Fallback to client-side PDF generation
+  console.log('Using client-side PDF generation');
+  const previewPaper = document.querySelector('#preview #paper');
+  if (!previewPaper){ throw new Error("Preview not ready"); }
+
+  // Detect mobile device
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // Use optimized settings for each device type
+  const scale = isIOS ? 1.5 : (isMobile ? 1.8 : 2.0);
+  const quality = isIOS ? 0.85 : (isMobile ? 0.90 : 0.95);
+
+  // For iOS, use simpler rendering to avoid CORS issues
+  const canvas = await html2canvas(previewPaper, {
+    scale: scale,
+    useCORS: !isIOS,
+    allowTaint: isIOS,
+    backgroundColor: '#ffffff',
+    logging: false,
+    removeContainer: true
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', quality);
+
+  const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  // Calculate dimensions to fit on A4 page
+  const imgWidth = pageWidth;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  // If image height is larger than page, scale it down to fit
+  if (imgHeight > pageHeight) {
+    const scaleFactor = pageHeight / imgHeight;
+    const scaledWidth = imgWidth * scaleFactor;
+    const scaledHeight = pageHeight;
+    // Center horizontally if scaled
+    const xOffset = (pageWidth - scaledWidth) / 2;
+    pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, scaledHeight);
+  } else {
+    // Fits on one page
+    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+  }
+
+  const blob = pdf.output('blob');
+  const dataURI = pdf.output('datauristring');
+  const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
+  const filename = `Letter_of_Support_${(effectiveRole || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
+
+  return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
 }
 
 // Call your Vercel/Resend API (optional)
