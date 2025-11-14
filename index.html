@@ -1396,57 +1396,52 @@ function formRef(){
 }
 
 async function makePDF(){
-  const previewPaper = document.querySelector('#preview #paper');
-  if (!previewPaper){ throw new Error("Preview not ready"); }
-
-  // Detect mobile device
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
+  const data = readForm();
   const ref = formRef();
 
-  // Use lower quality settings for iOS to avoid memory issues
-  // Android can handle better quality
-  const scale = isIOS ? 1.0 : (isMobile ? 1.6 : 2.0);
-  const quality = isIOS ? 0.70 : (isMobile ? 0.88 : 0.95);
+  // Get signature data URL
+  const signatureDataURL = (sigPad && !sigPad.isEmpty()) ? sigPad.toDataURL() : "";
 
-  // For iOS, use simpler rendering to avoid CORS issues
-  const canvas = await html2canvas(previewPaper, {
-    scale: scale,
-    useCORS: !isIOS,  // Disable CORS for iOS
-    allowTaint: isIOS, // Allow taint for iOS
-    backgroundColor: '#ffffff',
-    logging: false,
-    removeContainer: true
-  });
+  // Send form data to server-side PDF generation endpoint
+  try {
+    const response = await fetch('/api/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formData: data,
+        signatureDataURL
+      })
+    });
 
-  const imgData = canvas.toDataURL('image/jpeg', quality);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Server-side PDF generation failed');
+    }
 
-  const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+    const result = await response.json();
 
-  // Calculate dimensions to fit on A4 page
-  const imgWidth = pageWidth;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
+    // Convert base64 to blob for download
+    const byteCharacters = atob(result.pdfBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
 
-  // If image height is larger than page, scale it down to fit
-  if (imgHeight > pageHeight) {
-    const scaleFactor = pageHeight / imgHeight;
-    const scaledWidth = imgWidth * scaleFactor;
-    const scaledHeight = pageHeight;
-    // Center horizontally if scaled
-    const xOffset = (pageWidth - scaledWidth) / 2;
-    pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, scaledHeight);
-  } else {
-    // Fits on one page
-    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+    // Create data URI for email sending
+    const dataURI = `data:application/pdf;base64,${result.pdfBase64}`;
+
+    return {
+      pdfBlob: blob,
+      pdfDataURI: dataURI,
+      filename: result.filename,
+      ref
+    };
+  } catch (error) {
+    console.error('Server-side PDF generation failed:', error);
+    throw new Error(`PDF generation failed: ${error.message}`);
   }
-
-  const blob = pdf.output('blob');
-  const dataURI = pdf.output('datauristring');
-  const filename = `Letter_of_Support_${(document.getElementById('ref_role').value || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
-  return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
 }
 
 // Call your Vercel/Resend API (optional)
