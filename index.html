@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NHS CEP – Digital Letter of Support (Side-by-Side + Signature) – Alex Monterubio</title>
+<title>NHS CEP – Digital Letter of Support</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,41 +12,189 @@
 :root{ --brand:#2563eb; --ink:#1f2937; --muted:#6b7280; --bg:#f9fafb; --line:#e5e7eb; }
 *{ box-sizing:border-box; }
 html, body{ height:100%; }
-body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height:1.6; }
-.container{ max-width:1400px; margin:20px auto; background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.06); overflow:hidden; min-height: calc(100vh - 40px); display:flex; flex-direction:column; }
-header{ padding:24px 28px; border-bottom:1px solid var(--line); background:#fff; }
-header h1{ margin:0 0 6px; font-size:24px; font-weight:700; color:var(--ink); }
-header p{ margin:0; color:var(--muted); font-size:15px; }
-main{ display:grid; grid-template-columns: 1fr 1fr; gap:0; min-height: 0; flex:1; }
-.panel{ padding:28px 28px; overflow:auto; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height:1.6;
+}
+.hidden{ display:none; }
+
+.container{
+  max-width:1400px;
+  margin:20px auto;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:8px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+  overflow:hidden;
+  min-height: calc(100vh - 40px);
+  display:flex;
+  flex-direction:column;
+}
+header{
+  padding:24px 28px;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+}
+header h1{
+  margin:0 0 6px;
+  font-size:24px;
+  font-weight:700;
+  color:var(--ink);
+}
+header p{
+  margin:0;
+  color:var(--muted);
+  font-size:15px;
+}
+main{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:0;
+  min-height: 0;
+  flex:1;
+}
+.panel{
+  padding:28px 28px;
+  overflow:auto;
+}
 .left{ border-right:1px solid var(--line); }
-.section-title{ font-size:16px; font-weight:700; color:var(--ink); margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid var(--line); }
+
+.section-title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--ink);
+  margin:24px 0 12px;
+  padding-bottom:8px;
+  border-bottom:2px solid var(--line);
+}
 .section-title:first-child{ margin-top:0; }
-label{ display:block; font-weight:500; margin:16px 0 6px; font-size:14px; color:var(--ink); }
-input,select,textarea{ width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px; font-family:inherit; transition:border-color 0.2s; }
-input:focus,select:focus,textarea:focus{ outline:none; border-color:var(--brand); box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+
+label{
+  display:block;
+  font-weight:500;
+  margin:16px 0 6px;
+  font-size:14px;
+  color:var(--ink);
+}
+input,select,textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid #d1d5db;
+  border-radius:6px;
+  font-size:14px;
+  font-family:inherit;
+  transition:border-color 0.2s;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+}
 textarea{ min-height:100px; resize:vertical; }
-.grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+}
 .col-2{ grid-column:span 2; }
-small.hint{ color:var(--muted); display:block; margin-top:5px; font-size:13px; line-height:1.4; }
-.note{ background:#f0f9ff; border:1px solid #bae6fd; padding:14px 16px; border-radius:6px; font-size:14px; margin-bottom:20px; line-height:1.6; color:#0c4a6e; }
+small.hint{
+  color:var(--muted);
+  display:block;
+  margin-top:5px;
+  font-size:13px;
+  line-height:1.4;
+}
+.note{
+  background:#f0f9ff;
+  border:1px solid #bae6fd;
+  padding:14px 16px;
+  border-radius:6px;
+  font-size:14px;
+  margin-bottom:20px;
+  line-height:1.6;
+  color:#0c4a6e;
+}
 .note a{ color:#0369a1; text-decoration:underline; }
-.actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
-button{ background:var(--brand); color:#fff; border:none; padding:12px 20px; border-radius:6px; font-weight:600; cursor:pointer; font-size:14px; transition:background 0.2s; }
+
+.inline-option{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:400;
+  margin-top:4px;
+  font-size:14px;
+}
+.inline-option input{
+  width:auto;
+  margin:0;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+button{
+  background:var(--brand);
+  color:#fff;
+  border:none;
+  padding:12px 20px;
+  border-radius:6px;
+  font-weight:600;
+  cursor:pointer;
+  font-size:14px;
+  transition:background 0.2s;
+}
 button:hover{ background:#1d4ed8; }
-button.secondary{ background:#f3f4f6; color:var(--ink); border:1px solid var(--line); }
+button.secondary{
+  background:#f3f4f6;
+  color:var(--ink);
+  border:1px solid var(--line);
+}
 button.secondary:hover{ background:#e5e7eb; }
-button.ghost{ background:#fff; color:var(--ink); border:1px solid #d1d5db; }
+button.ghost{
+  background:#fff;
+  color:#1f2937;
+  border:1px solid #d1d5db;
+}
 button.ghost:hover{ background:#f9fafb; }
 
 /* Signature pad */
-.sig-wrap{ border:1px dashed #c9d7ea; border-radius:10px; background:#fafcff; padding:10px; }
-.sig-row{ display:flex; gap:10px; align-items:center; margin-top:8px; }
-.sig-canvas{ width:100%; height:160px; background:#fff; border:1px solid #d7e0ea; border-radius:8px; }
-.sig-actions{ display:flex; gap:8px; }
+.sig-wrap{
+  border:1px dashed #c9d7ea;
+  border-radius:10px;
+  background:#fafcff;
+  padding:10px;
+}
+.sig-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top:8px;
+}
+.sig-canvas{
+  width:100%;
+  height:160px;
+  background:#fff;
+  border:1px solid #d7e0ea;
+  border-radius:8px;
+}
+.sig-actions{
+  display:flex;
+  gap:8px;
+}
 
-/* A4 paper-style preview */
-.preview-wrap{ display:flex; justify-content:center; align-items:flex-start; padding: 10px 0 20px; }
+/* Preview page */
+.preview-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding: 10px 0 20px;
+}
 .paper{
   width: 210mm; min-height: 297mm;
   background: #fff;
@@ -55,21 +203,91 @@ button.ghost:hover{ background:#f9fafb; }
   position: relative;
 }
 .paper .page{
-  padding: 20mm 20mm;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #1f2937; line-height: 1.65; font-size: 11pt;
+  padding: 15mm 20mm 20mm 20mm;
+  font-family: Arial, sans-serif; /* make the letter itself Arial */
+  color: #1f2937;
+  line-height: 1.65;
+  font-size: 11pt;
 }
-.letter-header{ text-align:center; font-weight:700; margin-bottom: 8mm; font-size:13pt; }
-.letter-date{ text-align:right; white-space:pre; margin-bottom:6mm; }
+
+/* Sender, header, date, recipient, subject */
+.sender-block{
+  font-family: Arial, sans-serif;
+  font-size:12px;
+  line-height:1.4;
+  text-align:left;
+  margin: 0 0 4px 0;
+}
+.header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+.header-block {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+.trust-header {
+  text-align: right;
+}
+.trust-header img {
+  display: block;
+  max-width: 110px;
+  margin-left: auto;
+}
+.trust-header .trust-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 4px;
+  color: #000;
+}
+.trust-header .trust-sub {
+  font-size: 12px;
+  font-weight: bold;
+  color: #005EB8;
+}
+.trust-header .trust-hospital {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  margin-top: 12px;
+}
+.trust-header .trust-address {
+  font-size: 11px;
+  font-weight: 400;
+  color: #000;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.letter-date{
+  margin-top: 12px;
+  margin-bottom: 12px;
+  text-align:left;
+}
+
+.recipient-block{
+  margin-bottom: 8px;
+}
+.recipient-subject{
+  font-weight:bold;
+  margin-bottom:16px;
+}
+
 .letter-body p{ margin: 0 0 12pt; }
-.letter-body p.sal{ margin-top: 12pt; font-weight:500; }
+.letter-body p.sal{
+  margin-top: 12pt;
+  font-weight:500;
+}
 .letter-closing{ margin-top: 18pt; }
 .letter-sign{ margin-top: 12pt; height: 60px; }
 .letter-sign img{ max-height: 60px; }
 .letter-signoff{ margin: 10pt 0 0; }
 .letter-signoff .name{ font-weight:700; }
 
-/* Toast (centered banner) */
+/* Toast */
 .toast {
   position: fixed;
   left: 50%;
@@ -104,7 +322,7 @@ button.ghost:hover{ background:#f9fafb; }
 .toast p + p { margin-top: 4px; }
 .toast em { opacity: .95; }
 
-/* Print styles */
+/* Print */
 @media print{
   body{ background:#fff; }
   .container{ border:0; box-shadow:none; }
@@ -115,282 +333,480 @@ button.ghost:hover{ background:#f9fafb; }
   .paper .page{ padding: 15mm 20mm; }
 }
 
-/* Responsive: stack panels on small screens */
+/* Responsive */
 @media (max-width: 980px){
   main{ grid-template-columns: 1fr; }
   .left{ border-right:0; border-bottom:1px solid var(--line); }
 }
 </style>
 
-<!-- jsPDF -->
+<!-- external libs -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<!-- html2canvas for accurate HTML rendering into PDF -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<!-- Signature Pad -->
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-<!-- EmailJS (optional) -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
 <script>
-  // === CONFIGURE THESE THREE VALUES ===
-  const EMAILJS_PUBLIC_KEY   = "383tdLuu0pvfmt3mn";
-  const EMAILJS_SERVICE_ID   = "service_nb4jwc8";
-  const EMAILJS_TEMPLATE_ID  = "template_5dzqmOk";
-  const ALEX_EMAIL           = "alexmonterubio@live.com";
+// === CONFIGURE EMAILJS ===
+const EMAILJS_PUBLIC_KEY   = "383tdLuu0pvfmt3mn";
+const EMAILJS_SERVICE_ID   = "service_nb4jwc8";
+const EMAILJS_TEMPLATE_ID  = "template_5dzqmOk";
+const ALEX_EMAIL           = "alexmonterubio@live.com";
+if (EMAILJS_PUBLIC_KEY) { emailjs.init(EMAILJS_PUBLIC_KEY); }
 
-  if (EMAILJS_PUBLIC_KEY) { emailjs.init(EMAILJS_PUBLIC_KEY); }
+// Opening paragraphs by role
+const openingsByRole = {
+  "Associate Director of Nursing":
+    "In my capacity as Associate Director of Nursing, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Matron":
+    "As Matron for the Theatre Department, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Senior Team Leader":
+    "As a fellow Senior Team Leader within Theatres, I am pleased to provide a letter of support for Alex Monterubio, who previously worked in the same department at the Royal London Hospital, Barts Health NHS Trust.",
+  "Associate Team Leader":
+    "As an Associate Team Leader working alongside Alex Monterubio during their time in Theatres at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support.",
+  "Service Delivery Manager":
+    "In my role as Service Delivery Manager for Theatres at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader within the department.",
+  "Operations Manager":
+    "As Operations Manager for Perioperative Services at the Royal London Hospital, Barts Health NHS Trust, I am pleased to support Alex Monterubio, who previously worked as a Senior Team Leader in Theatres.",
+  "Consultant Anaesthetist":
+    "I am pleased to provide a letter of support for Alex Monterubio, with whom I worked during theatre sessions at the Royal London Hospital, Barts Health NHS Trust, where Alex previously held the position of Senior Team Leader in Theatres.",
+  "Consultant Surgeon":
+    "As a Consultant Surgeon at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres.",
+  "Senior Registrar":
+    "I am pleased to provide a letter of support for Alex Monterubio, whom I had the opportunity to work with during surgical lists at the Royal London Hospital, Barts Health NHS Trust, where Alex previously worked as a Senior Team Leader in Theatres."
+};
 
-  const openingsByRole = {
-    "Associate Director of Nursing":
-      "In my capacity as Associate Director of Nursing, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
-    "Matron":
-      "As Matron for the Theatre Department, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
-    "Senior Team Leader":
-      "As a fellow Senior Team Leader within Theatres, I am pleased to provide a letter of support for Alex Monterubio, who previously worked in the same department at the Royal London Hospital, Barts Health NHS Trust.",
-    "Associate Team Leader":
-      "As an Associate Team Leader working alongside Alex Monterubio during their time in Theatres at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support.",
-    "Service Delivery Manager":
-      "In my role as Service Delivery Manager for Theatres at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader within the department.",
-    "Operations Manager":
-      "As Operations Manager for Perioperative Services at the Royal London Hospital, Barts Health NHS Trust, I am pleased to support Alex Monterubio, who previously worked as a Senior Team Leader in Theatres.",
-    "Consultant Anaesthetist":
-      "I am pleased to provide a letter of support for Alex Monterubio, with whom I worked during theatre sessions at the Royal London Hospital, Barts Health NHS Trust, where Alex previously held the position of Senior Team Leader in Theatres.",
-    "Consultant Surgeon":
-      "As a Consultant Surgeon at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres.",
-    "Senior Registrar":
-      "I am pleased to provide a letter of support for Alex Monterubio, whom I had the opportunity to work with during surgical lists at the Royal London Hospital, Barts Health NHS Trust, where Alex previously worked as a Senior Team Leader in Theatres."
+// simple local hospital entry – you can expand or fetch hospitals.json
+let hospitalDirectory = [
+  {
+    trustName: "Barts Health NHS Trust",
+    hospitalName: "Royal London Hospital",
+    addressLine1: "Whitechapel Road",
+    addressLine2: "Whitechapel",
+    city: "London",
+    postcode: "E1 1FR"
+  }
+];
+
+async function loadHospitalDirectory(){
+  try{
+    const res = await fetch('hospitals.json');
+    if (res.ok){
+      hospitalDirectory = await res.json();
+    }
+  }catch(e){
+    console.warn("Optional hospitals.json not loaded");
+  }
+}
+
+function findHospitalMatch(name){
+  if (!name || !hospitalDirectory.length) return null;
+  const q = name.toLowerCase().trim();
+  let m = hospitalDirectory.find(h => h.hospitalName.toLowerCase() === q);
+  if (m) return m;
+  m = hospitalDirectory.find(h => h.hospitalName.toLowerCase().includes(q));
+  return m || null;
+}
+
+// trust splitter: "Barts Health NHS Trust" -> main="Barts Health", sub="NHS Trust"
+function splitTrust(orgValue){
+  if (!orgValue) return { main:"", sub:"" };
+  const v = orgValue.trim();
+  const idx = v.indexOf(" NHS");
+  if (idx === -1){
+    return { main: v, sub: "" };
+  }
+  return {
+    main: v.slice(0, idx).trim(),
+    sub:  v.slice(idx + 1).trim()
   };
+}
 
-  // ---- Date helpers ----
-  function todayUK(){
-    const opts = { day: 'numeric', month: 'long', year: 'numeric' };
-    return new Date().toLocaleDateString('en-GB', opts); // e.g., 9 November 2025
+// date helpers
+function todayUK(){
+  const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+  return new Date().toLocaleDateString('en-GB', opts);
+}
+function todayUKISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function toUKLong(dateISO){
+  try{
+    const d = new Date(dateISO);
+    if (isNaN(d)) return todayUK();
+    return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  }catch(e){ return todayUK(); }
+}
+
+let sigPad;
+
+function readForm(){
+  const letterModeInput = document.querySelector('input[name="letter_mode"]:checked');
+  return {
+    refName: document.getElementById('ref_name').value.trim(),
+    refRole: document.getElementById('ref_role').value,
+    org: document.getElementById('org').value.trim(),
+    email: document.getElementById('ref_email').value.trim(),
+    phone: document.getElementById('ref_phone').value.trim(),
+    relationship: document.getElementById('relationship').value,
+    comments: document.getElementById('comments').value,
+    dateLine: document.getElementById('date_line').value.trim(),
+
+    hospitalName: (document.getElementById('hospital_name')?.value || "").trim(),
+    hospitalAddr1: (document.getElementById('hospital_addr1')?.value || "").trim(),
+    hospitalAddr2: (document.getElementById('hospital_addr2')?.value || "").trim(),
+    hospitalCity: (document.getElementById('hospital_city')?.value || "").trim(),
+    hospitalPostcode: (document.getElementById('hospital_postcode')?.value || "").trim(),
+
+    useHeader: document.getElementById('use_header')?.checked || false,
+    letterMode: letterModeInput ? letterModeInput.value : 'template',
+    customText: (document.getElementById('custom_text')?.value || "")
+  };
+}
+
+function paragraphsFromText(text){
+  return text.split(/\n+/).map(t => t.trim()).filter(Boolean).map(t => `<p>${t}</p>`).join("");
+}
+
+function buildLetterHTML(data, signatureDataURL){
+  const {
+    refName,
+    refRole,
+    org,
+    email,
+    phone,
+    comments,
+    dateLine,
+    hospitalName,
+    hospitalAddr1,
+    hospitalAddr2,
+    hospitalCity,
+    hospitalPostcode,
+    useHeader,
+    letterMode,
+    customText
+  } = data;
+
+  const opening = openingsByRole[refRole] ||
+    "I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.";
+
+  const coreParas = [
+    "During this time, Alex demonstrated professionalism and commitment to maintaining patient safety and high standards of clinical care within a complex and fast-paced perioperative environment.",
+    "Although Alex’s time with us was brief and during a period of team transition, they approached their role with sincerity and a willingness to learn and adapt to the expectations of a large teaching hospital.",
+    "Alex is currently undertaking an Executive MBA, further developing their leadership, strategic, and innovation skills, qualities that align closely with the objectives of the NHS Clinical Entrepreneurs Programme.",
+    "I am pleased to support Alex Monterubio’s application to the NHS Clinical Entrepreneurs Programme, recognising their professionalism, reflection, and interest in developing innovative approaches to improving NHS services.",
+    "This letter is provided as a professional endorsement of Alex Monterubio’s suitability for the NHS Clinical Entrepreneurs Programme. It does not imply financial sponsorship."
+  ];
+
+  const extra = comments && comments.trim().length
+    ? `<p><em>Additional remarks:</em> ${comments.trim()}</p>`
+    : "";
+
+  const dateStr = dateLine ? toUKLong(dateLine) : todayUK();
+
+  const hospital = hospitalName || "";
+  const { main: trustMain, sub: trustSub } = splitTrust(org || "");
+
+  const addressHTML = (hospitalAddr1 || hospitalAddr2 || hospitalCity || hospitalPostcode)
+    ? `
+      <div class="trust-address">
+        ${hospitalAddr1 ? hospitalAddr1 + "<br/>" : ""}
+        ${hospitalAddr2 ? hospitalAddr2 + "<br/>" : ""}
+        ${
+          (hospitalCity || hospitalPostcode)
+            ? `${hospitalCity || ""}${hospitalCity && hospitalPostcode ? ", " : ""}${hospitalPostcode || ""}`
+            : ""
+        }
+      </div>
+    `
+    : "";
+
+  const headerHTML = useHeader ? `
+    <div class="header-block">
+      <div class="trust-header">
+        <img src="https://logos-world.net/wp-content/uploads/2023/08/NHS-Logo.jpg" alt="NHS Logo" />
+        ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
+        ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
+        ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
+        ${addressHTML}
+      </div>
+    </div>
+  ` : "";
+
+  const senderHTML = `
+    <div class="sender-block">
+      <div>${refName || "[Referee Name]"}</div>
+      <div>${refRole || "[Role]"}</div>
+      ${phone ? `<div>Tel: ${phone}</div>` : ""}
+      ${email ? `<div>Email: ${email}</div>` : ""}
+    </div>
+  `;
+
+  const recipientHTML = `
+    <div class="recipient-block">
+      <div>NHS Clinical Entrepreneur Team</div>
+      <div>c/o Anglia Ruskin University</div>
+      <div>Bishop Hall Lane</div>
+      <div>Chelmsford</div>
+      <div>Essex</div>
+      <div>CM1 1SQ</div>
+    </div>
+    <div class="recipient-subject">
+      Re: Letter of Support for Alex Monterubio – NHS Clinical Entrepreneur Programme Application
+    </div>
+  `;
+
+  const useCustom = (letterMode === 'custom');
+
+  const salutationHTML = useCustom
+    ? ""
+    : `<p class="sal">Dear NHS Clinical Entrepreneur Team,</p>`;
+
+  let bodyHTML;
+  if (useCustom){
+    if (customText.trim().length){
+      bodyHTML = paragraphsFromText(customText.trim());
+    } else {
+      bodyHTML = `<p><em>Please type your letter text in the “Your own wording” box.</em></p>`;
+    }
+  } else {
+    bodyHTML =
+      paragraphsFromText(opening) +
+      coreParas.map(p => `<p>${p}</p>`).join("") +
+      extra;
   }
-  function todayUKISO(){
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`; // YYYY-MM-DD
-  }
-  function toUKLong(dateISO){
-    try{
-      const d = new Date(dateISO);
-      if (isNaN(d)) return todayUK();
-      return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
-    }catch(e){ return todayUK(); }
-  }
 
-  let sigPad;
+  const sigHTML = signatureDataURL
+    ? `<div class="letter-sign"><img src="${signatureDataURL}" alt="Signature"/></div>`
+    : "";
 
-  function readForm(){
-    return {
-      refName: document.getElementById('ref_name').value.trim(),
-      refRole: document.getElementById('ref_role').value,
-      org: document.getElementById('org').value.trim(),
-      email: document.getElementById('ref_email').value.trim(),
-      relationship: document.getElementById('relationship').value,
-      comments: document.getElementById('comments').value,
-      dateLine: document.getElementById('date_line').value.trim()
-    };
-  }
-
-  function paragraphsFromText(text){
-    return text.split(/\n+/).map(t => t.trim()).filter(Boolean).map(t => `<p>${t}</p>`).join("");
-  }
-
-  function buildLetterHTML(data, signatureDataURL){
-    const {refName, refRole, org, email, comments, dateLine} = data;
-    const opening = openingsByRole[refRole] ||
-      "I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.";
-
-    const coreParas = [
-      "During this time, Alex demonstrated professionalism and commitment to maintaining patient safety and high standards of clinical care within a complex and fast-paced perioperative environment.",
-      "Although Alex’s time with us was brief and during a period of team transition, they approached their role with sincerity and a willingness to learn and adapt to the expectations of a large teaching hospital.",
-      "Alex is currently undertaking an Executive MBA, further developing their leadership, strategic, and innovation skills, qualities that align closely with the objectives of the NHS Clinical Entrepreneurs Programme.",
-      "I am pleased to support Alex Monterubio’s application to the NHS Clinical Entrepreneurs Programme, recognising their professionalism, reflection, and interest in developing innovative approaches to improving NHS services.",
-      "This letter is provided as a professional endorsement of Alex Monterubio’s suitability for the NHS Clinical Entrepreneurs Programme. It does not imply financial sponsorship."
-    ];
-
-    const extra = comments && comments.trim().length ? `<p><em>Additional remarks:</em> ${comments.trim()}</p>` : "";
-    const header = "Royal London Hospital, Barts Health NHS Trust";
-    const dateStr = dateLine ? toUKLong(dateLine) : todayUK();
-    const sigHTML = signatureDataURL ? `<div class="letter-sign"><img src="${signatureDataURL}" alt="Signature"/></div>` : "";
-
-    return `
-      <div class="paper" id="paper">
-        <div class="page">
-          <div class="letter-header">${header}</div>
-          <div class="letter-date">Date: ${dateStr}</div>
-          <div class="letter-body">
-            <p class="sal">To Whom It May Concern,</p>
-            ${paragraphsFromText(opening)}
-            ${coreParas.map(p => `<p>${p}</p>`).join("")}
-            ${extra}
-            <div class="letter-closing">
-              <p>Yours faithfully,</p>
-              ${sigHTML}
-              <div class="letter-signoff">
-                <div class="name">${refName || "[Name]"}</div>
-                <div>${refRole || "[Role]"}</div>
-                <div>${org || "Royal London Hospital, Barts Health NHS Trust"}</div>
-                <div>${email ? `Contact: ${email}` : ""}</div>
-              </div>
+  return `
+    <div class="paper" id="paper">
+      <div class="page">
+        <div class="header-row">
+          ${senderHTML}
+          ${headerHTML}
+        </div>
+        <div class="letter-date">Date: ${dateStr}</div>
+        ${recipientHTML}
+        <div class="letter-body">
+          ${salutationHTML}
+          ${bodyHTML}
+          <div class="letter-closing">
+            <p>Yours faithfully,</p>
+            ${sigHTML}
+            <div class="letter-signoff">
+              <div class="name">${refName || "[Name]"}</div>
+              <div>${refRole || "[Role]"}</div>
+              <div>${org || "Barts Health NHS Trust"}</div>
+              <div>${email ? `Contact: ${email}` : ""}</div>
             </div>
           </div>
         </div>
       </div>
-    `;
+    </div>
+  `;
+}
+
+function updatePreview(){
+  const data = readForm();
+  const sigDataURL = sigPad && !sigPad.isEmpty() ? sigPad.toDataURL("image/png") : "";
+  const html = buildLetterHTML(data, sigDataURL);
+  document.getElementById('preview').innerHTML = html;
+}
+
+function updateConditionalVisibility(){
+  const letterModeInput = document.querySelector('input[name="letter_mode"]:checked');
+  const mode = letterModeInput ? letterModeInput.value : 'template';
+  const commentsWrap = document.getElementById('comments-wrapper');
+  const customWrap   = document.getElementById('custom-wrapper');
+
+  if (mode === 'custom'){
+    commentsWrap.classList.add('hidden');
+    customWrap.classList.remove('hidden');
+  } else {
+    commentsWrap.classList.remove('hidden');
+    customWrap.classList.add('hidden');
   }
+}
 
-  function updatePreview(){
-    const data = readForm();
-    const sigDataURL = sigPad && !sigPad.isEmpty() ? sigPad.toDataURL("image/png") : "";
-    const html = buildLetterHTML(data, sigDataURL);
-    document.getElementById('preview').innerHTML = html;
+function formRef(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return `NHSCEP–${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+
+async function makePDF(){
+  const previewPaper = document.querySelector('#preview #paper');
+  if (!previewPaper){ throw new Error("Preview not ready"); }
+
+  const ref = formRef();
+  const footer = document.createElement('div');
+  footer.style.fontFamily = 'Arial, sans-serif';
+  footer.style.fontSize = '8pt';
+  footer.style.color = '#6b7280';
+  footer.style.marginTop = '16px';
+  footer.style.paddingTop = '8px';
+  footer.style.borderTop = '1px solid #e5e7eb';
+  footer.innerHTML = `
+    <div style="margin-bottom:4px;"><strong>Reference:</strong> ${ref}</div>
+    <div>This letter was generated through the NHS Clinical Entrepreneurs Programme Digital Endorsement Form developed by Alex Monterubio. Submitted electronically via https://www.nhscep.com. No patient or confidential data was collected.</div>
+  `;
+  previewPaper.appendChild(footer);
+
+  const canvas = await html2canvas(previewPaper, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+  footer.remove();
+
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const imgWidth = pageWidth;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+  const blob = pdf.output('blob');
+  const dataURI = pdf.output('datauristring');
+  const filename = `Letter_of_Support_${(document.getElementById('ref_role').value || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
+  return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
+}
+
+async function sendEmails(params){
+  const { refName, refEmail, refRole, pdfDataURI, filename, refCode } = params;
+  if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID){
+    console.warn("EmailJS not configured — skipping send.");
+    return;
   }
+  const base64 = pdfDataURI.split(',')[1];
 
-  function formRef(){
-    const d = new Date();
-    const pad = n => String(n).padStart(2, "0");
-    return `NHSCEP–${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  const payload = {
+    referee_name: refName,
+    referee_role: refRole,
+    referee_email: refEmail,
+    alex_email: ALEX_EMAIL,
+    subject: `NHS CEP Letter of Support – ${refName} – Ref: ${refCode}`,
+    message: "Please find the attached letter of support PDF. A copy has been sent to both the referee and to Alex Monterubio for submission to NHS CEP.",
+    pdf_filename: filename,
+    pdf_base64: base64
+  };
+
+  try{
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { ...payload, to_email: ALEX_EMAIL });
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { ...payload, to_email: refEmail });
+  }catch(e){
+    console.error("EmailJS send failed:", e);
   }
+}
 
-  async function makePDF(){
-    // Render the styled HTML preview to canvas for perfect fidelity
-    const previewPaper = document.querySelector('#preview #paper');
-    if (!previewPaper){ throw new Error("Preview not ready"); }
+function showToast(){
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 7000);
+}
 
-    // Add a temporary footer element (only for PDF capture)
-    const ref = formRef();
-    const footer = document.createElement('div');
-    footer.style.fontFamily = 'Inter, -apple-system, sans-serif';
-    footer.style.fontSize = '8pt';
-    footer.style.color = '#6b7280';
-    footer.style.marginTop = '16px';
-    footer.style.paddingTop = '8px';
-    footer.style.borderTop = '1px solid #e5e7eb';
-    footer.innerHTML = `
-      <div style="margin-bottom:4px;"><strong>Reference:</strong> ${ref}</div>
-      <div>This letter was generated through the NHS Clinical Entrepreneurs Programme Digital Endorsement Form developed by Alex Monterubio. Submitted electronically via https://www.nhscep.com. No patient or confidential data was collected.</div>
-    `;
-    previewPaper.appendChild(footer);
+async function handleSubmit(){
+  const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
 
-    const canvas = await html2canvas(previewPaper, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-    footer.remove();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(pdfBlob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(a.href);
+  a.remove();
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const imgWidth = pageWidth;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
+  const data = readForm();
+  await sendEmails({
+    refName: data.refName || "Referee",
+    refEmail: data.email,
+    refRole: data.refRole || "",
+    pdfDataURI,
+    filename,
+    refCode: ref
+  });
 
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+  document.getElementById('endorsement-form').reset();
+  if (sigPad){ sigPad.clear(); }
+  const dateInput = document.getElementById('date_line');
+  dateInput.type = 'date';
+  dateInput.value = todayUKISO();
+  updateConditionalVisibility();
+  updatePreview();
+  showToast();
+}
 
-    const blob = pdf.output('blob');
-    const dataURI = pdf.output('datauristring');
-    const filename = `Letter_of_Support_${(document.getElementById('ref_role').value || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
-    return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
-  }
+function printLetter(){
+  window.print();
+}
 
-  async function sendEmails(params){
-    const { refName, refEmail, refRole, pdfDataURI, filename, refCode } = params;
-    if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID){
-      console.warn("EmailJS not configured — skipping send.");
-      return;
-    }
-    const base64 = pdfDataURI.split(',')[1]; // strip data: prefix
+window.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('signature-canvas');
+  const resizeCanvas = () => {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+    if (sigPad) sigPad.clear();
+  };
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  sigPad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,1)', penColor: 'rgba(11,87,208,1)' });
 
-    const payload = {
-      referee_name: refName,
-      referee_role: refRole,
-      referee_email: refEmail,
-      alex_email: ALEX_EMAIL,
-      subject: `NHS CEP Letter of Support – ${refName} – Ref: ${refCode}`,
-      message: "Please find the attached letter of support PDF. A copy has been sent to both the referee and to Alex Monterubio for submission to NHS CEP.",
-      pdf_filename: filename,
-      pdf_base64: base64
-    };
-
-    try{
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { ...payload, to_email: ALEX_EMAIL });
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { ...payload, to_email: refEmail });
-    }catch(e){
-      console.error("EmailJS send failed:", e);
-    }
-  }
-
-  function showToast(){
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 7000);
-  }
-
-  async function handleSubmit(){
-    const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
-
-    // Auto-download for referee
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(pdfBlob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(a.href);
-    a.remove();
-
-    const data = readForm();
-    await sendEmails({
-      refName: data.refName || "Referee",
-      refEmail: data.email,
-      refRole: data.refRole || "",
-      pdfDataURI,
-      filename,
-      refCode: ref
-    });
-
-    // Reset
-    document.getElementById('endorsement-form').reset();
-    if (sigPad){ sigPad.clear(); }
-    // Refill date with today after reset
-    const dateInput = document.getElementById('date_line');
+  const dateInput = document.getElementById('date_line');
+  if (dateInput){
     dateInput.type = 'date';
-    dateInput.value = todayUKISO();
-    updatePreview();
-
-    // Show professional toast (no browser alert)
-    showToast();
+    if (!dateInput.value){ dateInput.value = todayUKISO(); }
   }
 
-  function printLetter(){
-    window.print();
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    // Init signature pad
-    const canvas = document.getElementById('signature-canvas');
-    const resizeCanvas = () => {
-      const ratio = Math.max(window.devicePixelRatio || 1, 1);
-      canvas.width = canvas.offsetWidth * ratio;
-      canvas.height = canvas.offsetHeight * ratio;
-      canvas.getContext("2d").scale(ratio, ratio);
-      if (sigPad) sigPad.clear();
-    };
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    sigPad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,1)', penColor: 'rgba(11,87,208,1)' });
-
-    // Prefill date input as date picker with today's date
-    const dateInput = document.getElementById('date_line');
-    if (dateInput){
-      dateInput.type = 'date';
-      if (!dateInput.value){ dateInput.value = todayUKISO(); }
-    }
-
-    // Live preview
-    document.getElementById('endorsement-form').addEventListener('input', updatePreview);
+  document.getElementById('endorsement-form').addEventListener('input', () => {
     updatePreview();
   });
+
+  const letterModeInputs = document.querySelectorAll('input[name="letter_mode"]');
+  letterModeInputs.forEach(r => r.addEventListener('change', () => {
+    updateConditionalVisibility();
+    updatePreview();
+  }));
+
+  updateConditionalVisibility();
+  updatePreview();
+  loadHospitalDirectory();
+
+  const hospitalInput = document.getElementById('hospital_name');
+  if (hospitalInput){
+    hospitalInput.addEventListener('change', () => {
+      const name = hospitalInput.value;
+      const match = findHospitalMatch(name);
+      if (!match){
+        updatePreview();
+        return;
+      }
+
+      const orgInput = document.getElementById('org');
+      if (orgInput && !orgInput.value.trim()){
+        orgInput.value = match.trustName;
+      }
+
+      hospitalInput.value = match.hospitalName;
+
+      const addr1 = document.getElementById('hospital_addr1');
+      const addr2 = document.getElementById('hospital_addr2');
+      const city  = document.getElementById('hospital_city');
+      const pc    = document.getElementById('hospital_postcode');
+
+      if (addr1) addr1.value = match.addressLine1 || "";
+      if (addr2) addr2.value = match.addressLine2 || "";
+      if (city)  city.value  = match.city || "";
+      if (pc)    pc.value    = match.postcode || "";
+
+      updatePreview();
+    });
+  }
+});
 </script>
 </head>
 <body>
@@ -433,14 +849,20 @@ button.ghost:hover{ background:#f9fafb; }
             </div>
 
             <div>
-              <label for="org">Your organisation</label>
-              <input id="org" name="org" placeholder="Royal London Hospital, Barts Health NHS Trust"/>
-              <small class="hint">Leave blank to use default: Royal London Hospital</small>
+              <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
+              <input id="org" name="org" placeholder="Barts Health NHS Trust"/>
+              <small class="hint">Anything after “NHS” (e.g. NHS Trust / NHS Foundation Trust) will appear as the blue sub-header.</small>
             </div>
             <div>
               <label for="ref_email">Your work email *</label>
               <input id="ref_email" name="ref_email" type="email" required placeholder="your.name@nhs.net"/>
-              <small class="hint">You'll receive a copy of the letter at this address</small>
+              <small class="hint">You'll receive a copy of the letter at this address.</small>
+            </div>
+
+            <div>
+              <label for="ref_phone">Your contact number (optional)</label>
+              <input id="ref_phone" name="ref_phone" placeholder="020 1234 5678"/>
+              <small class="hint">Used for the “Tel:” line in the sender block.</small>
             </div>
 
             <div class="col-2">
@@ -454,14 +876,75 @@ button.ghost:hover{ background:#f9fafb; }
                 <option>Other</option>
               </select>
             </div>
+
+            <!-- Hospital + Address -->
+            <div class="col-2">
+              <label for="hospital_name">Hospital name</label>
+              <input id="hospital_name" name="hospital_name" placeholder="Royal London Hospital"/>
+              <small class="hint">
+                If recognised, the Trust and address will auto-fill.
+              </small>
+            </div>
+
+            <div class="col-2" style="margin-top:8px;">
+              <label>Hospital address (editable)</label>
+              <div class="grid">
+                <div><input id="hospital_addr1" name="hospital_addr1" placeholder="Whitechapel Road"/></div>
+                <div><input id="hospital_addr2" name="hospital_addr2" placeholder="Whitechapel"/></div>
+                <div><input id="hospital_city" name="hospital_city" placeholder="London"/></div>
+                <div><input id="hospital_postcode" name="hospital_postcode" placeholder="E1 1FR"/></div>
+              </div>
+              <small class="hint">
+                These appear under the hospital name in the top-right header.
+              </small>
+            </div>
+
+            <!-- NHS HEADER TOGGLE -->
+            <div class="col-2" style="margin-top:8px;">
+              <label class="inline-option" style="margin-top:0;">
+                <input type="checkbox" id="use_header" name="use_header" />
+                <span>Include NHS header with logo and hospital details</span>
+              </label>
+              <small class="hint">
+                When ticked, the letter will show the NHS logo, Trust name and hospital address in the top-right, like your Barts Health letterhead.
+              </small>
+            </div>
           </div>
 
-          <div class="section-title">Additional Comments (Optional)</div>
+          <!-- LETTER CONTENT MODE -->
+          <div class="section-title">Letter Content</div>
           <div class="grid">
             <div class="col-2">
-              <label for="comments">Add any specific remarks about Alex's work or suitability</label>
-              <textarea id="comments" name="comments" placeholder="Example: Alex worked with us for five months. During this time they demonstrated professional conduct, attention to patient safety, and a willingness to learn."></textarea>
-              <small class="hint">Keep it brief (1-3 sentences). Please avoid any confidential patient information.</small>
+              <label>How would you like to write this letter?</label>
+              <label class="inline-option">
+                <input type="radio" name="letter_mode" value="template" checked>
+                <span>Use suggested wording (template)</span>
+              </label>
+              <label class="inline-option">
+                <input type="radio" name="letter_mode" value="custom">
+                <span>I prefer to write my own wording</span>
+              </label>
+              <small class="hint">
+                Template mode uses standard paragraphs based on your role. Custom mode lets you write the full body yourself.
+              </small>
+            </div>
+
+            <!-- Template extra comments -->
+            <div class="col-2" id="comments-wrapper">
+              <label for="comments">Additional comments (template mode)</label>
+              <textarea id="comments" name="comments" placeholder="Optional – 1–3 sentences to add to the standard wording."></textarea>
+              <small class="hint">
+                Used only when “Use suggested wording” is selected.
+              </small>
+            </div>
+
+            <!-- Custom full text -->
+            <div class="col-2 hidden" id="custom-wrapper">
+              <label for="custom_text">Your own wording (custom mode)</label>
+              <textarea id="custom_text" name="custom_text" placeholder="Type the full body of your letter here if you prefer your own wording. You can include your own salutation if you wish."></textarea>
+              <small class="hint">
+                When “I prefer to write my own wording” is selected, this replaces the standard paragraphs.
+              </small>
             </div>
 
             <div>
@@ -472,7 +955,6 @@ button.ghost:hover{ background:#f9fafb; }
           </div>
 
           <div class="section-title">Sign Your Letter</div>
-          <!-- Signature pad -->
           <div class="col-2">
             <label>Draw your signature below</label>
             <div class="sig-wrap">
@@ -486,7 +968,6 @@ button.ghost:hover{ background:#f9fafb; }
             </div>
           </div>
 
-          <!-- Consent -->
           <div style="margin-top:16px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">
             <label style="display:flex; align-items:start; gap:10px; margin:0;">
               <input type="checkbox" required style="width:auto; margin-top:3px;"/>
@@ -500,7 +981,7 @@ button.ghost:hover{ background:#f9fafb; }
             <button type="button" class="secondary" onclick="printLetter()">Print Preview</button>
             <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
           </div>
-          <small class="hint">When you submit: A PDF will be downloaded to your computer and emailed to both you and Alex. No data is stored on any server.</small>
+          <small class="hint">On submit: a PDF will download to your computer and be emailed to both you and Alex.</small>
         </form>
       </div>
 
@@ -513,7 +994,6 @@ button.ghost:hover{ background:#f9fafb; }
     </main>
   </div>
 
-  <!-- Professional toast banner (no logo) -->
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
     <h4>Thank you for your endorsement</h4>
     <p>Your digital letter of support has been submitted successfully.</p>
