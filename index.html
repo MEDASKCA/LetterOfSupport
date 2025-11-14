@@ -59,6 +59,7 @@ main{
 .panel{
   padding:28px 28px;
   overflow:auto;
+  max-height:calc(100vh - 100px); /* Ensure scrolling for long content */
 }
 .left{ border-right:1px solid var(--line); }
 
@@ -403,11 +404,12 @@ button.ghost:hover{ background:#f9fafb; }
   .paper{
     transform:scale(0.7);
     transform-origin:top center;
-    margin:0 auto -80mm;
+    margin:0 auto;
   }
   .preview-wrap{
     display:flex;
     justify-content:center;
+    overflow:visible;
   }
 }
 
@@ -484,6 +486,7 @@ button.ghost:hover{ background:#f9fafb; }
     display:flex;
     justify-content:center;
     align-items:flex-start;
+    overflow:visible;
   }
   .paper{
     /* Keep exact A4 dimensions for correct layout */
@@ -492,7 +495,7 @@ button.ghost:hover{ background:#f9fafb; }
     /* Scale down to fit mobile screen width */
     transform:scale(0.48);
     transform-origin:top center;
-    margin:0 0 -150mm 0; /* Compensate for scaled height */
+    margin:0;
   }
 
   /* Signature canvas for mobile */
@@ -564,7 +567,7 @@ button.ghost:hover{ background:#f9fafb; }
   /* Smaller scale for very small screens */
   .paper{
     transform:scale(0.38);
-    margin-bottom:-180mm;
+    margin:0;
   }
 }
 
@@ -950,7 +953,7 @@ function buildSkeletonLetterHTML(data){
   const headerHTML = useHeader ? `
     <div class="header-block">
       <div class="trust-header">
-        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
+        <img src="https://raw.githubusercontent.com/MEDASKCA/LetterOfSupport/main/nhs-logo.png" alt="NHS logo" class="nhs-logo-img" crossorigin="anonymous"/>
         ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
         ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
         ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
@@ -1055,7 +1058,7 @@ function buildLetterHTML(data, signatureDataURL){
   const headerHTML = useHeader ? `
     <div class="header-block">
       <div class="trust-header">
-        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
+        <img src="https://raw.githubusercontent.com/MEDASKCA/LetterOfSupport/main/nhs-logo.png" alt="NHS logo" class="nhs-logo-img" crossorigin="anonymous"/>
         ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
         ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
         ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
@@ -1362,19 +1365,35 @@ async function makePDF(){
   previewPaper.appendChild(footer);
 
   const canvas = await html2canvas(previewPaper, {
-    scale: 2,
-    useCORS: false,
-    backgroundColor: '#ffffff'
+    scale: 1.75,
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: '#ffffff',
+    logging: false
   });
   footer.remove();
 
-  const imgData = canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
   const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  // Calculate dimensions to fit on A4 page
   const imgWidth = pageWidth;
   const imgHeight = canvas.height * imgWidth / canvas.width;
 
-  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+  // If image height is larger than page, scale it down to fit
+  if (imgHeight > pageHeight) {
+    const scaleFactor = pageHeight / imgHeight;
+    const scaledWidth = imgWidth * scaleFactor;
+    const scaledHeight = pageHeight;
+    // Center horizontally if scaled
+    const xOffset = (pageWidth - scaledWidth) / 2;
+    pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, scaledHeight);
+  } else {
+    // Fits on one page
+    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+  }
 
   const blob = pdf.output('blob');
   const dataURI = pdf.output('datauristring');
@@ -1384,15 +1403,26 @@ async function makePDF(){
 
 // Call your Vercel/Resend API (optional)
 async function sendToBackend(payload){
-  if (!BACKEND_ENDPOINT) return;
+  // Only send to backend if running on a server (not file://)
+  if (!BACKEND_ENDPOINT || window.location.protocol === 'file:') {
+    console.log('Running locally - skipping email send. Deploy to Vercel to enable email functionality.');
+    return;
+  }
+
   try{
-    await fetch(BACKEND_ENDPOINT, {
+    const response = await fetch(BACKEND_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
+    if (!response.ok) {
+      console.warn('Email send failed with status:', response.status);
+    } else {
+      console.log('Emails sent successfully via backend');
+    }
   } catch (e){
-    console.error("Backend send failed:", e);
+    console.warn('Could not send emails - make sure you are running on Vercel with configured API endpoints');
   }
 }
 
@@ -2041,7 +2071,7 @@ window.addEventListener('DOMContentLoaded', () => {
               <button type="button" class="ghost" onclick="printLetter()">Print Preview</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
-            <small class="hint">On submit: a PDF will download to your computer and can be emailed via your configured backend (e.g., Resend on Vercel).</small>
+            <small class="hint">On submit, the PDF will download to your device and an email copy will be sent to both you and Alex.</small>
           </div>
         </form>
       </div>
