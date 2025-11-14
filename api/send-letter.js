@@ -36,6 +36,11 @@ export default async function handler(req, res) {
 
     // Email to referee
     const refereeEmailBody = `
+      <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e5e7eb;">
+        <img src="https://github.com/MEDASKCA/OPS/raw/refs/heads/main/logo-medaskca.png" alt="MEDASKCA" style="height: 50px; width: auto; display: inline-block;"/>
+        <div style="font-size: 11px; color: #6b7280; margin-top: 6px; letter-spacing: 1px; font-weight: 400;">Reimagined</div>
+      </div>
+
       <p>Dear ${referee.name},</p>
 
       <p>Thank you for providing your letter of support for my application to the NHS Clinical Entrepreneur Programme.</p>
