@@ -267,7 +267,7 @@ button.ghost:hover{ background:#f9fafb; }
 /* Sender, header, date, recipient, subject */
 .sender-block{
   font-family: Arial, sans-serif;
-  font-size:12px;
+  font-size:14px;
   line-height:1.4;
   text-align:left;
   margin: 0 0 4px 0;
@@ -284,30 +284,35 @@ button.ghost:hover{ background:#f9fafb; }
   font-family: Arial, sans-serif;
 }
 .trust-header { text-align: right; }
-.trust-header img {
-  display: block;
-  max-width: 110px;
-  margin-left: auto;
+
+/* NHS logo image */
+.nhs-logo-img{
+  display:block;
+  width:72px;      /* adjust if you want it bigger/smaller */
+  height:auto;
+  margin-left:auto;
 }
+
+/* trust text bits */
 .trust-header .trust-name {
   font-size: 18px;
   font-weight: bold;
-  margin-top: 4px;
+  margin-top: 6px;
   color: #000;
 }
 .trust-header .trust-sub {
   font-size: 12px;
   font-weight: bold;
-  color: #005EB8;
+  color: #1D8FDB;
 }
 .trust-header .trust-hospital {
   font-size: 14px;
   font-weight: 600;
   color: #000;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 .trust-header .trust-address {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 400;
   color: #000;
   margin-top: 6px;
@@ -315,6 +320,7 @@ button.ghost:hover{ background:#f9fafb; }
 }
 
 .letter-date{
+font-size: 12pt;
   margin-top: 12px;
   margin-bottom: 12px;
   text-align:left;
@@ -394,10 +400,9 @@ button.ghost:hover{ background:#f9fafb; }
 }
 </style>
 
-<!-- external libs -->
+<!-- external libs for PDF & canvas -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
 <script>
 // --- CONFIG: adjust if you want to call your Vercel API/Resend endpoint ---
@@ -472,6 +477,10 @@ const openingsByRole = {
     "In my role as Deputy Matron, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
   "Practice Development Nurse":
     "In my role as Practice Development Nurse, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Senior Team Leader":
+    "In my capacity as a Senior Team Leader in theatres, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Associate Team Leader":
+    "As an Associate Team Leader within the perioperative service, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
 
   // Medical staff
   "Consultant Anaesthetist":
@@ -554,7 +563,7 @@ function toUKLong(dateISO){
   }catch(e){ return todayUK(); }
 }
 
-let sigPad;
+let sigPad; // custom wrapper
 let currentStep = 1;
 const totalSteps = 4;
 
@@ -689,6 +698,17 @@ function validateForm(){
     }
   }
 
+  // require a drawn signature
+  if (sigPad && sigPad.isEmpty()){
+    formValid = false;
+    alert("Please provide your signature before submitting.");
+    const stepEl = document.querySelector('.form-step[data-step="4"]');
+    if (stepEl){
+      showStep(4);
+      stepEl.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }
+
   if (!formValid && firstInvalidElement){
     const stepEl = firstInvalidElement.closest('.form-step');
     if (stepEl && stepEl.dataset.step){
@@ -747,7 +767,7 @@ function buildSkeletonLetterHTML(data){
   const headerHTML = useHeader ? `
     <div class="header-block">
       <div class="trust-header">
-        <img src="https://logos-world.net/wp-content/uploads/2023/08/NHS-Logo.jpg" alt="NHS Logo" />
+        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
         ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
         ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
         ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
@@ -852,7 +872,7 @@ function buildLetterHTML(data, signatureDataURL){
   const headerHTML = useHeader ? `
     <div class="header-block">
       <div class="trust-header">
-        <img src="https://logos-world.net/wp-content/uploads/2023/08/NHS-Logo.jpg" alt="NHS Logo" />
+        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
         ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
         ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
         ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
@@ -896,7 +916,7 @@ function buildLetterHTML(data, signatureDataURL){
     } else {
       switch (qDurationSelect){
         case "less than six months":
-          durationPhrase = ""; // we won't use it directly in that case
+          durationPhrase = ""; // handled with "Although..."
           break;
         case "between six and twelve months":
           durationPhrase = "the past six to twelve months";
@@ -1121,7 +1141,7 @@ function updatePreview(){
   }
 
   // 3) Once any questions answered or signature added -> full letter
-  const sigDataURL = hasSignature ? sigPad.toDataURL("image/png") : "";
+  const sigDataURL = hasSignature ? sigPad.toDataURL() : "";
   const html = buildLetterHTML(data, sigDataURL);
   preview.innerHTML = html;
 }
@@ -1154,7 +1174,11 @@ async function makePDF(){
   `;
   previewPaper.appendChild(footer);
 
-  const canvas = await html2canvas(previewPaper, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+  const canvas = await html2canvas(previewPaper, {
+    scale: 2,
+    useCORS: false,
+    backgroundColor: '#ffffff'
+  });
   footer.remove();
 
   const imgData = canvas.toDataURL('image/png');
@@ -1194,6 +1218,9 @@ function showToast(){
 
 async function handleSubmit(){
   if (!validateForm()) { return; }
+
+  // Make sure preview (with signature) is up to date
+  updatePreview();
 
   const data = readForm();
   const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
@@ -1276,25 +1303,109 @@ function showStep(step){
   if (leftPanel && leftPanel.scrollTo){
     leftPanel.scrollTo({ top:0, behavior:'smooth' });
   }
+
+  // when going to step 4, ensure the signature canvas is sized
+  if (step === 4) {
+    const event = new Event('resize');
+    window.dispatchEvent(event);
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // --- Signature: plain canvas drawing (no external library) ---
   const canvas = document.getElementById('signature-canvas');
-  const resizeCanvas = () => {
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-    if (sigPad) sigPad.clear();
-    updatePreview();
-  };
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-  sigPad = new SignaturePad(canvas, {
-    backgroundColor: 'rgba(255,255,255,1)',
-    penColor: 'rgba(0,0,0,1)'   // black ink
-  });
+  const ctx = canvas.getContext('2d');
 
+  function resizeSignatureCanvas(){
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return; // don't resize if hidden
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#000000';
+  }
+
+  sigPad = {
+    _empty: true,
+    clear(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this._empty = true;
+    },
+    isEmpty(){
+      return this._empty;
+    },
+    toDataURL(){
+      return canvas.toDataURL('image/png');
+    }
+  };
+
+  let drawing = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  function getPos(evt){
+    const rect = canvas.getBoundingClientRect();
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  function startDraw(evt){
+    evt.preventDefault();
+    resizeSignatureCanvas(); // ensure size when first used
+    const pos = getPos(evt);
+    drawing = true;
+    lastX = pos.x;
+    lastY = pos.y;
+    sigPad._empty = false;
+  }
+
+  function draw(evt){
+    if (!drawing) return;
+    evt.preventDefault();
+    const pos = getPos(evt);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function endDraw(evt){
+    if (!drawing) return;
+    evt.preventDefault();
+    drawing = false;
+    updatePreview();
+  }
+
+  // Pointer/mouse
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+
+  // Touch
+  canvas.addEventListener('touchstart', startDraw, { passive:false });
+  canvas.addEventListener('touchmove', draw, { passive:false });
+  canvas.addEventListener('touchend', endDraw, { passive:false });
+  canvas.addEventListener('touchcancel', endDraw, { passive:false });
+
+  const clearBtn = document.getElementById('clear-signature-btn');
+  if (clearBtn){
+    clearBtn.addEventListener('click', () => {
+      sigPad.clear();
+      updatePreview();
+    });
+  }
+
+  // Date default
   const dateInput = document.getElementById('date_line');
   if (dateInput){
     dateInput.type = 'date';
@@ -1433,77 +1544,78 @@ window.addEventListener('DOMContentLoaded', () => {
                   <option value="">Please select...</option>
 
                   <!-- Professional / Nursing Leadership -->
-  <optgroup label="Professional / Nursing Leadership">
-    <option>Head of Nursing</option>
-    <option>Associate Director of Nursing</option>
-    <option>Matron</option>
-    <option>Deputy Matron</option>
-    <option>Practice Development Nurse</option>
-  </optgroup>
+                  <optgroup label="Professional / Nursing Leadership">
+                    <option>Head of Nursing</option>
+                    <option>Associate Director of Nursing</option>
+                    <option>Matron</option>
+                    <option>Deputy Matron</option>
+                    <option>Practice Development Nurse</option>
+                    <option>Senior Team Leader</option>
+                    <option>Associate Team Leader</option>
+                  </optgroup>
 
-  <!-- Divisional / Senior Management -->
-  <optgroup label="Divisional / Senior Management">
-    <option>Divisional Operations Director</option>
-    <option>Divisional Nurse Director</option>
-    <option>Divisional/Clinical Director</option>
-    <option>Divisional General Manager</option>
-  </optgroup>
+                  <!-- Divisional / Senior Management -->
+                  <optgroup label="Divisional / Senior Management">
+                    <option>Divisional Operations Director</option>
+                    <option>Divisional Nurse Director</option>
+                    <option>Divisional/Clinical Director</option>
+                    <option>Divisional General Manager</option>
+                  </optgroup>
 
-  <!-- Service Management -->
-  <optgroup label="Service Management">
-    <option>General Manager</option>
-    <option>Deputy General Manager</option>
-    <option>Service Manager</option>
-    <option>Service Delivery Manager</option>
-    <option>Associate Service Manager</option>
-  </optgroup>
+                  <!-- Service Management -->
+                  <optgroup label="Service Management">
+                    <option>General Manager</option>
+                    <option>Deputy General Manager</option>
+                    <option>Service Manager</option>
+                    <option>Service Delivery Manager</option>
+                    <option>Associate Service Manager</option>
+                  </optgroup>
 
-  <!-- Operational Management -->
-  <optgroup label="Operational Management">
-    <option>Head of Perioperative Services</option>
-    <option>Perioperative Services Manager</option>
-    <option>Operations Manager</option>
-    <option>Deputy Operations Manager</option>
-    <option>Site Manager</option>
-  </optgroup>
+                  <!-- Operational Management -->
+                  <optgroup label="Operational Management">
+                    <option>Head of Perioperative Services</option>
+                    <option>Perioperative Services Manager</option>
+                    <option>Operations Manager</option>
+                    <option>Deputy Operations Manager</option>
+                    <option>Site Manager</option>
+                  </optgroup>
 
-  <!-- Medical Staff -->
-  <optgroup label="Medical Staff">
-    <option>Consultant Surgeon</option>
-    <option>Consultant Anaesthetist</option>
-    <option>Senior Registrar</option>
-    <option>Surgical Fellow</option>
-    <option>Anaesthetic Fellow</option>
-    <option>Specialty Doctor / SAS Doctor</option>
-  </optgroup>
+                  <!-- Medical Staff -->
+                  <optgroup label="Medical Staff">
+                    <option>Consultant Surgeon</option>
+                    <option>Consultant Anaesthetist</option>
+                    <option>Senior Registrar</option>
+                    <option>Surgical Fellow</option>
+                    <option>Anaesthetic Fellow</option>
+                    <option>Specialty Doctor / SAS Doctor</option>
+                  </optgroup>
 
-  <!-- Executive Leadership -->
-  <optgroup label="Executive Leadership">
-    <option>Chief Executive Officer</option>
-    <option>Chief Operating Officer (COO)</option>
-    <option>Medical Director</option>
-    <option>Chief Nurse</option>
-    <option>Director of Nursing</option>
-  </optgroup>
+                  <!-- Executive Leadership -->
+                  <optgroup label="Executive Leadership">
+                    <option>Chief Executive Officer</option>
+                    <option>Chief Operating Officer (COO)</option>
+                    <option>Medical Director</option>
+                    <option>Chief Nurse</option>
+                    <option>Director of Nursing</option>
+                  </optgroup>
 
-  <!-- Digital & Information Leadership -->
-  <optgroup label="Digital & Information Leadership">
-    <option>Chief Digital Information Officer (CDIO)</option>
-    <option>Chief Information Officer (CIO)</option>
-    <option>Chief Nursing Information Officer (CNIO)</option>
-    <option>Chief Clinical Information Officer (CCIO)</option>
-  </optgroup>
+                  <!-- Digital & Information Leadership -->
+                  <optgroup label="Digital & Information Leadership">
+                    <option>Chief Digital Information Officer (CDIO)</option>
+                    <option>Chief Information Officer (CIO)</option>
+                    <option>Chief Nursing Information Officer (CNIO)</option>
+                    <option>Chief Clinical Information Officer (CCIO)</option>
+                  </optgroup>
 
-  <!-- External / Custom -->
-  <optgroup label="Other">
-    <option>Other</option>
-  </optgroup>
-</select>
-
-<div id="ref_role_other_wrap" class="hidden" style="margin-top:6px;">
-  <input id="ref_role_other" name="ref_role_other" placeholder="Please specify your job title"/>
-  <small class="hint">For unique job titles or roles not listed above.</small>
-</div>
+                  <!-- External / Custom -->
+                  <optgroup label="Other">
+                    <option>Other</option>
+                  </optgroup>
+                </select>
+                <div id="ref_role_other_wrap" class="hidden" style="margin-top:6px;">
+                  <input id="ref_role_other" name="ref_role_other" placeholder="Please specify your job title"/>
+                  <small class="hint">For unique job titles or roles not listed above.</small>
+                </div>
               </div>
 
               <div>
@@ -1707,7 +1819,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 <canvas id="signature-canvas" class="sig-canvas"></canvas>
                 <div class="sig-row">
                   <div class="sig-actions">
-                    <button type="button" class="ghost" onclick="sigPad.clear(); updatePreview();">Clear</button>
+                    <button type="button" id="clear-signature-btn" class="ghost">Clear</button>
                   </div>
                   <small class="hint">Use your mouse, trackpad, or touchscreen to sign</small>
                 </div>
