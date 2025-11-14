@@ -1414,11 +1414,16 @@ async function makePDF(){
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Server-side PDF generation failed');
+      const errorData = await response.json().catch(() => ({ message: 'Unknown server error' }));
+      console.error('Server error:', errorData);
+      throw new Error(errorData.message || errorData.error || 'Server-side PDF generation failed');
     }
 
     const result = await response.json();
+
+    if (!result.pdfBase64) {
+      throw new Error('Server did not return PDF data');
+    }
 
     // Convert base64 to blob for download
     const byteCharacters = atob(result.pdfBase64);

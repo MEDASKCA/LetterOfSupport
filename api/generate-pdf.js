@@ -19,10 +19,11 @@ export default async function handler(req, res) {
 
     // Launch Puppeteer with chromium
     const browser = await puppeteer.launch({
-      args: chromium.args,
+      args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();
@@ -68,7 +69,8 @@ export default async function handler(req, res) {
     return res.status(500).json({
       error: 'Failed to generate PDF',
       message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      stack: error.stack,
+      details: String(error)
     });
   }
 }
