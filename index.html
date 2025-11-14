@@ -1175,19 +1175,19 @@ async function makePDF(){
   previewPaper.appendChild(footer);
 
   const canvas = await html2canvas(previewPaper, {
-    scale: 2,
+    scale: 1.5,
     useCORS: false,
     backgroundColor: '#ffffff'
   });
   footer.remove();
 
-  const imgData = canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL('image/jpeg', 0.85);
   const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const imgWidth = pageWidth;
   const imgHeight = canvas.height * imgWidth / canvas.width;
 
-  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+  pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
 
   const blob = pdf.output('blob');
   const dataURI = pdf.output('datauristring');
