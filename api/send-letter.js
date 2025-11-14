@@ -38,18 +38,20 @@ export default async function handler(req, res) {
     const refereeEmailBody = `
       <p>Dear ${referee.name},</p>
 
-      <p>Thank you for providing your letter of support for Alex Monterubio's application to the NHS Clinical Entrepreneurs Programme.</p>
+      <p>Thank you for providing your letter of support for my application to the NHS Clinical Entrepreneur Programme.</p>
 
-      <p>Please find the signed letter attached as a PDF. A copy has also been sent to Alex Monterubio for submission.</p>
+      <p>Please find the signed letter attached as a PDF. A copy has also been sent to me for submission.</p>
+
+      <p>I am hopeful that my innovation will be accepted into the programme, and I look forward to the possibility of collaborating with you in the future as the work continues to progress.</p>
 
       ${refCode ? `<p><strong>Reference Code:</strong> ${refCode}</p>` : ''}
 
-      <p>This letter was generated through the NHS CEP Digital Endorsement Form developed by Alex Monterubio.</p>
+      <p>If you have any questions, please feel free to contact me at ${ALEX_EMAIL}.</p>
 
-      <p>If you have any questions, please contact Alex at ${ALEX_EMAIL}.</p>
-
-      <p>With appreciation,<br/>
-      Alex Monterubio</p>
+      <p>With sincere appreciation,<br/>
+      <strong>Alex Monterubio</strong><br/>
+      NHS Clinical Entrepreneur Programme Candidate / Executive MBA Student<br/>
+      Founder, <a href="https://medaskca.com" target="_blank" style="color: #2563eb; text-decoration: none;">MEDASKCA™</a></p>
     `;
 
     // Email to Alex
