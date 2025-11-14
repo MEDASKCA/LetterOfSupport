@@ -1,0 +1,16 @@
+{
+  "name": "letter-of-support",
+  "version": "1.0.0",
+  "description": "NHS CEP Letter of Support Form with Resend Email Integration",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "resend": "^3.2.0"
+  },
+  "devDependencies": {},
+  "keywords": ["nhs", "cep", "letter", "support", "resend"],
+  "author": "Alex Monterubio",
+  "license": "MIT"
+}
