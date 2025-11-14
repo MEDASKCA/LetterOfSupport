@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const ALEX_EMAIL = 'alexmonterubio@live.com';
+const ALEX_EMAIL = process.env.ALEX_EMAIL || 'amonterubio@medaskca.com';
 
 export default async function handler(req, res) {
   // Only allow POST requests
