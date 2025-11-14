@@ -533,6 +533,59 @@ button.ghost:hover{ background:#f9fafb; }
   }
 }
 
+/* Browser redirect banner */
+.browser-warning{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  background:#dc2626;
+  color:#fff;
+  padding:16px;
+  text-align:center;
+  z-index:99999;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  display:none;
+}
+.browser-warning.show{
+  display:block;
+}
+.browser-warning h3{
+  margin:0 0 8px;
+  font-size:16px;
+  font-weight:700;
+}
+.browser-warning p{
+  margin:0 0 12px;
+  font-size:14px;
+  line-height:1.4;
+}
+.browser-warning button{
+  background:#fff;
+  color:#dc2626;
+  border:none;
+  padding:12px 24px;
+  border-radius:6px;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+}
+.browser-warning button:hover{
+  background:#f3f4f6;
+}
+.browser-warning-spacer{
+  height:0;
+  transition:height 0.3s ease;
+}
+.browser-warning-spacer.active{
+  height:140px;
+}
+@media (max-width: 768px){
+  .browser-warning-spacer.active{
+    height:180px;
+  }
+}
+
 /* Extra small mobile devices */
 @media (max-width: 480px){
   header h1{
@@ -953,7 +1006,7 @@ function buildSkeletonLetterHTML(data){
   const headerHTML = useHeader ? `
     <div class="header-block">
       <div class="trust-header">
-        <img src="https://raw.githubusercontent.com/MEDASKCA/LetterOfSupport/main/nhs-logo.png" alt="NHS logo" class="nhs-logo-img" crossorigin="anonymous"/>
+        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
         ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
         ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
         ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
@@ -1058,7 +1111,7 @@ function buildLetterHTML(data, signatureDataURL){
   const headerHTML = useHeader ? `
     <div class="header-block">
       <div class="trust-header">
-        <img src="https://raw.githubusercontent.com/MEDASKCA/LetterOfSupport/main/nhs-logo.png" alt="NHS logo" class="nhs-logo-img" crossorigin="anonymous"/>
+        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
         ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
         ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
         ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
@@ -1364,16 +1417,37 @@ async function makePDF(){
   `;
   previewPaper.appendChild(footer);
 
-  const canvas = await html2canvas(previewPaper, {
-    scale: 1.75,
-    useCORS: true,
-    allowTaint: false,
-    backgroundColor: '#ffffff',
-    logging: false
-  });
+  let canvas;
+  try {
+    // Try with CORS first
+    canvas = await html2canvas(previewPaper, {
+      scale: 1.75,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+  } catch (error) {
+    console.warn('CORS failed, trying with allowTaint:', error);
+    // If CORS fails (common on iPhone), try with allowTaint
+    canvas = await html2canvas(previewPaper, {
+      scale: 1.75,
+      useCORS: false,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+  }
   footer.remove();
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  let imgData;
+  try {
+    imgData = canvas.toDataURL('image/jpeg', 0.92);
+  } catch (error) {
+    console.error('toDataURL failed (tainted canvas):', error);
+    throw new Error('Cannot generate PDF - image CORS error. Please ensure all images are loaded from allowed sources.');
+  }
+
   const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
@@ -1440,7 +1514,19 @@ async function handleSubmit(){
   updatePreview();
 
   const data = readForm();
-  const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
+
+  let pdfBlob, pdfDataURI, filename, ref;
+  try {
+    const result = await makePDF();
+    pdfBlob = result.pdfBlob;
+    pdfDataURI = result.pdfDataURI;
+    filename = result.filename;
+    ref = result.ref;
+  } catch (error) {
+    console.error('PDF generation failed:', error);
+    alert('PDF generation failed. This may be due to browser limitations. Please try:\n\n1. Using Chrome or Safari (not in-app browser)\n2. Refreshing the page\n3. Using a desktop computer\n\nError: ' + error.message);
+    return;
+  }
 
   // Trigger download
   const a = document.createElement('a');
@@ -1452,6 +1538,20 @@ async function handleSubmit(){
   a.remove();
 
   const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
+
+  // Update toast message based on environment
+  const toastEmailStatus = document.getElementById('toast-email-status');
+  if (window.location.protocol === 'file:' || !BACKEND_ENDPOINT) {
+    if (toastEmailStatus) {
+      toastEmailStatus.textContent = 'Deploy to Vercel to enable automatic email delivery.';
+      toastEmailStatus.style.fontStyle = 'italic';
+      toastEmailStatus.style.opacity = '0.8';
+    }
+  } else {
+    if (toastEmailStatus) {
+      toastEmailStatus.textContent = 'Email copies will be sent to you and Alex.';
+    }
+  }
 
   // Optional: send to backend (e.g. Resend on Vercel)
   if (data.email){
@@ -1542,7 +1642,51 @@ function showStep(step){
   }
 }
 
+// Detect in-app browsers and show warning
+function isInAppBrowser() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  // Detect common in-app browsers
+  return (
+    ua.indexOf('FBAN') > -1 || // Facebook
+    ua.indexOf('FBAV') > -1 || // Facebook
+    ua.indexOf('Instagram') > -1 || // Instagram
+    ua.indexOf('LinkedIn') > -1 || // LinkedIn
+    ua.indexOf('Twitter') > -1 || // Twitter
+    ua.indexOf('Outlook') > -1 || // Outlook
+    (ua.indexOf('iPhone') > -1 && ua.indexOf('Safari') === -1 && ua.indexOf('CriOS') === -1) || // Generic iOS in-app
+    (ua.indexOf('iPad') > -1 && ua.indexOf('Safari') === -1 && ua.indexOf('CriOS') === -1) // Generic iPad in-app
+  );
+}
+
+function openInBrowser() {
+  const currentUrl = window.location.href;
+  // Try to open in Safari (iOS)
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    // Create a link that forces external browser
+    const a = document.createElement('a');
+    a.href = currentUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
+
+    // Also show instructions
+    alert('If Safari did not open automatically:\n\n1. Copy this link\n2. Open Safari\n3. Paste and go\n\nLink: ' + currentUrl);
+  } else {
+    window.open(currentUrl, '_blank');
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  // Check if user is in an in-app browser
+  if (isInAppBrowser()) {
+    const warning = document.getElementById('browser-warning');
+    const spacer = document.getElementById('browser-warning-spacer');
+    if (warning) {
+      warning.classList.add('show');
+      if (spacer) spacer.classList.add('active');
+    }
+  }
+
   // --- Signature: plain canvas drawing (no external library) ---
   const canvas = document.getElementById('signature-canvas');
   const ctx = canvas.getContext('2d');
@@ -1727,6 +1871,14 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </head>
 <body>
+  <!-- Browser warning banner -->
+  <div id="browser-warning" class="browser-warning">
+    <h3>⚠️ Please Open in Safari or Chrome</h3>
+    <p>This form works best in a regular browser. Please tap the button below to open in Safari.</p>
+    <button onclick="openInBrowser()">Open in Safari</button>
+  </div>
+  <div id="browser-warning-spacer" class="browser-warning-spacer"></div>
+
   <div class="container">
     <header>
       <h1>Digital Letter of Support</h1>
@@ -2089,6 +2241,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <h4>Thank you for your endorsement</h4>
     <p>Your digital letter of support has been generated successfully.</p>
     <p>A secure PDF copy has been downloaded to your device.</p>
+    <p id="toast-email-status">Email copies will be sent to you and Alex.</p>
     <p><em>— With appreciation, Alex Monterubio</em></p>
   </div>
 </body>
