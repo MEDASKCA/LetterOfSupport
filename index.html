@@ -260,7 +260,7 @@ button.ghost:hover{ background:#f9fafb; }
   position: relative;
 }
 .paper .page{
-  padding: 20mm 25mm 20mm 25mm;
+  padding: 20mm 20mm 20mm 20mm;
   font-family: Arial, sans-serif;
   color: #1f2937;
   line-height: 1.5;
@@ -393,7 +393,7 @@ button.ghost:hover{ background:#f9fafb; }
   .left{ display:none; }
   .panel{ padding:0; }
   .paper{ box-shadow:none; border:0; width:auto; min-height:auto; }
-  .paper .page{ padding: 20mm 25mm; }
+  .paper .page{ padding: 20mm 20mm; }
 }
 
 /* Responsive */
@@ -1407,8 +1407,8 @@ async function makePDF(){
 
   // Use lower quality settings for iOS to avoid memory issues
   // Android can handle better quality
-  const scale = isIOS ? 1.3 : (isMobile ? 1.6 : 2.0);
-  const quality = isIOS ? 0.80 : (isMobile ? 0.88 : 0.95);
+  const scale = isIOS ? 1.0 : (isMobile ? 1.6 : 2.0);
+  const quality = isIOS ? 0.70 : (isMobile ? 0.88 : 0.95);
 
   // For iOS, use simpler rendering to avoid CORS issues
   const canvas = await html2canvas(previewPaper, {
