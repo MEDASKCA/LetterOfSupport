@@ -1175,13 +1175,13 @@ async function makePDF(){
   previewPaper.appendChild(footer);
 
   const canvas = await html2canvas(previewPaper, {
-    scale: 1.5,
+    scale: 1.75,
     useCORS: false,
     backgroundColor: '#ffffff'
   });
   footer.remove();
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.85);
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
   const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const imgWidth = pageWidth;
