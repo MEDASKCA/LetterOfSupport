@@ -61,7 +61,10 @@ main{
   overflow:auto;
   max-height:calc(100vh - 100px); /* Ensure scrolling for long content */
 }
-.left{ border-right:1px solid var(--line); }
+.left{
+  border-right:1px solid var(--line);
+  counter-reset: section-counter;
+}
 
 .section-title{
   font-size:16px;
@@ -186,7 +189,6 @@ small.hint{
 .form-step{
   display:none;
   animation:fadeIn .2s ease;
-  counter-reset: section-counter;
 }
 .form-step.active{
   display:block;
@@ -246,6 +248,11 @@ button.ghost:hover{ background:#f9fafb; }
   font-weight:300;
   pointer-events:none;
   opacity:0.3;
+  transition: opacity 0.2s;
+}
+.sig-wrap.has-signature::before{
+  opacity:0;
+  display:none;
 }
 .sig-canvas{
   width:100%;
@@ -1880,6 +1887,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('signature-canvas');
   if (canvas){
     const ctx = canvas.getContext('2d');
+    const sigWrap = canvas.closest('.sig-wrap');
 
     function resizeCanvas(){
       const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -1902,6 +1910,7 @@ window.addEventListener('DOMContentLoaded', () => {
       clear(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this._empty = true;
+        if (sigWrap) sigWrap.classList.remove('has-signature');
       },
       isEmpty(){
         return this._empty;
@@ -1929,6 +1938,7 @@ window.addEventListener('DOMContentLoaded', () => {
       sigPad._lastX = pos.x;
       sigPad._lastY = pos.y;
       sigPad._empty = false;
+      if (sigWrap) sigWrap.classList.add('has-signature');
     }
 
     function draw(e){
