@@ -769,6 +769,7 @@ function readForm(){
 
     strengthsSelected,
     qStrengthsOther: (document.getElementById('q_strengths_other')?.value || "").trim(),
+    qStrengthsComments: (document.getElementById('q_strengths_comments')?.value || "").trim(),
 
     qProfessionalism: (document.getElementById('q_professionalism')?.value || "").trim(),
     qTeamwork: (document.getElementById('q_teamwork')?.value || "").trim(),
@@ -1626,6 +1627,21 @@ function toggleOptionalField(wrapId){
   updatePreview();
 }
 
+function toggleDurationDetail(){
+  const select = document.getElementById('q_duration_select');
+  const detailWrap = document.getElementById('duration_detail_wrap');
+  if (!select || !detailWrap) return;
+
+  if (select.value === 'other'){
+    detailWrap.classList.remove('hidden');
+  } else {
+    detailWrap.classList.add('hidden');
+    const detailInput = document.getElementById('q_duration_detail');
+    if (detailInput) detailInput.value = '';
+  }
+  updatePreview();
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   // --- Signature: plain canvas drawing (no external library) ---
   const canvas = document.getElementById('signature-canvas');
@@ -2221,7 +2237,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <div class="col-2">
                 <label for="q_duration_select">How long have you known or worked with Alex?</label>
-                <select id="q_duration_select" name="q_duration_select" required>
+                <select id="q_duration_select" name="q_duration_select" required onchange="toggleDurationDetail()">
                   <option value="">Please select...</option>
                   <option value="less than six months">Less than six months</option>
                   <option value="between six and twelve months">Between six and twelve months</option>
@@ -2229,8 +2245,10 @@ window.addEventListener('DOMContentLoaded', () => {
                   <option value="more than three years">More than three years</option>
                   <option value="other">Other (please add a short description below)</option>
                 </select>
-                <input id="q_duration_detail" name="q_duration_detail"/>
-                <small class="hint">This will be turned into a narrative sentence in the letter.</small>
+                <div id="duration_detail_wrap" class="hidden" style="margin-top:8px;">
+                  <input id="q_duration_detail" name="q_duration_detail"/>
+                  <small class="hint">This will be turned into a narrative sentence in the letter.</small>
+                </div>
               </div>
 
               <div class="col-2">
@@ -2246,9 +2264,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 </select>
                 <div id="capacity_other_wrap" class="hidden" style="margin-top:6px;">
                   <input id="q_capacity_other" name="q_capacity_other"/>
+                  <input id="q_capacity_detail" name="q_capacity_detail" style="margin-top:6px;"/>
+                  <small class="hint">Your answer will be blended with the duration to describe your relationship to Alex.</small>
                 </div>
-                <input id="q_capacity_detail" name="q_capacity_detail" style="margin-top:6px;"/>
-                <small class="hint">Your answer will be blended with the duration to describe your relationship to Alex.</small>
               </div>
             </div>
 
@@ -2323,6 +2341,16 @@ window.addEventListener('DOMContentLoaded', () => {
                 </label>
                 <div id="teamwork_wrap" class="hidden" style="margin-top:8px;">
                   <textarea id="q_teamwork" name="q_teamwork"></textarea>
+                </div>
+              </div>
+
+              <div class="col-2">
+                <label class="inline-option">
+                  <input type="checkbox" id="toggle_strengths_comments" onchange="toggleOptionalField('strengths_comments_wrap')">
+                  <span>Any additional comments (optional)</span>
+                </label>
+                <div id="strengths_comments_wrap" class="hidden" style="margin-top:8px;">
+                  <textarea id="q_strengths_comments" name="q_strengths_comments"></textarea>
                 </div>
               </div>
             </div>
