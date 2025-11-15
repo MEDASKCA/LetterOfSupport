@@ -1515,7 +1515,7 @@ async function makePDF(){
       const logoWidth = 18; // mm
       const logoHeight = 7.5; // mm (proper NHS logo aspect ratio ~2.4:1)
       pdf.addImage(nhsLogoDataURL, 'PNG', pageWidth - margin - logoWidth, headerY, logoWidth, logoHeight);
-      headerTextY = headerY + logoHeight + 3; // Position text below logo
+      headerTextY = headerY + logoHeight + 6; // Position text below logo with more spacing
     }
 
     // Trust name
