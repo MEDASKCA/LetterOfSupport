@@ -1497,9 +1497,19 @@ function showStep(step){
 
   document.querySelectorAll('.form-step').forEach(s => {
     // Exact match to avoid "2a" matching when step is 2
-    const isMatch = (s.dataset.step == step);
+    const isMatch = String(s.dataset.step) === String(step);
     s.classList.toggle('active', isMatch);
   });
+
+  // Explicitly ensure Step 2A (custom letter) is hidden when on Step 2
+  const customLetterStep = document.getElementById('step-custom-letter');
+  if (step === 2 && customLetterStep){
+    customLetterStep.classList.remove('active');
+    customLetterStep.classList.add('hidden');
+  }
+  if (step === '2a' && customLetterStep){
+    customLetterStep.classList.remove('hidden');
+  }
 
   const progress = document.querySelector('.progress-bar');
   if (progress){
