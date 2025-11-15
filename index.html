@@ -370,7 +370,6 @@ button.ghost:hover{ background:#f9fafb; }
 }
 .paper{
   width: 210mm;
-  min-height: 297mm;
   background: #fff;
   box-shadow: 0 4px 12px rgba(0,0,0,.15);
   border: 1px solid #d1d5db;
@@ -384,6 +383,18 @@ button.ghost:hover{ background:#f9fafb; }
   color: #1f2937;
   line-height: 1.5;
   font-size: 11pt;
+  page-break-after: always;
+  break-after: page;
+  position: relative;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 296mm,
+    #e5e7eb 296mm,
+    #e5e7eb 297mm,
+    #f3f4f6 297mm,
+    #f3f4f6 317mm
+  );
 }
 
 /* Mobile preview adjustments */
