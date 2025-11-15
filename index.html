@@ -1498,14 +1498,14 @@ function showToast(){
   setTimeout(() => toast.classList.remove('show'), 7000);
 }
 
-async function handleSubmit(){
+// Download PDF only
+async function downloadPDF(){
   if (!validateForm()) { return; }
 
   // Make sure preview (with signature) is up to date
   updatePreview();
 
-  const data = readForm();
-  const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
+  const { pdfBlob, filename } = await makePDF();
 
   // Trigger download
   const a = document.createElement('a');
@@ -1516,9 +1516,22 @@ async function handleSubmit(){
   URL.revokeObjectURL(a.href);
   a.remove();
 
+  alert('PDF downloaded successfully! You can now email it using the "Email Letter" button.');
+}
+
+// Email letter (also generates PDF)
+async function emailLetter(){
+  if (!validateForm()) { return; }
+
+  // Make sure preview (with signature) is up to date
+  updatePreview();
+
+  const data = readForm();
+  const { pdfDataURI, filename, ref } = await makePDF();
+
   const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
 
-  // Optional: send to backend (e.g. Resend on Vercel)
+  // Send to backend (Resend on Vercel)
   if (data.email){
     await sendToBackend({
       refCode: ref,
@@ -1531,15 +1544,18 @@ async function handleSubmit(){
         phone: data.phone
       }
     });
-  }
 
-  document.getElementById('endorsement-form').reset();
-  if (sigPad){ sigPad.clear(); }
-  const dateInput = document.getElementById('date_line');
-  dateInput.type = 'date';
-  dateInput.value = todayUKISO();
-  updatePreview();
-  showToast();
+    // Reset form after successful email
+    document.getElementById('endorsement-form').reset();
+    if (sigPad){ sigPad.clear(); }
+    const dateInput = document.getElementById('date_line');
+    dateInput.type = 'date';
+    dateInput.value = todayUKISO();
+    updatePreview();
+    showToast();
+  } else {
+    alert('Please provide an email address to send the letter.');
+  }
 }
 
 function printLetter(){
@@ -2510,13 +2526,14 @@ window.addEventListener('DOMContentLoaded', () => {
               </label>
             </div>
 
-            <div class="section-title">Submit Your Letter</div>
-            <div class="actions">
+            <div class="section-title">Download or Email Your Letter</div>
+            <div class="actions" style="display:flex; gap:8px; flex-wrap:wrap;">
               <button type="button" class="secondary" data-prev-step="3">Back</button>
-              <button type="button" onclick="handleSubmit()">Submit Letter</button>
+              <button type="button" onclick="downloadPDF()" style="background:#0891b2;">Download PDF</button>
+              <button type="button" onclick="emailLetter()">Email Letter</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
-            <small class="hint">On submit: a PDF will download to your computer and can be emailed via your configured backend (e.g., Resend on Vercel).</small>
+            <small class="hint">Download the PDF to your device, or email it directly to yourself and the referee.</small>
           </div>
         </form>
       </div>
