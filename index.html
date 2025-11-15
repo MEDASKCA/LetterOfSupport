@@ -474,10 +474,14 @@ button.ghost:hover{ background:#f9fafb; }
 /* Print */
 @page{
   size: A4;
-  margin: 0;
+  margin: 20mm;
 }
 
 @media print{
+  *{
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
   body{
     background:#fff;
     margin:0;
@@ -488,6 +492,7 @@ button.ghost:hover{ background:#f9fafb; }
     box-shadow:none;
     margin:0;
     max-width:none;
+    min-height:auto;
   }
   header{ display:none; }
   main{
@@ -505,20 +510,23 @@ button.ghost:hover{ background:#f9fafb; }
   .preview-wrap{
     padding:0;
     margin:0;
+    display:block;
   }
   .paper{
     box-shadow:none;
     border:0;
-    width:210mm;
-    max-width:210mm;
-    min-height:297mm;
+    width:100%;
+    max-width:100%;
+    min-height:auto;
+    height:auto;
     transform:none !important;
-    margin:0 auto;
+    margin:0;
     page-break-after:auto;
   }
   .paper .page{
-    padding: 20mm 20mm;
-    min-height:257mm;
+    padding:0;
+    min-height:auto;
+    height:auto;
   }
 }
 
