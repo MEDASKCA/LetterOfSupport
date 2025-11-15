@@ -267,10 +267,13 @@ button.ghost:hover{ background:#f9fafb; }
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  padding: 10px 0 20px;
+  padding: 10px;
+  width: 100%;
 }
 .paper{
-  width: 210mm; min-height: 297mm;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
   border: 1px solid #e5e7eb;
@@ -282,6 +285,22 @@ button.ghost:hover{ background:#f9fafb; }
   color: #1f2937;
   line-height: 1.5;
   font-size: 11pt;
+}
+
+/* Mobile preview adjustments */
+@media (max-width: 980px){
+  .preview-wrap{
+    padding: 10px 5px;
+  }
+  .paper{
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+  }
+  .paper .page{
+    padding: 10mm 5mm;
+    font-size: 10pt;
+  }
 }
 
 /* Sender, header, date, recipient, subject */
