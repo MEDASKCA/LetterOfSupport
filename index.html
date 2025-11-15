@@ -1436,6 +1436,29 @@ async function makePDF(){
   const lineHeight = 5;
   const paragraphSpacing = 6;
 
+  // Load NHS logo
+  const loadImage = (src) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  };
+
+  let nhsLogoDataURL = null;
+  try {
+    const nhsLogo = await loadImage('nhs-logo.png');
+    const canvas = document.createElement('canvas');
+    canvas.width = nhsLogo.width;
+    canvas.height = nhsLogo.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(nhsLogo, 0, 0);
+    nhsLogoDataURL = canvas.toDataURL('image/png');
+  } catch (e) {
+    console.warn('Could not load NHS logo:', e);
+  }
+
   // Helper function to add text with word wrap
   const addText = (text, x, fontSize = 11, fontStyle = 'normal', maxWidth = usableWidth) => {
     pdf.setFontSize(fontSize);
@@ -1467,30 +1490,43 @@ async function makePDF(){
 
   addSpace(paragraphSpacing);
 
-  // NHS HEADER (right side) - simplified text version
+  // NHS HEADER (right side) - with logo
   const { main: trustMain, sub: trustSub } = splitTrust(data.org || "");
   if (trustMain) {
     const headerY = margin;
+    let headerTextY = headerY;
+
+    // Add NHS logo if available
+    if (nhsLogoDataURL) {
+      const logoWidth = 18; // mm
+      const logoHeight = 18; // mm (adjust proportionally)
+      pdf.addImage(nhsLogoDataURL, 'PNG', pageWidth - margin - logoWidth, headerY, logoWidth, logoHeight);
+      headerTextY = headerY + logoHeight + 3; // Position text below logo
+    }
+
+    // Trust name
     pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
     const headerText = trustMain;
     const headerWidth = pdf.getTextWidth(headerText);
-    pdf.text(headerText, pageWidth - margin - headerWidth, headerY);
+    pdf.text(headerText, pageWidth - margin - headerWidth, headerTextY);
 
+    // Trust subtitle
     if (trustSub) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(29, 143, 219); // Blue color
       const subWidth = pdf.getTextWidth(trustSub);
-      pdf.text(trustSub, pageWidth - margin - subWidth, headerY + 6);
+      pdf.text(trustSub, pageWidth - margin - subWidth, headerTextY + 6);
       pdf.setTextColor(0, 0, 0); // Reset to black
     }
 
+    // Hospital name
     if (data.hospitalName) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       const hospWidth = pdf.getTextWidth(data.hospitalName);
-      pdf.text(data.hospitalName, pageWidth - margin - hospWidth, headerY + 12);
+      pdf.text(data.hospitalName, pageWidth - margin - hospWidth, headerTextY + 12);
     }
   }
 
