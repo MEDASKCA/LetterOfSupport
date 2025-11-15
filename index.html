@@ -1460,6 +1460,12 @@ async function makePDF(){
     // Use high quality settings for PNG
     const scale = 2.5;
 
+    // Temporarily remove shadow and border for clean capture
+    const originalBoxShadow = previewPaper.style.boxShadow;
+    const originalBorder = previewPaper.style.border;
+    previewPaper.style.boxShadow = 'none';
+    previewPaper.style.border = 'none';
+
     const canvas = await html2canvas(previewPaper, {
       scale: scale,
       useCORS: !isIOS,
@@ -1468,6 +1474,10 @@ async function makePDF(){
       logging: false,
       removeContainer: true
     });
+
+    // Restore shadow and border
+    previewPaper.style.boxShadow = originalBoxShadow;
+    previewPaper.style.border = originalBorder;
 
     // Convert to PNG (lossless, high quality)
     const imgData = canvas.toDataURL('image/png', 1.0);
@@ -1487,6 +1497,12 @@ async function makePDF(){
   const scale = 2.0;
   const quality = 0.95;
 
+  // Temporarily remove shadow and border for clean capture
+  const originalBoxShadow = previewPaper.style.boxShadow;
+  const originalBorder = previewPaper.style.border;
+  previewPaper.style.boxShadow = 'none';
+  previewPaper.style.border = 'none';
+
   const canvas = await html2canvas(previewPaper, {
     scale: scale,
     useCORS: true,
@@ -1494,6 +1510,10 @@ async function makePDF(){
     logging: false,
     removeContainer: true
   });
+
+  // Restore shadow and border
+  previewPaper.style.boxShadow = originalBoxShadow;
+  previewPaper.style.border = originalBorder;
 
   const imgData = canvas.toDataURL('image/jpeg', quality);
 
