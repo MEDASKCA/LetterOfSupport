@@ -1711,48 +1711,104 @@ function printLetter(){
   window.print();
 }
 
-async function downloadOnly(){
+async function sendAndDownloadClient(){
   if (!validateForm()) { return; }
 
   const statusEl = document.getElementById('submit-status');
-  const downloadBtn = document.getElementById('download-btn');
+  const submitBtn = document.getElementById('submit-btn');
 
   try {
-    downloadBtn.disabled = true;
-    downloadBtn.textContent = 'Generating...';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
+
+    // Step 1: Generate PDF (client-side)
     statusEl.textContent = 'Generating PDF...';
     statusEl.className = 'submit-status active';
-
     updatePreview();
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    const data = readForm();
     const { pdfBlob, filename } = await makePDF();
+    const ref = formRef();
+    const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
 
-    statusEl.textContent = 'Downloading...';
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(pdfBlob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(a.href);
-    a.remove();
+    // Step 2: Convert blob to base64 for email
+    const pdfBase64 = await blobToBase64(pdfBlob);
 
-    statusEl.textContent = 'Download complete!';
-    statusEl.className = 'submit-status success';
+    // Step 3: Send emails FIRST
+    if (data.email){
+      statusEl.textContent = 'Sending emails...';
+      const emailResponse = await fetch('/api/send-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          refCode: ref,
+          filename,
+          pdfBase64: pdfBase64, // Clean base64 without prefix
+          referee: {
+            name: data.refName,
+            role: effectiveRole,
+            email: data.email,
+            phone: data.phone
+          }
+        })
+      });
 
-    setTimeout(() => {
-      statusEl.className = 'submit-status';
-      downloadBtn.disabled = false;
-      downloadBtn.textContent = 'Download PDF';
-    }, 2000);
+      if (!emailResponse.ok) {
+        const error = await emailResponse.json();
+        throw new Error(error.message || 'Email sending failed');
+      }
 
+      // Step 4: Download PDF
+      statusEl.textContent = 'Downloading PDF...';
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(pdfBlob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      a.remove();
+
+      // Step 5: Complete
+      statusEl.textContent = 'Complete! Emails sent and PDF downloaded.';
+      statusEl.className = 'submit-status success';
+
+      // Reset form after delay
+      setTimeout(() => {
+        document.getElementById('endorsement-form').reset();
+        if (sigPad){ sigPad.clear(); }
+        const dateInput = document.getElementById('date_line');
+        dateInput.type = 'date';
+        dateInput.value = todayUKISO();
+        updatePreview();
+        statusEl.className = 'submit-status';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send & Download';
+        showStep(1);
+      }, 3000);
+    }
   } catch (error) {
-    console.error('Download error:', error);
+    console.error('Submission error:', error);
     statusEl.textContent = 'Error: ' + error.message;
     statusEl.className = 'submit-status error';
-    downloadBtn.disabled = false;
-    downloadBtn.textContent = 'Download PDF';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send & Download';
   }
+}
+
+// Convert blob to base64 (clean, no data URI prefix)
+async function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Remove data URI prefix to get clean base64
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 /* Stepper helpers */
@@ -2771,10 +2827,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="3">Back</button>
-              <button type="button" id="download-btn" onclick="downloadOnly()">Download PDF</button>
+              <button type="button" id="submit-btn" onclick="sendAndDownloadClient()">Send & Download</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
-            <small class="hint">Click Download PDF to test PDF generation first.</small>
+            <small class="hint">Generates PDF, emails to you and referee, then downloads.</small>
           </div>
         </form>
       </div>
