@@ -1073,12 +1073,11 @@ function buildFreeTextLetterHTML(data, freeTextContent){
     </div>
   `;
 
-  const salutationHTML = `<p class="sal">Dear NHS Clinical Entrepreneur Team,</p>`;
-
   // Convert line breaks in free text to paragraphs
-  const paragraphs = freeTextContent.split('\n').filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`).join('');
+  // Referee writes EVERYTHING including salutation
+  const paragraphs = freeTextContent.split('\n\n').filter(p => p.trim()).map(p => `<p>${p.trim().replace(/\n/g, '<br/>')}</p>`).join('');
 
-  const bodyHTML = salutationHTML + paragraphs;
+  const bodyHTML = paragraphs;
 
   return `
     <div class="paper" id="paper">
@@ -2142,15 +2141,17 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="grid">
               <div class="col-2">
                 <label for="free_text_content">Please write your letter of support for Alex Monterubio</label>
-                <textarea id="free_text_content" name="free_text_content" style="min-height:400px;" placeholder="Please include:
+                <textarea id="free_text_content" name="free_text_content" style="min-height:400px;" placeholder="Dear NHS Clinical Entrepreneur Team,
 
-• Your professional relationship to Alex and how long you've known them
-• Why you believe Alex is suitable for the NHS Clinical Entrepreneur Programme
-• Relevant examples of Alex's skills, qualities, or achievements
-• Any other information you feel is relevant to support this application
+[Write your letter here in your own words]
 
-This will form the main body of your letter."></textarea>
-                <small class="hint">Write in your own words. This text will appear in the letter after the salutation "Dear NHS Clinical Entrepreneur Team,"</small>
+Example structure:
+• Introduce yourself and your relationship to Alex
+• How long you've known them and in what capacity
+• Why you believe Alex is suitable for the programme
+• Relevant examples of their skills, qualities, or achievements
+• Your endorsement and any other supporting information"></textarea>
+                <small class="hint">Write the entire letter content in your own words, starting with "Dear..." Double line breaks create new paragraphs.</small>
               </div>
             </div>
 
