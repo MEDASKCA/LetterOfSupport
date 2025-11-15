@@ -1498,54 +1498,364 @@ function formRef(){
 }
 
 async function makePDF(){
-  const previewPaper = document.querySelector('#preview #paper');
-  if (!previewPaper){ throw new Error("Preview not ready"); }
-
-  const originalZoom = previewPaper.style.zoom;
-  previewPaper.style.zoom = '1';
-
-  const ref = formRef();
-  const footer = document.createElement('div');
-  footer.style.fontFamily = 'Arial, sans-serif';
-  footer.style.fontSize = '8pt';
-  footer.style.color = '#6b7280';
-  footer.style.marginTop = '16px';
-  footer.style.paddingTop = '8px';
-  footer.style.borderTop = '1px solid #e5e7eb';
-  footer.innerHTML = `
-    <div style="margin-bottom:4px;"><strong>Reference:</strong> ${ref}</div>
-    <div>
-      This letter was generated through the NHS Clinical Entrepreneur Programme Digital Endorsement Form developed by Alex Monterubio.
-      Submitted electronically via https://www.nhscep.com.
-      <strong>No patient or confidential data is stored by this tool – it is a one-off letter generator.</strong>
-    </div>
-  `;
-  previewPaper.appendChild(footer);
-
-  const canvas = await html2canvas(previewPaper, {
-    scale: 2,
-    useCORS: false,
-    backgroundColor: '#ffffff',
-    windowWidth: 794,
-    windowHeight: 1123
-  });
-  footer.remove();
-
-  previewPaper.style.zoom = originalZoom;
-
-  const imgData = canvas.toDataURL('image/png', 1.0);
+  const data = readForm();
   const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
 
+  // A4 dimensions and margins
   const pageWidth = 210;
   const pageHeight = 297;
+  const margin = 20;
+  const usableWidth = pageWidth - (margin * 2);
 
-  pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+  let y = margin; // Current Y position
+  const lineHeight = 5;
+  const paragraphSpacing = 6;
+
+  // Load NHS logo
+  const loadImage = (src) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  };
+
+  let nhsLogoDataURL = null;
+  try {
+    const nhsLogo = await loadImage('nhs-logo.png');
+    const canvas = document.createElement('canvas');
+    canvas.width = nhsLogo.width;
+    canvas.height = nhsLogo.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(nhsLogo, 0, 0);
+    nhsLogoDataURL = canvas.toDataURL('image/png');
+  } catch (e) {
+    console.warn('Could not load NHS logo:', e);
+  }
+
+  // Load Arial font for NHS guidelines compliance
+  try {
+    const response = await fetch('arial.ttf');
+    const arrayBuffer = await response.arrayBuffer();
+    const base64String = btoa(
+      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+    pdf.addFileToVFS('arial.ttf', base64String);
+    pdf.addFont('arial.ttf', 'Arial', 'normal');
+    pdf.addFont('arial.ttf', 'Arial', 'bold'); // Same file, different style
+  } catch (e) {
+    console.warn('Could not load Arial font:', e);
+  }
+
+  // Helper function to add text with word wrap
+  const addText = (text, x, fontSize = 11, fontStyle = 'normal', maxWidth = usableWidth) => {
+    pdf.setFontSize(fontSize);
+    pdf.setFont('Arial', fontStyle);
+    const lines = pdf.splitTextToSize(text, maxWidth);
+    lines.forEach(line => {
+      if (y > pageHeight - margin) {
+        pdf.addPage();
+        y = margin;
+      }
+      pdf.text(line, x, y);
+      y += lineHeight;
+    });
+  };
+
+  const addSpace = (space = lineHeight) => {
+    y += space;
+  };
+
+  // Reference
+  const ref = formRef();
+
+  // SENDER DETAILS (top left)
+  const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
+  addText(data.refName || "[Referee Name]", margin, 11, 'normal');
+  addText(effectiveRole || "[Role]", margin, 11, 'normal');
+  if (data.phone) addText(`Tel: ${data.phone}`, margin, 11, 'normal');
+  if (data.email) addText(`Email: ${data.email}`, margin, 11, 'normal');
+
+  addSpace(paragraphSpacing);
+
+  // NHS HEADER (right side) - with logo
+  const { main: trustMain, sub: trustSub } = splitTrust(data.org || "");
+  if (trustMain) {
+    const headerY = margin;
+    let headerTextY = headerY;
+
+    // Add NHS logo if available
+    if (nhsLogoDataURL) {
+      const logoWidth = 18; // mm
+      const logoHeight = 7.5; // mm (proper NHS logo aspect ratio ~2.4:1)
+      pdf.addImage(nhsLogoDataURL, 'PNG', pageWidth - margin - logoWidth, headerY, logoWidth, logoHeight);
+      headerTextY = headerY + logoHeight + 6; // Position text below logo with more spacing
+    }
+
+    // Trust name
+    pdf.setFontSize(14);
+    pdf.setFont('Arial', 'bold');
+    const headerText = trustMain;
+    const headerWidth = pdf.getTextWidth(headerText);
+    pdf.text(headerText, pageWidth - margin - headerWidth, headerTextY);
+
+    // Trust subtitle
+    if (trustSub) {
+      pdf.setFontSize(11);
+      pdf.setFont('Arial', 'normal');
+      pdf.setTextColor(29, 143, 219); // Blue color
+      const subWidth = pdf.getTextWidth(trustSub);
+      pdf.text(trustSub, pageWidth - margin - subWidth, headerTextY + 6);
+      pdf.setTextColor(0, 0, 0); // Reset to black
+    }
+
+    // Hospital name
+    let currentY = headerTextY + 12;
+    if (data.hospitalName) {
+      pdf.setFontSize(11);
+      pdf.setFont('Arial', 'bold');
+      const hospWidth = pdf.getTextWidth(data.hospitalName);
+      pdf.text(data.hospitalName, pageWidth - margin - hospWidth, currentY);
+      currentY += 5;
+    }
+
+    // Hospital address
+    pdf.setFontSize(10);
+    pdf.setFont('Arial', 'normal');
+    if (data.hospitalAddr1) {
+      const addr1Width = pdf.getTextWidth(data.hospitalAddr1);
+      pdf.text(data.hospitalAddr1, pageWidth - margin - addr1Width, currentY);
+      currentY += 4;
+    }
+    if (data.hospitalAddr2) {
+      const addr2Width = pdf.getTextWidth(data.hospitalAddr2);
+      pdf.text(data.hospitalAddr2, pageWidth - margin - addr2Width, currentY);
+      currentY += 4;
+    }
+    if (data.hospitalCity) {
+      const cityWidth = pdf.getTextWidth(data.hospitalCity);
+      pdf.text(data.hospitalCity, pageWidth - margin - cityWidth, currentY);
+      currentY += 4;
+    }
+    if (data.hospitalPostcode) {
+      const postcodeWidth = pdf.getTextWidth(data.hospitalPostcode);
+      pdf.text(data.hospitalPostcode, pageWidth - margin - postcodeWidth, currentY);
+    }
+  }
+
+  // DATE
+  const dateStr = data.dateLine ? toUKLong(data.dateLine) : todayUK();
+  addText(`Date: ${dateStr}`, margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // RECIPIENT
+  addText("NHS Clinical Entrepreneur Team", margin, 11, 'normal');
+  addText("c/o Anglia Ruskin University", margin, 11, 'normal');
+  addText("Bishop Hall Lane", margin, 11, 'normal');
+  addText("Chelmsford", margin, 11, 'normal');
+  addText("Essex", margin, 11, 'normal');
+  addText("CM1 1SQ", margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // SUBJECT
+  pdf.setFont('Arial', 'bold');
+  addText("Re: Letter of Support for Alex Monterubio – NHS Clinical Entrepreneur Programme Application", margin, 11, 'bold');
+  pdf.setFont('Arial', 'normal');
+  addSpace(paragraphSpacing);
+
+  // SALUTATION
+  addText("Dear NHS Clinical Entrepreneur Team,", margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // BODY - Build the narrative
+  const opening = openingsByRole[effectiveRole] || "I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.";
+
+  // Build relationship sentence (same logic as buildLetterHTML)
+  let capacityText = "";
+  if (data.professionalArea === 'perioperative' && data.relationship){
+    capacityText = data.relationship;
+  } else if (data.professionalArea === 'different' && data.otherRelationshipCapacity){
+    capacityText = data.otherRelationshipCapacity;
+  }
+
+  let durationPhrase = "";
+  if (data.qDurationSelect){
+    if (data.qDurationSelect === "other" && data.qDurationDetail){
+      durationPhrase = data.qDurationDetail;
+    } else {
+      switch (data.qDurationSelect){
+        case "less than six months": break;
+        case "between six and twelve months": durationPhrase = "the past six to twelve months"; break;
+        case "between one and three years": durationPhrase = "the past one to three years"; break;
+        case "more than three years": durationPhrase = "a period of more than three years"; break;
+        default: durationPhrase = data.qDurationSelect;
+      }
+      if (data.qDurationDetail && data.qDurationSelect !== "less than six months"){
+        durationPhrase += ` (${data.qDurationDetail})`;
+      }
+    }
+  }
+
+  let relationshipSentence = "";
+  if (data.qDurationSelect || capacityText){
+    if (data.qDurationSelect === "less than six months") {
+      relationshipSentence = "Although my time working with Alex has been relatively short";
+    } else {
+      relationshipSentence = "Over ";
+      relationshipSentence += durationPhrase ? durationPhrase : "the time that Alex worked within our service";
+    }
+    relationshipSentence += ", I have known Alex";
+    if (capacityText){
+      relationshipSentence += ` in my capacity as ${capacityText.toLowerCase()}`;
+    }
+    relationshipSentence += ", and have been able to observe their practice in a busy perioperative environment.";
+  }
+
+  let intro = opening;
+  if (relationshipSentence){
+    intro += " " + relationshipSentence;
+  }
+
+  addText(intro, margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // Build narrative from 5 NHSCEP domains (template OR custom mode)
+  if (data.letterMode === 'custom'){
+    // Custom mode: Insert free-text answers
+    if (data.customMotivation){
+      addText(data.customMotivation, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customCapability){
+      addText(data.customCapability, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customImpact){
+      addText(data.customImpact, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customPriority){
+      addText(data.customPriority, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customViability){
+      addText(data.customViability, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+  } else {
+    // Template mode: Use toggle.html narrative structure
+
+    // 1. Motivation
+    const motivationItems = [...(data.motivationSelected || [])];
+    if (data.motivationOther) motivationItems.push(data.motivationOther);
+    if (motivationItems.length){
+      const phrase = motivationItems.length === 1 ? motivationItems[0] :
+                     motivationItems.length === 2 ? motivationItems.join(" and ") :
+                     motivationItems.slice(0, -1).join(", ") + ", and " + motivationItems[motivationItems.length - 1];
+      addText(`In terms of personal motivation, Alex has demonstrated ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+
+    // 2. Capability
+    const capabilityItems = [...(data.capabilitySelected || [])];
+    if (data.capabilityOther) capabilityItems.push(data.capabilityOther);
+    if (capabilityItems.length){
+      const phrase = capabilityItems.length === 1 ? capabilityItems[0] :
+                     capabilityItems.length === 2 ? capabilityItems.join(" and ") :
+                     capabilityItems.slice(0, -1).join(", ") + ", and " + capabilityItems[capabilityItems.length - 1];
+      addText(`Regarding personal capability, Alex consistently demonstrates ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+
+    // 3. Impact
+    const impactItems = [...(data.impactSelected || [])];
+    if (data.impactOther) impactItems.push(data.impactOther);
+    if (impactItems.length){
+      const phrase = impactItems.length === 1 ? impactItems[0] :
+                     impactItems.length === 2 ? impactItems.join(" and ") :
+                     impactItems.slice(0, -1).join(", ") + ", and " + impactItems[impactItems.length - 1];
+      addText(`In my view, Alex's innovation work has the potential to ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+
+    // 4. Priority alignment
+    const priorityItems = [...(data.prioritySelected || [])];
+    if (data.priorityOther) priorityItems.push(data.priorityOther);
+    if (priorityItems.length){
+      const phrase = priorityItems.length === 1 ? priorityItems[0] :
+                     priorityItems.length === 2 ? priorityItems.join(" and ") :
+                     priorityItems.slice(0, -1).join(", ") + ", and " + priorityItems[priorityItems.length - 1];
+      addText(`Alex's ideas align well with wider NHS priorities, particularly in their potential to ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+
+    // 5. Viability
+    const viabilityItems = [...(data.viabilitySelected || [])];
+    if (data.viabilityOther) viabilityItems.push(data.viabilityOther);
+    if (viabilityItems.length){
+      const phrase = viabilityItems.length === 1 ? viabilityItems[0] :
+                     viabilityItems.length === 2 ? viabilityItems.join(" and ") :
+                     viabilityItems.slice(0, -1).join(", ") + ", and " + viabilityItems[viabilityItems.length - 1];
+      addText(`I consider Alex's innovation highly viable within the NHS, as it is ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+  }
+
+  // MBA + Suitability
+  const mbaSentence = "Alex is currently undertaking an Executive MBA, further developing their leadership, strategic and innovation skills, qualities that align closely with the objectives of the NHS Clinical Entrepreneur Programme.";
+
+  let suitabilitySentence = "";
+  if (data.qSuitabilitySelect || data.qSuitabilityDetail){
+    const reasons = [];
+    if (data.qSuitabilitySelect) reasons.push(data.qSuitabilitySelect);
+    if (data.qSuitabilityDetail) reasons.push(data.qSuitabilityDetail);
+
+    let reasonsPhrase = "";
+    if (reasons.length === 1){
+      reasonsPhrase = reasons[0];
+    } else if (reasons.length === 2){
+      reasonsPhrase = reasons.join(" and ");
+    } else {
+      reasonsPhrase = reasons.slice(0, -1).join(", ") + ", and " + reasons[reasons.length - 1];
+    }
+
+    suitabilitySentence = `On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme because of ${reasonsPhrase}.`;
+  } else {
+    suitabilitySentence = "On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme and capable of contributing positively to innovation within the NHS.";
+  }
+
+  addText(`${mbaSentence} ${suitabilitySentence}`, margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // Disclaimer
+  addText("This letter is provided as a professional endorsement of Alex Monterubio's suitability for the NHS Clinical Entrepreneur Programme. It does not imply financial sponsorship.", margin, 11, 'normal');
+  addSpace(paragraphSpacing * 2);
+
+  // CLOSING
+  addText("Yours faithfully,", margin, 11, 'normal');
+  addSpace(lineHeight);
+
+  // SIGNATURE (if available)
+  if (sigPad && !sigPad.isEmpty()){
+    const sigDataURL = sigPad.toDataURL();
+    pdf.addImage(sigDataURL, 'PNG', margin, y, 40, 10);
+    y += 12;
+  } else {
+    y += 8;
+  }
+
+  // SIGNOFF
+  addText(data.refName || "[Name]", margin, 11, 'bold');
+  addText(effectiveRole || "[Role]", margin, 11, 'normal');
+  addText(data.org || "Barts Health NHS Trust", margin, 11, 'normal');
 
   const blob = pdf.output('blob');
   const dataURI = pdf.output('datauristring');
-  const filename = `Letter_of_Support_${(document.getElementById('ref_role').value || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
+  const filename = `Letter_of_Support_${(effectiveRole || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
   return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
 }
+
 
 // Call your Vercel/Resend API (optional)
 async function sendToBackend(payload){
@@ -1575,84 +1885,38 @@ async function sendAndDownload(){
   const submitBtn = document.getElementById('submit-btn');
 
   try {
+    // Disable button
     submitBtn.disabled = true;
     submitBtn.textContent = 'Processing...';
 
-    // Step 1: Generate TRUE PDF (server-side with Puppeteer)
+    // Step 1: Generate PDF
     statusEl.textContent = 'Generating PDF...';
     statusEl.className = 'submit-status active';
     updatePreview();
+    await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause for UX
 
     const data = readForm();
-    const sigDataURL = (sigPad && !sigPad.isEmpty()) ? sigPad.toDataURL() : "";
-    const ref = formRef();
+    const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
     const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
 
-    // Call server-side PDF generation for TRUE PDF
-    const pdfResponse = await fetch('/api/generate-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        formData: data,
-        signatureDataURL: sigDataURL
-      })
-    });
-
-    if (!pdfResponse.ok) {
-      const errorText = await pdfResponse.text();
-      console.error('PDF API Error:', pdfResponse.status, errorText);
-      throw new Error('PDF generation failed: ' + pdfResponse.status);
-    }
-
-    const responseText = await pdfResponse.text();
-    console.log('PDF API Response (first 200 chars):', responseText.substring(0, 200));
-
-    let pdfResult;
-    try {
-      pdfResult = JSON.parse(responseText);
-    } catch (e) {
-      console.error('Failed to parse PDF response as JSON:', e);
-      throw new Error('Server returned invalid JSON');
-    }
-
-    console.log('Parsed PDF result:', {
-      hasBase64: !!pdfResult.pdfBase64,
-      base64Length: pdfResult.pdfBase64?.length,
-      filename: pdfResult.filename
-    });
-
-    const { pdfBase64, filename } = pdfResult;
-
-    // Step 2: Send email FIRST
+    // Step 2: Send email
     if (data.email){
       statusEl.textContent = 'Sending emails...';
-      const emailResponse = await fetch('/api/send-letter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          refCode: ref,
-          filename,
-          pdfBase64,
-          referee: {
-            name: data.refName,
-            role: effectiveRole,
-            email: data.email,
-            phone: data.phone
-          }
-        })
+      await sendToBackend({
+        refCode: ref,
+        filename,
+        pdfBase64: pdfDataURI.split(',')[1],
+        referee: {
+          name: data.refName,
+          role: effectiveRole,
+          email: data.email,
+          phone: data.phone
+        }
       });
 
-      if (!emailResponse.ok) {
-        const error = await emailResponse.json();
-        throw new Error(error.message || 'Email sending failed');
-      }
-
-      // Step 3: Download PDF (after email sent successfully)
+      // Step 3: Download PDF
       statusEl.textContent = 'Downloading PDF...';
       await new Promise(resolve => setTimeout(resolve, 300));
-
-      // Convert base64 to blob and download
-      const pdfBlob = base64ToBlob(pdfBase64, 'application/pdf');
       const a = document.createElement('a');
       a.href = URL.createObjectURL(pdfBlob);
       a.download = filename;
@@ -1673,18 +1937,34 @@ async function sendAndDownload(){
         dateInput.type = 'date';
         dateInput.value = todayUKISO();
         updatePreview();
+        showToast();
         statusEl.className = 'submit-status';
+        statusEl.textContent = '';
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit';
-        showStep(1);
+        submitBtn.textContent = 'Send & Download Letter';
+      }, 3000);
+
+    } else {
+      statusEl.textContent = 'Error: Email address required';
+      statusEl.className = 'submit-status error';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send & Download Letter';
+      setTimeout(() => {
+        statusEl.className = 'submit-status';
+        statusEl.textContent = '';
       }, 3000);
     }
+
   } catch (error) {
-    console.error('Submission error:', error);
+    console.error('Error:', error);
     statusEl.textContent = 'Error: ' + error.message;
     statusEl.className = 'submit-status error';
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit';
+    submitBtn.textContent = 'Send & Download Letter';
+    setTimeout(() => {
+      statusEl.className = 'submit-status';
+      statusEl.textContent = '';
+    }, 3000);
   }
 }
 
@@ -2827,7 +3107,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="3">Back</button>
-              <button type="button" id="submit-btn" onclick="sendAndDownloadClient()">Send & Download</button>
+              <button type="button" id="submit-btn" onclick="sendAndDownload()">Send & Download Letter</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
             <small class="hint">Generates PDF, emails to you and referee, then downloads.</small>
