@@ -1563,34 +1563,63 @@ async function sendAndDownload(){
     submitBtn.disabled = true;
     submitBtn.textContent = 'Processing...';
 
-    // Step 1: Generate PDF
+    // Step 1: Generate TRUE PDF (server-side with Puppeteer)
     statusEl.textContent = 'Generating PDF...';
     statusEl.className = 'submit-status active';
     updatePreview();
-    await new Promise(resolve => setTimeout(resolve, 500));
 
     const data = readForm();
-    const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
+    const sigDataURL = (sigPad && !sigPad.isEmpty()) ? sigPad.toDataURL() : "";
+    const ref = formRef();
     const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
 
-    // Step 2: Send email
+    // Call server-side PDF generation for TRUE PDF
+    const pdfResponse = await fetch('/api/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formData: data,
+        signatureDataURL: sigDataURL
+      })
+    });
+
+    if (!pdfResponse.ok) {
+      const error = await pdfResponse.json();
+      throw new Error(error.message || 'PDF generation failed');
+    }
+
+    const { pdfBase64, filename } = await pdfResponse.json();
+
+    // Step 2: Send email FIRST
     if (data.email){
       statusEl.textContent = 'Sending emails...';
-      await sendToBackend({
-        refCode: ref,
-        filename,
-        pdfBase64: pdfDataURI.split(',')[1],
-        referee: {
-          name: data.refName,
-          role: effectiveRole,
-          email: data.email,
-          phone: data.phone
-        }
+      const emailResponse = await fetch('/api/send-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          refCode: ref,
+          filename,
+          pdfBase64,
+          referee: {
+            name: data.refName,
+            role: effectiveRole,
+            email: data.email,
+            phone: data.phone
+          }
+        })
       });
 
-      // Step 3: Download PDF
+      if (!emailResponse.ok) {
+        const error = await emailResponse.json();
+        throw new Error(error.message || 'Email sending failed');
+      }
+
+      // Step 3: Download PDF (after email sent successfully)
       statusEl.textContent = 'Downloading PDF...';
       await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Convert base64 to blob and download
+      const pdfBlob = base64ToBlob(pdfBase64, 'application/pdf');
       const a = document.createElement('a');
       a.href = URL.createObjectURL(pdfBlob);
       a.download = filename;
@@ -1618,11 +1647,23 @@ async function sendAndDownload(){
       }, 3000);
     }
   } catch (error) {
+    console.error('Submission error:', error);
     statusEl.textContent = 'Error: ' + error.message;
     statusEl.className = 'submit-status error';
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit';
   }
+}
+
+// Helper function to convert base64 to blob
+function base64ToBlob(base64, mimeType) {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mimeType });
 }
 
 function printLetter(){
