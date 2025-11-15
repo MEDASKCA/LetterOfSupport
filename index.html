@@ -374,6 +374,8 @@ button.ghost:hover{ background:#f9fafb; }
   font-weight:500;
 }
 .letter-closing{ margin-top: 14pt; }
+.letter-sign{ margin-top: 10pt; height: 60px; }
+.letter-sign img{ max-height: 60px; }
 .letter-signoff{ margin: 8pt 0 0; }
 .letter-signoff .name{ font-weight:700; }
 
@@ -1062,7 +1064,7 @@ function buildSkeletonLetterHTML(data){
   `;
 }
 
-function buildFreeTextLetterHTML(data, freeTextContent){
+function buildFreeTextLetterHTML(data, freeTextContent, signatureDataURL){
   const {
     refName,
     refRole,
@@ -1139,6 +1141,10 @@ function buildFreeTextLetterHTML(data, freeTextContent){
 
   const bodyHTML = paragraphs;
 
+  const sigHTML = signatureDataURL
+    ? `<div class="letter-sign"><img src="${signatureDataURL}" alt="Signature"/></div>`
+    : "";
+
   return `
     <div class="paper" id="paper">
       <div class="page">
@@ -1152,6 +1158,7 @@ function buildFreeTextLetterHTML(data, freeTextContent){
           ${bodyHTML}
           <div class="letter-closing">
             <p>Yours faithfully,</p>
+            ${sigHTML}
             <div class="letter-signoff">
               <div class="name">${refName || "[Name]"}</div>
               <div>${effectiveRole || "[Role]"}</div>
@@ -1200,7 +1207,7 @@ function buildLetterHTML(data, signatureDataURL){
 
   // Handle free text content for non-perioperative referees
   if (relationshipType === 'other' && freeTextContent){
-    return buildFreeTextLetterHTML(data, freeTextContent);
+    return buildFreeTextLetterHTML(data, freeTextContent, signatureDataURL);
   }
 
   const opening = openingsByRole[effectiveRole] ||
@@ -1494,7 +1501,9 @@ function updatePreview(){
   }
 
   // 3) Once any questions answered -> full letter
-  const html = buildLetterHTML(data, "");
+  const hasSignature = sigPad && !sigPad.isEmpty();
+  const sigDataURL = hasSignature ? sigPad.toDataURL() : "";
+  const html = buildLetterHTML(data, sigDataURL);
   preview.innerHTML = html;
 }
 
@@ -1503,13 +1512,17 @@ function updatePreview(){
 async function makePDF(){
   const data = readForm();
 
+  // Get signature
+  const signatureDataURL = (sigPad && !sigPad.isEmpty()) ? sigPad.toDataURL() : "";
+
   // Try server-side PDF generation first
   try {
     const response = await fetch('/api/generate-pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        formData: data
+        formData: data,
+        signatureDataURL
       })
     });
 
@@ -1751,6 +1764,7 @@ async function handleSubmit(){
   }
 
   document.getElementById('endorsement-form').reset();
+  if (sigPad){ sigPad.clear(); }
   const dateInput = document.getElementById('date_line');
   dateInput.type = 'date';
   dateInput.value = todayUKISO();
