@@ -1611,6 +1611,21 @@ function handleProfessionalAreaChange(){
   updatePreview();
 }
 
+function toggleOptionalField(wrapId){
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+
+  if (wrap.classList.contains('hidden')){
+    wrap.classList.remove('hidden');
+  } else {
+    wrap.classList.add('hidden');
+    // Clear the textarea when hiding
+    const textarea = wrap.querySelector('textarea');
+    if (textarea) textarea.value = '';
+  }
+  updatePreview();
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   // --- Signature: plain canvas drawing (no external library) ---
   const canvas = document.getElementById('signature-canvas');
@@ -2238,13 +2253,23 @@ window.addEventListener('DOMContentLoaded', () => {
               </div>
 
               <div class="col-2">
-                <label for="q_professionalism">Example related to professionalism or patient safety (optional)</label>
-                <textarea id="q_professionalism" name="q_professionalism"></textarea>
+                <label class="inline-option">
+                  <input type="checkbox" id="toggle_professionalism" onchange="toggleOptionalField('professionalism_wrap')">
+                  <span>Add example related to professionalism or patient safety (optional)</span>
+                </label>
+                <div id="professionalism_wrap" class="hidden" style="margin-top:8px;">
+                  <textarea id="q_professionalism" name="q_professionalism"></textarea>
+                </div>
               </div>
 
               <div class="col-2">
-                <label for="q_teamwork">Example related to teamwork or leadership (optional)</label>
-                <textarea id="q_teamwork" name="q_teamwork"></textarea>
+                <label class="inline-option">
+                  <input type="checkbox" id="toggle_teamwork" onchange="toggleOptionalField('teamwork_wrap')">
+                  <span>Add example related to teamwork or leadership (optional)</span>
+                </label>
+                <div id="teamwork_wrap" class="hidden" style="margin-top:8px;">
+                  <textarea id="q_teamwork" name="q_teamwork"></textarea>
+                </div>
               </div>
             </div>
 
@@ -2268,7 +2293,13 @@ window.addEventListener('DOMContentLoaded', () => {
                   <option value="their ability to work collaboratively across professional boundaries">Collaborative approach across professional boundaries</option>
                   <option value="their motivation to improve patient pathways and service efficiency">Motivation to improve patient pathways and service efficiency</option>
                 </select>
-                <textarea id="q_suitability_detail" name="q_suitability_detail" style="margin-top:6px;"></textarea>
+                <label class="inline-option" style="margin-top:8px;">
+                  <input type="checkbox" id="toggle_suitability" onchange="toggleOptionalField('suitability_detail_wrap')">
+                  <span>Add additional comments (optional)</span>
+                </label>
+                <div id="suitability_detail_wrap" class="hidden" style="margin-top:8px;">
+                  <textarea id="q_suitability_detail" name="q_suitability_detail"></textarea>
+                </div>
               </div>
 
               <div>
