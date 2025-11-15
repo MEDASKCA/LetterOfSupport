@@ -29,7 +29,10 @@ export default async function handler(req, res) {
     }
 
     // Convert base64 to Buffer
-    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
+    const fileBuffer = Buffer.from(pdfBase64, 'base64');
+
+    // Determine file type
+    const fileType = filename.toLowerCase().endsWith('.png') ? 'PNG image' : 'PDF';
 
     // Email subject
     const emailSubject = `NHS CEP Letter of Support – ${referee.name}${refCode ? ` – Ref: ${refCode}` : ''}`;
@@ -45,7 +48,7 @@ export default async function handler(req, res) {
 
       <p>Thank you for providing your letter of support for my application to the NHS Clinical Entrepreneur Programme.</p>
 
-      <p>Please find the signed letter attached as a PDF. A copy has also been sent to me for submission.</p>
+      <p>Please find the signed letter attached. A copy has also been sent to me for submission.</p>
 
       <p>I am hopeful that my innovation will be accepted into the programme, and I look forward to the possibility of collaborating with you in the future as the work continues to progress.</p>
 
@@ -65,7 +68,7 @@ export default async function handler(req, res) {
 
       <p>A new letter of support has been submitted by <strong>${referee.name}</strong> (${referee.role || 'Role not specified'}).</p>
 
-      <p>The signed letter is attached as a PDF. A copy has also been sent to the referee at ${referee.email}.</p>
+      <p>The signed letter is attached. A copy has also been sent to the referee at ${referee.email}.</p>
 
       ${refCode ? `<p><strong>Reference Code:</strong> ${refCode}</p>` : ''}
       ${referee.phone ? `<p><strong>Contact:</strong> ${referee.phone}</p>` : ''}
@@ -84,7 +87,7 @@ export default async function handler(req, res) {
       attachments: [
         {
           filename: filename,
-          content: pdfBuffer,
+          content: fileBuffer,
         },
       ],
     });
@@ -101,7 +104,7 @@ export default async function handler(req, res) {
       attachments: [
         {
           filename: filename,
-          content: pdfBuffer,
+          content: fileBuffer,
         },
       ],
     });

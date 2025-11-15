@@ -1444,8 +1444,8 @@ async function makePDF(){
     console.warn('Server-side PDF generation failed, falling back to client-side:', serverError);
   }
 
-  // Fallback to client-side PDF generation
-  console.log('Using client-side PDF generation');
+  // Fallback to client-side generation
+  console.log('Using client-side generation');
   const previewPaper = document.querySelector('#preview #paper');
   if (!previewPaper){ throw new Error("Preview not ready"); }
 
@@ -1453,15 +1453,43 @@ async function makePDF(){
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // Use optimized settings for each device type
-  const scale = isIOS ? 1.5 : (isMobile ? 1.8 : 2.0);
-  const quality = isIOS ? 0.85 : (isMobile ? 0.90 : 0.95);
+  // For mobile (especially iPhone), generate PNG instead of PDF - much lighter and more reliable
+  if (isMobile) {
+    console.log('Generating PNG image for mobile device');
 
-  // For iOS, use simpler rendering to avoid CORS issues
+    // Use high quality settings for PNG
+    const scale = 2.5;
+
+    const canvas = await html2canvas(previewPaper, {
+      scale: scale,
+      useCORS: !isIOS,
+      allowTaint: isIOS,
+      backgroundColor: '#ffffff',
+      logging: false,
+      removeContainer: true
+    });
+
+    // Convert to PNG (lossless, high quality)
+    const imgData = canvas.toDataURL('image/png', 1.0);
+
+    // Convert to blob for download
+    const response = await fetch(imgData);
+    const blob = await response.blob();
+
+    const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
+    const filename = `Letter_of_Support_${(effectiveRole || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.png`;
+
+    return { pdfBlob: blob, pdfDataURI: imgData, filename, ref };
+  }
+
+  // Desktop: Generate PDF
+  console.log('Generating PDF for desktop');
+  const scale = 2.0;
+  const quality = 0.95;
+
   const canvas = await html2canvas(previewPaper, {
     scale: scale,
-    useCORS: !isIOS,
-    allowTaint: isIOS,
+    useCORS: true,
     backgroundColor: '#ffffff',
     logging: false,
     removeContainer: true
@@ -1482,11 +1510,9 @@ async function makePDF(){
     const scaleFactor = pageHeight / imgHeight;
     const scaledWidth = imgWidth * scaleFactor;
     const scaledHeight = pageHeight;
-    // Center horizontally if scaled
     const xOffset = (pageWidth - scaledWidth) / 2;
     pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, scaledHeight);
   } else {
-    // Fits on one page
     pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
   }
 
