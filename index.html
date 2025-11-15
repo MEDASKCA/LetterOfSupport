@@ -1797,6 +1797,39 @@ window.addEventListener('DOMContentLoaded', () => {
   showStep(1);
   updatePreview();
 
+  // Populate trust datalist with unique trusts
+  const trustDatalist = document.getElementById('trust-list');
+  if (trustDatalist){
+    const uniqueTrusts = [...new Set(hospitalDirectory.map(h => h.trust))].sort();
+    uniqueTrusts.forEach(trust => {
+      const option = document.createElement('option');
+      option.value = trust;
+      trustDatalist.appendChild(option);
+    });
+  }
+
+  // Populate hospital datalist
+  const hospitalDatalist = document.getElementById('hospital-list');
+  function updateHospitalList(filterTrust = null){
+    if (!hospitalDatalist) return;
+    hospitalDatalist.innerHTML = '';
+
+    let hospitals = hospitalDirectory;
+    if (filterTrust){
+      hospitals = hospitals.filter(h => h.trust === filterTrust);
+    }
+
+    hospitals.forEach(h => {
+      const option = document.createElement('option');
+      option.value = h.hospital;
+      option.setAttribute('data-trust', h.trust);
+      hospitalDatalist.appendChild(option);
+    });
+  }
+
+  // Initial population with all hospitals
+  updateHospitalList();
+
   // Hospital name autocomplete
   const hospitalInput = document.getElementById('hospital_name');
   if (hospitalInput){
@@ -1846,6 +1879,18 @@ window.addEventListener('DOMContentLoaded', () => {
   // Organisation/Trust autocomplete
   const orgInput = document.getElementById('org');
   if (orgInput){
+    // Filter hospitals when organization changes
+    orgInput.addEventListener('input', () => {
+      const selectedTrust = orgInput.value.trim();
+      // Check if it's a valid trust from our list
+      const trustExists = hospitalDirectory.some(h => h.trust === selectedTrust);
+      if (trustExists){
+        updateHospitalList(selectedTrust);
+      } else {
+        updateHospitalList(); // Show all
+      }
+    });
+
     const handleOrgLookup = () => {
       const orgName = orgInput.value.trim();
       if (!orgName || orgName.length < 3) return;
@@ -1858,6 +1903,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // Fill in trust (corrected)
       orgInput.value = match.trust;
+
+      // Filter hospital list by selected trust
+      updateHospitalList(match.trust);
 
       // Fill in hospital if empty
       if (hospitalInput && !hospitalInput.value.trim()){
@@ -2066,15 +2114,21 @@ window.addEventListener('DOMContentLoaded', () => {
               <!-- 3. Organisation -->
               <div class="col-2">
                 <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
-                <input id="org" name="org"/>
-                <small class="hint">Start typing trust name for autocomplete. Anything after "NHS" will appear as the blue sub-header.</small>
+                <input id="org" name="org" list="trust-list" autocomplete="off"/>
+                <datalist id="trust-list">
+                  <!-- Populated dynamically -->
+                </datalist>
+                <small class="hint">Type to search trusts. Anything after "NHS" will appear as the blue sub-header.</small>
               </div>
 
               <!-- 4. Hospital name -->
               <div class="col-2">
                 <label for="hospital_name">Hospital name</label>
-                <input id="hospital_name" name="hospital_name"/>
-                <small class="hint">Start typing hospital name for autocomplete, or enter postcode below</small>
+                <input id="hospital_name" name="hospital_name" list="hospital-list" autocomplete="off"/>
+                <datalist id="hospital-list">
+                  <!-- Populated dynamically -->
+                </datalist>
+                <small class="hint">Type to search hospitals, or enter postcode below</small>
               </div>
 
               <!-- 5. Hospital address -->
