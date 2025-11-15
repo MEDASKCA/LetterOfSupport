@@ -581,21 +581,73 @@ function parseAddress(addressStr){
   }
 }
 
-function findHospitalMatch(name){
-  if (!name || !hospitalDirectory.length) return null;
-  const q = name.toLowerCase().trim();
+// Normalize text for fuzzy matching
+function normalizeText(text){
+  return text
+    .toLowerCase()
+    .replace(/['']/g, "'") // Normalize apostrophes
+    .replace(/\s+/g, ' ')   // Normalize spaces
+    .trim();
+}
+
+// Fuzzy match scoring
+function fuzzyScore(search, target){
+  const searchNorm = normalizeText(search);
+  const targetNorm = normalizeText(target);
 
   // Exact match
-  let m = hospitalDirectory.find(h => h.hospital.toLowerCase() === q);
-  if (m) return m;
+  if (searchNorm === targetNorm) return 100;
 
-  // Partial match
-  m = hospitalDirectory.find(h => h.hospital.toLowerCase().includes(q));
-  if (m) return m;
+  // Contains exact search
+  if (targetNorm.includes(searchNorm)) return 80;
 
-  // Reverse partial match (user typed partial name)
-  m = hospitalDirectory.find(h => q.includes(h.hospital.toLowerCase()));
-  return m || null;
+  // Search contains target (user typed more)
+  if (searchNorm.includes(targetNorm)) return 70;
+
+  // All search words present in target
+  const searchWords = searchNorm.split(' ').filter(w => w.length > 2);
+  const targetWords = targetNorm.split(' ');
+
+  const matchedWords = searchWords.filter(sw =>
+    targetWords.some(tw => tw.includes(sw) || sw.includes(tw))
+  );
+
+  if (matchedWords.length === searchWords.length && searchWords.length > 0){
+    return 60;
+  }
+
+  // Partial word matches
+  if (matchedWords.length > 0){
+    return 40 * (matchedWords.length / searchWords.length);
+  }
+
+  return 0;
+}
+
+function findHospitalMatch(name){
+  if (!name || !hospitalDirectory.length) return null;
+
+  const matches = hospitalDirectory.map(h => ({
+    hospital: h,
+    score: fuzzyScore(name, h.hospital)
+  })).filter(m => m.score > 30);
+
+  matches.sort((a, b) => b.score - a.score);
+
+  return matches.length > 0 ? matches[0].hospital : null;
+}
+
+function findTrustMatch(orgName){
+  if (!orgName || !hospitalDirectory.length) return null;
+
+  const matches = hospitalDirectory.map(h => ({
+    hospital: h,
+    score: fuzzyScore(orgName, h.trust)
+  })).filter(m => m.score > 30);
+
+  matches.sort((a, b) => b.score - a.score);
+
+  return matches.length > 0 ? matches[0].hospital : null;
 }
 
 // trust splitter
@@ -1676,9 +1728,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Hospital name autocomplete
   const hospitalInput = document.getElementById('hospital_name');
   if (hospitalInput){
-    hospitalInput.addEventListener('change', () => {
+    const handleHospitalLookup = () => {
       const name = hospitalInput.value.trim();
-      if (!name) return;
+      if (!name || name.length < 3) return;
 
       const match = findHospitalMatch(name);
       if (!match){
@@ -1708,6 +1760,59 @@ window.addEventListener('DOMContentLoaded', () => {
       if (pc)    pc.value    = match.postcode;
 
       updatePreview();
+    };
+
+    hospitalInput.addEventListener('blur', handleHospitalLookup);
+    hospitalInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        handleHospitalLookup();
+      }
+    });
+  }
+
+  // Organisation/Trust autocomplete
+  const orgInput = document.getElementById('org');
+  if (orgInput){
+    const handleOrgLookup = () => {
+      const orgName = orgInput.value.trim();
+      if (!orgName || orgName.length < 3) return;
+
+      const match = findTrustMatch(orgName);
+      if (!match){
+        updatePreview();
+        return;
+      }
+
+      // Fill in trust (corrected)
+      orgInput.value = match.trust;
+
+      // Fill in hospital if empty
+      if (hospitalInput && !hospitalInput.value.trim()){
+        hospitalInput.value = match.hospital;
+      }
+
+      // Parse and fill address
+      const addressParts = parseAddress(match.address);
+      const addr1 = document.getElementById('hospital_addr1');
+      const addr2 = document.getElementById('hospital_addr2');
+      const city  = document.getElementById('hospital_city');
+      const pc    = document.getElementById('hospital_postcode');
+
+      if (addr1 && !addr1.value.trim()) addr1.value = addressParts.line1;
+      if (addr2 && !addr2.value.trim()) addr2.value = addressParts.line2;
+      if (city && !city.value.trim())  city.value  = addressParts.city;
+      if (pc && !pc.value.trim())    pc.value    = match.postcode;
+
+      updatePreview();
+    };
+
+    orgInput.addEventListener('blur', handleOrgLookup);
+    orgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        handleOrgLookup();
+      }
     });
   }
 
@@ -1890,14 +1995,14 @@ window.addEventListener('DOMContentLoaded', () => {
               <div class="col-2">
                 <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
                 <input id="org" name="org"/>
-                <small class="hint">Anything after "NHS" will appear as the blue sub-header.</small>
+                <small class="hint">Start typing trust name for autocomplete. Anything after "NHS" will appear as the blue sub-header.</small>
               </div>
 
               <!-- 4. Hospital name -->
               <div class="col-2">
                 <label for="hospital_name">Hospital name</label>
                 <input id="hospital_name" name="hospital_name"/>
-                <small class="hint">Or enter postcode below to auto-fill</small>
+                <small class="hint">Start typing hospital name for autocomplete, or enter postcode below</small>
               </div>
 
               <!-- 5. Hospital address -->
