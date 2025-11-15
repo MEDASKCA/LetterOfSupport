@@ -366,7 +366,12 @@ button.ghost:hover{ background:#f9fafb; }
   padding: 20px;
   width: 100%;
   min-height: 100%;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden; /* No horizontal panning */
+}
+/* Allow zoom on preview only (double-tap or pinch) */
+.preview-wrap .paper{
+  cursor: zoom-in;
 }
 .paper{
   width: 210mm;
@@ -1594,11 +1599,29 @@ async function sendAndDownload(){
     });
 
     if (!pdfResponse.ok) {
-      const error = await pdfResponse.json();
-      throw new Error(error.message || 'PDF generation failed');
+      const errorText = await pdfResponse.text();
+      console.error('PDF API Error:', pdfResponse.status, errorText);
+      throw new Error('PDF generation failed: ' + pdfResponse.status);
     }
 
-    const { pdfBase64, filename } = await pdfResponse.json();
+    const responseText = await pdfResponse.text();
+    console.log('PDF API Response (first 200 chars):', responseText.substring(0, 200));
+
+    let pdfResult;
+    try {
+      pdfResult = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Failed to parse PDF response as JSON:', e);
+      throw new Error('Server returned invalid JSON');
+    }
+
+    console.log('Parsed PDF result:', {
+      hasBase64: !!pdfResult.pdfBase64,
+      base64Length: pdfResult.pdfBase64?.length,
+      filename: pdfResult.filename
+    });
+
+    const { pdfBase64, filename } = pdfResult;
 
     // Step 2: Send email FIRST
     if (data.email){
