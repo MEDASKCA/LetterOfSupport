@@ -814,7 +814,7 @@ function readForm(){
 
     professionalArea: (document.getElementById('professional_area')?.value || ""),
     relationship: document.getElementById('relationship').value,
-    relationshipSpecify: (document.getElementById('relationship_specify')?.value || "").trim(),
+    otherRelationshipCapacity: (document.getElementById('other_relationship_capacity')?.value || "").trim(),
     customLetterText: (document.getElementById('custom_letter_text')?.value || "").trim(),
 
     hospitalName: (document.getElementById('hospital_name')?.value || "").trim(),
@@ -1063,7 +1063,7 @@ function buildLetterHTML(data, signatureDataURL){
     phone,
     professionalArea,
     relationship,
-    relationshipSpecify,
+    otherRelationshipCapacity,
     customLetterText,
     dateLine,
     hospitalName,
@@ -1146,19 +1146,19 @@ function buildLetterHTML(data, signatureDataURL){
 
   const salutationHTML = `<p class="sal">Dear NHS Clinical Entrepreneur Team,</p>`;
 
-  // If different professional area, use custom letter text
+  // If different professional area, show placeholder for custom message
   console.log('buildLetterHTML - professionalArea:', professionalArea, 'customLetterText length:', customLetterText?.length || 0);
-  if (professionalArea === 'different' && customLetterText){
-    console.log('Using custom letter template');
-    const customParagraphs = customLetterText.split('\n\n').map(p =>
-      p.trim() ? `<p>${p.trim()}</p>` : ''
-    ).join('');
+  if (professionalArea === 'different'){
+    console.log('Using Other Professional Relationship - custom message placeholder');
 
     const sigHTML = signatureDataURL
       ? `<div class="letter-sign"><img src="${signatureDataURL}" alt="Signature"/></div>`
       : "";
 
-    const bodyHTML = `${salutationHTML}${customParagraphs}`;
+    // Show placeholder for custom message entry
+    const customMessageHTML = customLetterText
+      ? customLetterText.split('\n\n').map(p => p.trim() ? `<p>${p.trim()}</p>` : '').join('')
+      : `<p style="color:#9ca3af; font-style:italic;">Your custom message will appear here once you complete Step 3 (Custom Letter).</p>`;
 
     return `
       <div class="paper" id="paper">
@@ -1170,7 +1170,8 @@ function buildLetterHTML(data, signatureDataURL){
           <div class="letter-date">Date: ${dateStr}</div>
           ${recipientHTML}
           <div class="letter-body">
-            ${bodyHTML}
+            ${salutationHTML}
+            ${customMessageHTML}
             <div class="letter-closing">
               <p>Yours faithfully,</p>
               ${sigHTML}
@@ -1187,7 +1188,7 @@ function buildLetterHTML(data, signatureDataURL){
     `;
   }
 
-  // Otherwise, use template
+  // Otherwise, use perioperative template
   console.log('Using perioperative template');
   const narrativeParts = [];
 
@@ -1440,6 +1441,10 @@ async function makePDF(){
   const previewPaper = document.querySelector('#preview #paper');
   if (!previewPaper){ throw new Error("Preview not ready"); }
 
+  // Temporarily remove zoom for proper A4 capture
+  const originalZoom = previewPaper.style.zoom;
+  previewPaper.style.zoom = '1';
+
   const ref = formRef();
   const footer = document.createElement('div');
   footer.style.fontFamily = 'Arial, sans-serif';
@@ -1458,20 +1463,28 @@ async function makePDF(){
   `;
   previewPaper.appendChild(footer);
 
+  // Capture at proper A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI)
   const canvas = await html2canvas(previewPaper, {
-    scale: 1.75,
+    scale: 2,
     useCORS: false,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    windowWidth: 794,
+    windowHeight: 1123
   });
   footer.remove();
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
-  const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const imgWidth = pageWidth;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
+  // Restore zoom
+  previewPaper.style.zoom = originalZoom;
 
-  pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+  const imgData = canvas.toDataURL('image/png', 1.0);
+  const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+
+  // A4 dimensions in mm
+  const pageWidth = 210;
+  const pageHeight = 297;
+
+  // Add image to fit A4 perfectly with proper margins
+  pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
 
   const blob = pdf.output('blob');
   const dataURI = pdf.output('datauristring');
@@ -1663,24 +1676,36 @@ function goToFinalStep(){
 
 function handleProfessionalAreaChange(){
   const areaSelect = document.getElementById('professional_area');
-  const relationshipWrap = document.getElementById('relationship_wrap');
+  const perioperativeCapacityWrap = document.getElementById('perioperative_capacity_wrap');
+  const otherCapacityWrap = document.getElementById('other_capacity_wrap');
   const relationshipSelect = document.getElementById('relationship');
-  const relationshipSpecifyWrap = document.getElementById('relationship_specify_wrap');
+  const otherRelationshipInput = document.getElementById('other_relationship_capacity');
+  const durationLabel = document.getElementById('duration_label');
 
   if (!areaSelect) return;
 
   const area = areaSelect.value;
 
   if (area === 'different'){
-    // Hide relationship fields for different area
-    if (relationshipWrap) relationshipWrap.classList.add('hidden');
+    // Show free text capacity for Other Professional Relationship
+    if (perioperativeCapacityWrap) perioperativeCapacityWrap.classList.add('hidden');
+    if (otherCapacityWrap) otherCapacityWrap.classList.remove('hidden');
     if (relationshipSelect) relationshipSelect.removeAttribute('required');
-    if (relationshipSpecifyWrap) relationshipSpecifyWrap.classList.add('hidden');
+    if (otherRelationshipInput) otherRelationshipInput.setAttribute('required', 'required');
+    if (durationLabel) durationLabel.textContent = 'How long have you known or worked with Alex?';
   } else if (area === 'perioperative'){
-    // Show relationship fields for perioperative
-    if (relationshipWrap) relationshipWrap.classList.remove('hidden');
+    // Show dropdown capacity for Perioperative/Theatre Colleague
+    if (perioperativeCapacityWrap) perioperativeCapacityWrap.classList.remove('hidden');
+    if (otherCapacityWrap) otherCapacityWrap.classList.add('hidden');
     if (relationshipSelect) relationshipSelect.setAttribute('required', 'required');
-    if (relationshipSpecifyWrap) relationshipSpecifyWrap.classList.remove('hidden');
+    if (otherRelationshipInput) otherRelationshipInput.removeAttribute('required');
+    if (durationLabel) durationLabel.textContent = 'How long have you worked with Alex?';
+  } else {
+    // Nothing selected - hide both
+    if (perioperativeCapacityWrap) perioperativeCapacityWrap.classList.add('hidden');
+    if (otherCapacityWrap) otherCapacityWrap.classList.add('hidden');
+    if (relationshipSelect) relationshipSelect.removeAttribute('required');
+    if (otherRelationshipInput) otherRelationshipInput.removeAttribute('required');
   }
 
   updatePreview();
@@ -1856,16 +1881,6 @@ window.addEventListener('DOMContentLoaded', () => {
       const step = parseInt(btn.dataset.nextStep,10);
       const current = step - 1;
       if (!validateStep(current)) return;
-
-      // Special routing from Step 2
-      if (current === 2){
-        const areaSelect = document.getElementById('professional_area');
-        if (areaSelect && areaSelect.value === 'different'){
-          // Go to custom letter step
-          showStep('2a');
-          return;
-        }
-      }
 
       showStep(step);
     });
@@ -2300,7 +2315,7 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
 
-          <!-- STEP 2: Relationship & Role (for Perioperative) -->
+          <!-- STEP 2: Relationship & Role -->
           <div class="form-step" data-step="2" id="step-relationship">
             <div class="section-title">Relationship & Role</div>
             <div class="grid">
@@ -2312,11 +2327,10 @@ window.addEventListener('DOMContentLoaded', () => {
                   <option value="perioperative">Perioperative/Theatre Colleague</option>
                   <option value="different">Other Professional Relationship</option>
                 </select>
-                <small class="hint">If you select "Other Professional Relationship", you'll write a custom letter instead of using the template.</small>
               </div>
 
-              <!-- Capacity (only shown for perioperative) -->
-              <div class="col-2 hidden" id="relationship_wrap">
+              <!-- FOR PERIOPERATIVE: Dropdown capacity -->
+              <div class="col-2 hidden" id="perioperative_capacity_wrap">
                 <label for="relationship">In what capacity have you worked with Alex?</label>
                 <select id="relationship" name="relationship">
                   <option value="">Please select...</option>
@@ -2333,15 +2347,16 @@ window.addEventListener('DOMContentLoaded', () => {
                 </select>
               </div>
 
-              <!-- Free text specify (only shown for perioperative) -->
-              <div class="col-2 hidden" id="relationship_specify_wrap">
-                <label for="relationship_specify">Please specify</label>
-                <input id="relationship_specify" name="relationship_specify"/>
-                <small class="hint">Provide any additional details about your working relationship with Alex.</small>
+              <!-- FOR OTHER: Free text capacity -->
+              <div class="col-2 hidden" id="other_capacity_wrap">
+                <label for="other_relationship_capacity">Please specify what capacity you have worked with Alex</label>
+                <input id="other_relationship_capacity" name="other_relationship_capacity"/>
+                <small class="hint">Describe your professional relationship with Alex.</small>
               </div>
 
+              <!-- Duration (shown for both) -->
               <div class="col-2">
-                <label for="q_duration_select">How long have you known or worked with Alex?</label>
+                <label for="q_duration_select"><span id="duration_label">How long have you known or worked with Alex?</span></label>
                 <select id="q_duration_select" name="q_duration_select" required onchange="toggleDurationDetail()">
                   <option value="">Please select...</option>
                   <option value="less than six months">Less than six months</option>
@@ -2353,24 +2368,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 <div id="duration_detail_wrap" class="hidden" style="margin-top:8px;">
                   <input id="q_duration_detail" name="q_duration_detail"/>
                   <small class="hint">This will be turned into a narrative sentence in the letter.</small>
-                </div>
-              </div>
-
-              <div class="col-2">
-                <label for="q_capacity_select">In what capacity have you worked with Alex?</label>
-                <select id="q_capacity_select" name="q_capacity_select" required>
-                  <option value="">Please select...</option>
-                  <option value="their line manager">As their line manager</option>
-                  <option value="a senior clinician overseeing their work">As a senior clinician overseeing their work</option>
-                  <option value="a peer / fellow team leader">As a peer / fellow team leader</option>
-                  <option value="a service or operations manager">As a service or operations manager</option>
-                  <option value="a consultant colleague">As a consultant colleague</option>
-                  <option value="other">Other (please specify)</option>
-                </select>
-                <div id="capacity_other_wrap" class="hidden" style="margin-top:6px;">
-                  <input id="q_capacity_other" name="q_capacity_other"/>
-                  <input id="q_capacity_detail" name="q_capacity_detail" style="margin-top:6px;"/>
-                  <small class="hint">Your answer will be blended with the duration to describe your relationship to Alex.</small>
                 </div>
               </div>
             </div>
