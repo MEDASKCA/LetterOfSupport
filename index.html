@@ -2159,7 +2159,7 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="grid">
               <div>
                 <label for="ref_name">Your full name</label>
-                <input id="ref_name" name="ref_name" required placeholder="e.g., Dr Jane Smith"/>
+                <input id="ref_name" name="ref_name" required/>
               </div>
               <div>
                 <label for="ref_role">Your job title/role</label>
@@ -2236,47 +2236,39 @@ window.addEventListener('DOMContentLoaded', () => {
                   </optgroup>
                 </select>
                 <div id="ref_role_other_wrap" class="hidden" style="margin-top:6px;">
-                  <input id="ref_role_other" name="ref_role_other" placeholder="Please specify your job title"/>
-                  <small class="hint">For unique job titles or roles not listed above.</small>
+                  <input id="ref_role_other" name="ref_role_other"/>
                 </div>
               </div>
 
               <div>
                 <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
-                <input id="org" name="org" placeholder="Barts Health NHS Trust"/>
+                <input id="org" name="org"/>
               </div>
 
               <div class="col-2">
                 <label for="hospital_name">Hospital name</label>
-                <input id="hospital_name" name="hospital_name" placeholder="Royal London Hospital"/>
-                <small class="hint">
-                  If recognised, the Trust and address will auto-fill.
-                </small>
+                <input id="hospital_name" name="hospital_name"/>
               </div>
 
               <div class="col-2" style="margin-top:8px;">
                 <label>Hospital address (editable)</label>
                 <div class="grid">
-                  <div><input id="hospital_addr1" name="hospital_addr1" placeholder="Whitechapel Road"/></div>
-                  <div><input id="hospital_addr2" name="hospital_addr2" placeholder="Whitechapel"/></div>
-                  <div><input id="hospital_city" name="hospital_city" placeholder="London"/></div>
-                  <div><input id="hospital_postcode" name="hospital_postcode" placeholder="E1 1FR"/></div>
+                  <div><input id="hospital_addr1" name="hospital_addr1"/></div>
+                  <div><input id="hospital_addr2" name="hospital_addr2"/></div>
+                  <div><input id="hospital_city" name="hospital_city"/></div>
+                  <div><input id="hospital_postcode" name="hospital_postcode"/></div>
                 </div>
-                <small class="hint">
-                  These appear under the hospital name in the top-right header.
-                </small>
               </div>
 
               <div>
                 <label for="ref_email">Your work email</label>
-                <input id="ref_email" name="ref_email" type="email" required placeholder="your.name@nhs.net"/>
-                <small class="hint">You'll receive a copy of the letter at this address.</small>
+                <input id="ref_email" name="ref_email" type="email" required/>
+                <small class="hint">You'll receive a copy of the letter.</small>
               </div>
 
               <div>
                 <label for="ref_phone">Your contact number (optional)</label>
-                <input id="ref_phone" name="ref_phone" type="tel" placeholder="020 1234 5678"/>
-                <small class="hint">Used for the “Tel:” line in the sender block.</small>
+                <input id="ref_phone" name="ref_phone" type="tel"/>
               </div>
 
               <div class="col-2">
@@ -2286,7 +2278,6 @@ window.addEventListener('DOMContentLoaded', () => {
                   <option value="perioperative">Perioperative/Theatre colleague</option>
                   <option value="other">Other professional relationship</option>
                 </select>
-                <small class="hint">This determines which questions you'll be asked next.</small>
               </div>
 
               <div id="perioperative_relationship_wrap" class="hidden col-2">
@@ -2318,17 +2309,8 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="grid">
               <div class="col-2">
                 <label for="free_text_content">Please write your letter of support for Alex Monterubio</label>
-                <textarea id="free_text_content" name="free_text_content" style="min-height:400px;" placeholder="Dear NHS Clinical Entrepreneur Team,
-
-[Write your letter here in your own words]
-
-Example structure:
-• Introduce yourself and your relationship to Alex
-• How long you've known them and in what capacity
-• Why you believe Alex is suitable for the programme
-• Relevant examples of their skills, qualities, or achievements
-• Your endorsement and any other supporting information"></textarea>
-                <small class="hint">Write the entire letter content in your own words, starting with "Dear..." Double line breaks create new paragraphs.</small>
+                <textarea id="free_text_content" name="free_text_content" style="min-height:400px;"></textarea>
+                <small class="hint">Write in your own words, starting with "Dear..." — double line breaks create new paragraphs.</small>
               </div>
             </div>
 
@@ -2352,8 +2334,7 @@ Example structure:
                   <option value="more than three years">More than three years</option>
                   <option value="other">Other (please add a short description below)</option>
                 </select>
-                <input id="q_duration_detail" name="q_duration_detail" placeholder="Optional – e.g., since March 2023, across elective and trauma lists"/>
-                <small class="hint">This will be turned into a narrative sentence in the letter.</small>
+                <input id="q_duration_detail" name="q_duration_detail"/>
               </div>
 
               <div class="col-2">
@@ -2368,10 +2349,9 @@ Example structure:
                   <option value="other">Other (please specify)</option>
                 </select>
                 <div id="capacity_other_wrap" class="hidden" style="margin-top:6px;">
-                  <input id="q_capacity_other" name="q_capacity_other" placeholder="Briefly describe your capacity (e.g., education supervisor, project lead)"/>
+                  <input id="q_capacity_other" name="q_capacity_other"/>
                 </div>
-                <input id="q_capacity_detail" name="q_capacity_detail" style="margin-top:6px;" placeholder="Optional – e.g., responsible for theatre staffing and patient flow"/>
-                <small class="hint">Your answer will be blended with the duration to describe your relationship to Alex.</small>
+                <input id="q_capacity_detail" name="q_capacity_detail" style="margin-top:6px;"/>
               </div>
             </div>
 
@@ -2425,18 +2405,18 @@ Example structure:
                     <span>Advocates for improvements that enhance quality and efficiency</span>
                   </label>
                 </div>
-                <input id="q_strengths_other" name="q_strengths_other" style="margin-top:8px;" placeholder="Other strengths or your own wording"/>
-                <small class="hint">Please select at least one option or add your own wording – this will be turned into a narrative sentence.</small>
+                <input id="q_strengths_other" name="q_strengths_other" style="margin-top:8px;"/>
+                <small class="hint">Select at least one option or add your own wording.</small>
               </div>
 
               <div class="col-2">
                 <label for="q_professionalism">Example related to professionalism or patient safety (optional)</label>
-                <textarea id="q_professionalism" name="q_professionalism" placeholder="e.g., a time Alex escalated concerns appropriately or managed a complex list safely."></textarea>
+                <textarea id="q_professionalism" name="q_professionalism"></textarea>
               </div>
 
               <div class="col-2">
                 <label for="q_teamwork">Example related to teamwork or leadership (optional)</label>
-                <textarea id="q_teamwork" name="q_teamwork" placeholder="e.g., coordinating theatre staff, supporting colleagues during staff shortages, or leading a change in practice."></textarea>
+                <textarea id="q_teamwork" name="q_teamwork"></textarea>
               </div>
             </div>
 
@@ -2460,14 +2440,12 @@ Example structure:
                   <option value="their ability to work collaboratively across professional boundaries">Collaborative approach across professional boundaries</option>
                   <option value="their motivation to improve patient pathways and service efficiency">Motivation to improve patient pathways and service efficiency</option>
                 </select>
-                <textarea id="q_suitability_detail" name="q_suitability_detail" style="margin-top:6px;" placeholder="Optional – add anything specific that you feel is important for the panel to know."></textarea>
-                <small class="hint">Your selection and comments here will form the core of the suitability paragraph.</small>
+                <textarea id="q_suitability_detail" name="q_suitability_detail" style="margin-top:6px;"></textarea>
               </div>
 
               <div>
                 <label for="date_line">Letter date</label>
                 <input id="date_line" name="date_line"/>
-                <small class="hint">Today's date is pre-filled. You can change it if needed.</small>
               </div>
             </div>
 
@@ -2496,7 +2474,7 @@ Example structure:
               <button type="button" class="ghost" onclick="printLetter()">Print Preview</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
-            <small class="hint">On submit, the letter (PDF/PNG) will download to your device and an email copy will be sent to both you and Alex.</small>
+            <small class="hint">The letter will download and email copies will be sent to you and Alex.</small>
           </div>
         </form>
       </div>
