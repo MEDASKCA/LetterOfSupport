@@ -1652,13 +1652,21 @@ async function sendAndDownload(){
 
 // Helper function to convert base64 to blob
 function base64ToBlob(base64, mimeType) {
-  const byteCharacters = atob(base64);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  // Clean the base64 string - remove data URI prefix if present and whitespace
+  let cleanBase64 = base64.replace(/^data:.*?;base64,/, '').replace(/\s/g, '');
+
+  try {
+    const byteCharacters = atob(cleanBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+  } catch (e) {
+    console.error('Base64 decode error:', e);
+    throw new Error('Invalid PDF data received from server');
   }
-  const byteArray = new Uint8Array(byteNumbers);
-  return new Blob([byteArray], { type: mimeType });
 }
 
 function printLetter(){
