@@ -800,8 +800,24 @@ let currentStep = 1;
 const totalSteps = 4;
 
 function readForm(){
-  const strengthsSelected = Array.from(
-    document.querySelectorAll('input[name="strengths"]:checked')
+  const motivationSelected = Array.from(
+    document.querySelectorAll('input[name="motivation"]:checked')
+  ).map(el => el.value);
+
+  const professionalStrengthsSelected = Array.from(
+    document.querySelectorAll('input[name="professional_strengths"]:checked')
+  ).map(el => el.value);
+
+  const clinicalImpactSelected = Array.from(
+    document.querySelectorAll('input[name="clinical_impact"]:checked')
+  ).map(el => el.value);
+
+  const nhsPrioritiesSelected = Array.from(
+    document.querySelectorAll('input[name="nhs_priorities"]:checked')
+  ).map(el => el.value);
+
+  const innovationViabilitySelected = Array.from(
+    document.querySelectorAll('input[name="innovation_viability"]:checked')
   ).map(el => el.value);
 
   return {
@@ -829,15 +845,11 @@ function readForm(){
     qDurationSelect: (document.getElementById('q_duration_select')?.value || ""),
     qDurationDetail: (document.getElementById('q_duration_detail')?.value || "").trim(),
 
-    strengthsSelected,
-    qStrengthsOther: (document.getElementById('q_strengths_other')?.value || "").trim(),
-    qStrengthsComments: (document.getElementById('q_strengths_comments')?.value || "").trim(),
-
-    qProfessionalism: (document.getElementById('q_professionalism')?.value || "").trim(),
-    qTeamwork: (document.getElementById('q_teamwork')?.value || "").trim(),
-
-    qSuitabilitySelect: (document.getElementById('q_suitability_select')?.value || ""),
-    qSuitabilityDetail: (document.getElementById('q_suitability_detail')?.value || "").trim()
+    motivationSelected,
+    professionalStrengthsSelected,
+    clinicalImpactSelected,
+    nhsPrioritiesSelected,
+    innovationViabilitySelected
   };
 }
 
@@ -860,24 +872,6 @@ function validateStep(stepNumber){
       if (!firstProblem) firstProblem = el;
     }
   });
-
-  if (stepNumber === 3){
-    const strengthsGroup = document.getElementById('strengths_group');
-    if (strengthsGroup){
-      strengthsGroup.style.border = 'none';
-      strengthsGroup.style.padding = '0';
-      const strengthsChecked = document.querySelectorAll('input[name="strengths"]:checked').length;
-      const strengthsOtherVal = (document.getElementById('q_strengths_other')?.value || "").trim();
-      const strengthsValid = strengthsChecked > 0 || strengthsOtherVal.length > 0;
-      if (!strengthsValid){
-        valid = false;
-        strengthsGroup.style.border = '1px solid #dc2626';
-        strengthsGroup.style.borderRadius = '6px';
-        strengthsGroup.style.padding = '8px';
-        if (!firstProblem) firstProblem = strengthsGroup;
-      }
-    }
-  }
 
   if (!valid && firstProblem){
     if (firstProblem.scrollIntoView){
@@ -1070,12 +1064,11 @@ function buildLetterHTML(data, signatureDataURL){
     useHeader,
     qDurationSelect,
     qDurationDetail,
-    strengthsSelected,
-    qStrengthsOther,
-    qProfessionalism,
-    qTeamwork,
-    qSuitabilitySelect,
-    qSuitabilityDetail
+    motivationSelected,
+    professionalStrengthsSelected,
+    clinicalImpactSelected,
+    nhsPrioritiesSelected,
+    innovationViabilitySelected
   } = data;
 
   const effectiveRole = (refRole === "Other" && refRoleOther) ? refRoleOther : refRole;
@@ -1248,78 +1241,47 @@ function buildLetterHTML(data, signatureDataURL){
   }
   narrativeParts.push(`<p>${intro}</p>`);
 
-  // Strengths
-  let strengthsSentence = "";
-  if (strengthsSelected.length || qStrengthsOther){
-    const pieces = [...strengthsSelected];
-    if (qStrengthsOther){
-      pieces.push(qStrengthsOther);
-    }
+  // Helper function to format array into narrative sentence
+  const formatList = (items) => {
+    if (!items || items.length === 0) return "";
+    if (items.length === 1) return items[0];
+    if (items.length === 2) return items.join(" and ");
+    return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
+  };
 
-    let strengthsPhrase = "";
-    if (pieces.length === 1){
-      strengthsPhrase = pieces[0];
-    } else if (pieces.length === 2){
-      strengthsPhrase = pieces.join(" and ");
-    } else {
-      strengthsPhrase = pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    }
-
-    strengthsSentence = `In day-to-day practice, Alex has demonstrated ${strengthsPhrase}.`;
+  // 1. Motivation
+  if (motivationSelected && motivationSelected.length > 0){
+    const motivationPhrase = formatList(motivationSelected);
+    narrativeParts.push(`<p>In my assessment, Alex ${motivationPhrase}.</p>`);
   }
 
-  // Professionalism / safety
-  let professionalismSentence = "";
-  if (qProfessionalism){
-    professionalismSentence = ` In terms of professionalism and patient safety, I would highlight the following example: ${qProfessionalism}`;
+  // 2. Professional strengths
+  if (professionalStrengthsSelected && professionalStrengthsSelected.length > 0){
+    const strengthsPhrase = formatList(professionalStrengthsSelected);
+    narrativeParts.push(`<p>From a professional capability perspective, Alex ${strengthsPhrase}.</p>`);
   }
 
-  // Teamwork / leadership
-  let teamworkSentence = "";
-  if (qTeamwork){
-    teamworkSentence = ` Regarding teamwork and leadership within theatres, an illustrative example is: ${qTeamwork}`;
+  // 3. Clinical impact
+  if (clinicalImpactSelected && clinicalImpactSelected.length > 0){
+    const impactPhrase = formatList(clinicalImpactSelected);
+    narrativeParts.push(`<p>Regarding their potential for creating meaningful clinical impact, I observe that Alex ${impactPhrase}.</p>`);
   }
 
-  let middlePara = "";
-  if (strengthsSentence){
-    middlePara += strengthsSentence;
-  }
-  if (professionalismSentence){
-    middlePara += professionalismSentence;
-  }
-  if (teamworkSentence){
-    middlePara += teamworkSentence;
-  }
-  if (middlePara){
-    narrativeParts.push(`<p>${middlePara}</p>`);
+  // 4. NHS priorities
+  if (nhsPrioritiesSelected && nhsPrioritiesSelected.length > 0){
+    const prioritiesPhrase = formatList(nhsPrioritiesSelected);
+    narrativeParts.push(`<p>Alex's proposed innovation ${prioritiesPhrase}.</p>`);
   }
 
-  // Suitability + MBA
-  let suitabilitySentence = "";
-  if (qSuitabilitySelect || qSuitabilityDetail){
-    const reasons = [];
-    if (qSuitabilitySelect){
-      reasons.push(qSuitabilitySelect);
-    }
-    if (qSuitabilityDetail){
-      reasons.push(qSuitabilityDetail);
-    }
-
-    let reasonsPhrase = "";
-    if (reasons.length === 1){
-      reasonsPhrase = reasons[0];
-    } else if (reasons.length === 2){
-      reasonsPhrase = reasons.join(" and ");
-    } else {
-      reasonsPhrase = reasons.slice(0, -1).join(", ") + ", and " + reasons[reasons.length - 1];
-    }
-
-    suitabilitySentence = `On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme because of ${reasonsPhrase}.`;
-  } else {
-    suitabilitySentence = "On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme and capable of contributing positively to innovation within the NHS.";
+  // 5. Innovation viability
+  if (innovationViabilitySelected && innovationViabilitySelected.length > 0){
+    const viabilityPhrase = formatList(innovationViabilitySelected);
+    narrativeParts.push(`<p>In terms of viability, ${viabilityPhrase}.</p>`);
   }
 
+  // Final paragraph: MBA + suitability
   const mbaSentence = "Alex is currently undertaking an Executive MBA, further developing their leadership, strategic and innovation skills, qualities that align closely with the objectives of the NHS Clinical Entrepreneur Programme.";
+  const suitabilitySentence = "On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme and capable of contributing positively to innovation within the NHS.";
   narrativeParts.push(`<p>${mbaSentence} ${suitabilitySentence}</p>`);
 
   narrativeParts.push(
@@ -2365,88 +2327,180 @@ window.addEventListener('DOMContentLoaded', () => {
 
           <!-- STEP 3 -->
           <div class="form-step" data-step="3">
-            <div class="section-title">Strengths & Examples</div>
+            <div class="section-title">Professional Endorsement</div>
             <div class="grid">
-              <div class="col-2" id="strengths_group">
-                <label>What key strengths has Alex demonstrated?</label>
+              <!-- Q1: Motivation for innovation -->
+              <div class="col-2">
+                <label>How would you describe Alex's motivation for pursuing innovation within the NHS? (Select all that apply)</label>
                 <div class="grid">
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="promotes a positive, respectful, and supportive team culture">
-                    <span>Positive team culture</span>
+                    <input type="checkbox" name="motivation" value="demonstrates genuine interest in improving patient pathways or staff workflows">
+                    <span>Demonstrates genuine interest in improving patient pathways or staff workflows</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="delegates effectively while maintaining oversight of standards and safety">
-                    <span>Effective delegation</span>
+                    <input type="checkbox" name="motivation" value="actively seeks opportunities to solve practical operational challenges">
+                    <span>Actively seeks opportunities to solve practical operational challenges</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="communicates clearly with surgeons, anaesthetists, and wider MDT members">
-                    <span>Clear MDT communication</span>
+                    <input type="checkbox" name="motivation" value="shows persistence when exploring new ideas or approaches">
+                    <span>Shows persistence when exploring new ideas or approaches</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="able to escalate concerns appropriately and confidently">
-                    <span>Escalates concerns appropriately</span>
+                    <input type="checkbox" name="motivation" value="displays curiosity and willingness to learn from others">
+                    <span>Displays curiosity and willingness to learn from others</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="uses incident reports, utilisation data, KPIs, and audit results to guide decisions">
-                    <span>Data-driven decision making</span>
+                    <input type="checkbox" name="motivation" value="responds positively to feedback and uses it to refine ideas">
+                    <span>Responds positively to feedback and uses it to refine ideas</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="builds strong working relationships with surgeons, anaesthetists, managers, and procurement teams">
-                    <span>Strong stakeholder relationships</span>
+                    <input type="checkbox" name="motivation" value="motivated by improving safety, efficiency, or patient experience">
+                    <span>Motivated by improving safety, efficiency, or patient experience</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="aware of financial constraints, transformation plans, and long-term workforce challenges">
-                    <span>Strategic awareness</span>
+                    <input type="checkbox" name="motivation" value="able to balance ambition with realistic expectations">
+                    <span>Able to balance ambition with realistic expectations</span>
                   </label>
-                  <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="aligns team behaviour with organisational priorities">
-                    <span>Aligns with priorities</span>
-                  </label>
-                  <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="advocates for improvements that enhance quality and efficiency">
-                    <span>Advocates for improvement</span>
-                  </label>
-                </div>
-                <input id="q_strengths_other" name="q_strengths_other" style="margin-top:8px;"/>
-                <small class="hint">Select at least one option or add your own.</small>
-              </div>
-
-              <div class="col-2">
-                <label class="toggle-label">
-                  <label class="switch">
-                    <input type="checkbox" id="toggle_professionalism" onchange="toggleOptionalField('professionalism_wrap')">
-                    <span class="slider"></span>
-                  </label>
-                  <span>Add example related to professionalism or patient safety (optional)</span>
-                </label>
-                <div id="professionalism_wrap" class="hidden" style="margin-top:8px;">
-                  <textarea id="q_professionalism" name="q_professionalism"></textarea>
                 </div>
               </div>
 
+              <!-- Q2: Professional strengths -->
               <div class="col-2">
-                <label class="toggle-label">
-                  <label class="switch">
-                    <input type="checkbox" id="toggle_teamwork" onchange="toggleOptionalField('teamwork_wrap')">
-                    <span class="slider"></span>
+                <label>Which statements best describe Alex's professional strengths and capability? (Select all that apply)</label>
+                <div class="grid">
+                  <label class="inline-option">
+                    <input type="checkbox" name="professional_strengths" value="communicates clearly with clinical and non-clinical colleagues">
+                    <span>Communicates clearly with clinical and non-clinical colleagues</span>
                   </label>
-                  <span>Add example related to teamwork or leadership (optional)</span>
-                </label>
-                <div id="teamwork_wrap" class="hidden" style="margin-top:8px;">
-                  <textarea id="q_teamwork" name="q_teamwork"></textarea>
+                  <label class="inline-option">
+                    <input type="checkbox" name="professional_strengths" value="demonstrates sound clinical judgement within their scope of practice">
+                    <span>Demonstrates sound clinical judgement within their scope of practice</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="professional_strengths" value="organises work effectively and manages competing priorities">
+                    <span>Organises work effectively and manages competing priorities</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="professional_strengths" value="learns new concepts quickly and applies them appropriately">
+                    <span>Learns new concepts quickly and applies them appropriately</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="professional_strengths" value="works reliably and maintains professional standards">
+                    <span>Works reliably and maintains professional standards</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="professional_strengths" value="shows resilience when facing setbacks or operational pressures">
+                    <span>Shows resilience when facing setbacks or operational pressures</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="professional_strengths" value="demonstrates leadership behaviours appropriate to current role">
+                    <span>Demonstrates leadership behaviours appropriate to current role</span>
+                  </label>
                 </div>
               </div>
 
+              <!-- Q3: Clinical impact potential -->
               <div class="col-2">
-                <label class="toggle-label">
-                  <label class="switch">
-                    <input type="checkbox" id="toggle_strengths_comments" onchange="toggleOptionalField('strengths_comments_wrap')">
-                    <span class="slider"></span>
+                <label>In your view, what is Alex's potential for creating meaningful clinical impact? (Select all that apply)</label>
+                <div class="grid">
+                  <label class="inline-option">
+                    <input type="checkbox" name="clinical_impact" value="identifies inefficiencies or gaps in current clinical processes">
+                    <span>Identifies inefficiencies or gaps in current clinical processes</span>
                   </label>
-                  <span>Any additional comments (optional)</span>
-                </label>
-                <div id="strengths_comments_wrap" class="hidden" style="margin-top:8px;">
-                  <textarea id="q_strengths_comments" name="q_strengths_comments"></textarea>
+                  <label class="inline-option">
+                    <input type="checkbox" name="clinical_impact" value="understands practical realities of frontline NHS workflows">
+                    <span>Understands practical realities of frontline NHS workflows</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="clinical_impact" value="considers safety, quality, and patient experience when designing ideas">
+                    <span>Considers safety, quality, and patient experience when designing ideas</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="clinical_impact" value="engages colleagues constructively when discussing improvements">
+                    <span>Engages colleagues constructively when discussing improvements</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="clinical_impact" value="recognises risks and is willing to escalate concerns appropriately">
+                    <span>Recognises risks and is willing to escalate concerns appropriately</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="clinical_impact" value="demonstrates an understanding of multidisciplinary team dynamics">
+                    <span>Demonstrates an understanding of multidisciplinary team dynamics</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="clinical_impact" value="shows potential to contribute to service improvement initiatives">
+                    <span>Shows potential to contribute to service improvement initiatives</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Q4: NHS priorities alignment -->
+              <div class="col-2">
+                <label>How well does Alex's idea align with current NHS priorities? (Select all that apply)</label>
+                <div class="grid">
+                  <label class="inline-option">
+                    <input type="checkbox" name="nhs_priorities" value="addresses a known challenge in efficiency or resource use">
+                    <span>Addresses a known challenge in efficiency or resource use</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="nhs_priorities" value="supports improved patient flow, waiting list recovery, or productivity">
+                    <span>Supports improved patient flow, waiting list recovery, or productivity</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="nhs_priorities" value="aligns with digital transformation ambitions">
+                    <span>Aligns with digital transformation ambitions</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="nhs_priorities" value="could reduce unnecessary workload or duplication">
+                    <span>Could reduce unnecessary workload or duplication</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="nhs_priorities" value="could improve communication or coordination across teams">
+                    <span>Could improve communication or coordination across teams</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="nhs_priorities" value="has potential to enhance patient safety or reduce variation">
+                    <span>Has potential to enhance patient safety or reduce variation</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="nhs_priorities" value="could contribute to long-term sustainability">
+                    <span>Could contribute to long-term sustainability</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Q5: Innovation viability -->
+              <div class="col-2">
+                <label>How viable do you think Alex's proposed innovation is at this stage? (Select all that apply)</label>
+                <div class="grid">
+                  <label class="inline-option">
+                    <input type="checkbox" name="innovation_viability" value="the idea addresses a clear and realistic problem">
+                    <span>The idea addresses a clear and realistic problem</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="innovation_viability" value="early concept appears practical for real-world NHS environments">
+                    <span>Early concept appears practical for real-world NHS environments</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="innovation_viability" value="the solution seems achievable with appropriate mentoring/support">
+                    <span>The solution seems achievable with appropriate mentoring/support</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="innovation_viability" value="risks and barriers appear manageable">
+                    <span>Risks and barriers appear manageable</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="innovation_viability" value="potential benefit outweighs likely implementation challenges">
+                    <span>Potential benefit outweighs likely implementation challenges</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="innovation_viability" value="Alex is open to adapting the idea as new insight emerges">
+                    <span>Alex is open to adapting the idea as new insight emerges</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="innovation_viability" value="further development is required but direction is promising">
+                    <span>Further development is required but direction is promising</span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -2459,27 +2513,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
           <!-- STEP 4 -->
           <div class="form-step" data-step="4">
-            <div class="section-title">Suitability, Date & Signature</div>
+            <div class="section-title">Date & Signature</div>
             <div class="grid">
-              <div class="col-2">
-                <label for="q_suitability_select">Why do you feel Alex is suitable for the NHS Clinical Entrepreneur Programme?</label>
-                <select id="q_suitability_select" name="q_suitability_select" required>
-                  <option value="">Please select...</option>
-                  <option value="their interest in innovation and ability to turn ideas into practical improvements">Interest in innovation and ability to turn ideas into practical improvements</option>
-                  <option value="their reflective approach and willingness to learn from experience">Reflective and willing to learn</option>
-                  <option value="their leadership potential within perioperative services">Leadership potential within perioperative services</option>
-                  <option value="their ability to work collaboratively across professional boundaries">Collaborative approach across professional boundaries</option>
-                  <option value="their motivation to improve patient pathways and service efficiency">Motivation to improve patient pathways and service efficiency</option>
-                </select>
-                <label class="inline-option" style="margin-top:8px;">
-                  <input type="checkbox" id="toggle_suitability" onchange="toggleOptionalField('suitability_detail_wrap')">
-                  <span>Add additional comments (optional)</span>
-                </label>
-                <div id="suitability_detail_wrap" class="hidden" style="margin-top:8px;">
-                  <textarea id="q_suitability_detail" name="q_suitability_detail"></textarea>
-                </div>
-              </div>
-
               <div>
                 <label for="date_line">Letter date</label>
                 <input id="date_line" name="date_line"/>
