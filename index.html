@@ -1080,7 +1080,9 @@ function buildLetterHTML(data, signatureDataURL){
   const salutationHTML = `<p class="sal">Dear NHS Clinical Entrepreneur Team,</p>`;
 
   // If different professional area, use custom letter text
+  console.log('buildLetterHTML - professionalArea:', professionalArea, 'customLetterText length:', customLetterText?.length || 0);
   if (professionalArea === 'different' && customLetterText){
+    console.log('Using custom letter template');
     const customParagraphs = customLetterText.split('\n\n').map(p =>
       p.trim() ? `<p>${p.trim()}</p>` : ''
     ).join('');
@@ -1119,6 +1121,7 @@ function buildLetterHTML(data, signatureDataURL){
   }
 
   // Otherwise, use template
+  console.log('Using perioperative template');
   const narrativeParts = [];
 
   // Duration phrase
@@ -1323,6 +1326,7 @@ function updatePreview(){
     data.useHeader;
 
   const hasQuestionContent =
+    data.customLetterText ||
     data.qDurationSelect ||
     data.qDurationDetail ||
     data.qCapacitySelect ||
@@ -1862,13 +1866,21 @@ window.addEventListener('DOMContentLoaded', () => {
       // Fill in hospital name (corrected)
       hospitalInput.value = match.hospital;
 
-      // Fill in trust
+      // Fill in trust (always, since hospital determines trust)
       const orgInput = document.getElementById('org');
-      if (orgInput && !orgInput.value.trim()){
+      if (orgInput){
         orgInput.value = match.trust;
+        // Update hospital list to show hospitals in this trust
+        updateHospitalList(match.trust);
+        // Update hospital label
+        const hospitalLabel = document.querySelector('label[for="hospital_name"]');
+        if (hospitalLabel){
+          const filteredCount = hospitalDirectory.filter(h => h.trust === match.trust).length;
+          hospitalLabel.innerHTML = `Hospital name <span style="color:#0891b2; font-size:10pt;">(${filteredCount} hospital${filteredCount !== 1 ? 's' : ''} in this trust)</span>`;
+        }
       }
 
-      // Parse and fill address
+      // Parse and fill address (always, since hospital determines address)
       const addressParts = parseAddress(match.address);
       const addr1 = document.getElementById('hospital_addr1');
       const addr2 = document.getElementById('hospital_addr2');
@@ -1902,8 +1914,18 @@ window.addEventListener('DOMContentLoaded', () => {
       const trustExists = hospitalDirectory.some(h => h.trust === selectedTrust);
       if (trustExists){
         updateHospitalList(selectedTrust);
+        // Update hospital field label/hint to show filtering
+        const hospitalLabel = document.querySelector('label[for="hospital_name"]');
+        if (hospitalLabel){
+          const filteredCount = hospitalDirectory.filter(h => h.trust === selectedTrust).length;
+          hospitalLabel.innerHTML = `Hospital name <span style="color:#0891b2; font-size:10pt;">(${filteredCount} hospital${filteredCount !== 1 ? 's' : ''} in this trust)</span>`;
+        }
       } else {
         updateHospitalList(); // Show all
+        const hospitalLabel = document.querySelector('label[for="hospital_name"]');
+        if (hospitalLabel){
+          hospitalLabel.textContent = 'Hospital name';
+        }
       }
     });
 
@@ -1923,22 +1945,28 @@ window.addEventListener('DOMContentLoaded', () => {
       // Filter hospital list by selected trust
       updateHospitalList(match.trust);
 
-      // Fill in hospital if empty
-      if (hospitalInput && !hospitalInput.value.trim()){
-        hospitalInput.value = match.hospital;
+      // Update hospital field label to show filtering
+      const hospitalLabel = document.querySelector('label[for="hospital_name"]');
+      if (hospitalLabel){
+        const filteredCount = hospitalDirectory.filter(h => h.trust === match.trust).length;
+        hospitalLabel.innerHTML = `Hospital name <span style="color:#0891b2; font-size:10pt;">(${filteredCount} hospital${filteredCount !== 1 ? 's' : ''} in this trust)</span>`;
       }
 
-      // Parse and fill address
-      const addressParts = parseAddress(match.address);
-      const addr1 = document.getElementById('hospital_addr1');
-      const addr2 = document.getElementById('hospital_addr2');
-      const city  = document.getElementById('hospital_city');
-      const pc    = document.getElementById('hospital_postcode');
-
-      if (addr1 && !addr1.value.trim()) addr1.value = addressParts.line1;
-      if (addr2 && !addr2.value.trim()) addr2.value = addressParts.line2;
-      if (city && !city.value.trim())  city.value  = addressParts.city;
-      if (pc && !pc.value.trim())    pc.value    = match.postcode;
+      // Focus hospital field to prompt user to select from filtered list
+      if (hospitalInput){
+        if (!hospitalInput.value.trim()){
+          // Hospital field is empty, prompt user to select
+          setTimeout(() => hospitalInput.focus(), 100);
+        } else {
+          // Hospital already has a value, verify it matches the selected trust
+          const currentHospital = findHospitalMatch(hospitalInput.value);
+          if (currentHospital && currentHospital.trust !== match.trust){
+            // Clear hospital if it doesn't match the selected trust
+            hospitalInput.value = '';
+            setTimeout(() => hospitalInput.focus(), 100);
+          }
+        }
+      }
 
       updatePreview();
     };
