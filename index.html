@@ -2648,6 +2648,29 @@ window.addEventListener('DOMContentLoaded', () => {
   setupCheckboxLimit('impact', 3);
   setupCheckboxLimit('priority', 3);
   setupCheckboxLimit('viability', 3);
+
+  // Setup live preview updates for Step 3 fields
+  function setupPreviewListeners(){
+    // Template mode: checkboxes
+    const templateCheckboxes = document.querySelectorAll('input[name="motivation"], input[name="capability"], input[name="impact"], input[name="priority"], input[name="viability"]');
+    templateCheckboxes.forEach(cb => cb.addEventListener('change', updatePreview));
+
+    // Template mode: optional comment fields
+    const templateOthers = ['motivation_other', 'capability_other', 'impact_other', 'priority_other', 'viability_other'];
+    templateOthers.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updatePreview);
+    });
+
+    // Custom mode: text areas
+    const customFields = ['custom_motivation', 'custom_capability', 'custom_impact', 'custom_priority', 'custom_viability'];
+    customFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updatePreview);
+    });
+  }
+
+  setupPreviewListeners();
 });
 </script>
 </head>
