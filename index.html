@@ -1609,7 +1609,7 @@ async function handleSubmit(){
     ref = result.ref;
   } catch (error) {
     console.error('PDF generation failed:', error);
-    alert('PDF generation failed. This may be due to browser limitations. Please try:\n\n1. Using Chrome or Safari (not in-app browser)\n2. Refreshing the page\n3. Using a desktop computer\n\nError: ' + error.message);
+    alert('Letter generation failed. This may be due to browser limitations. Please try:\n\n1. Using Chrome or Safari (not in-app browser)\n2. Refreshing the page\n3. Using a desktop computer\n\nError: ' + error.message);
     return;
   }
 
@@ -1975,9 +1975,9 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="note">
           <strong>About this form:</strong> This endorsement supports Alex Monterubio's application to the NHS Clinical Entrepreneur Programme
           (see <a href="https://www.nhscep.com" target="_blank" rel="noopener">www.nhscep.com</a>).
-          <strong>The generated PDF is a professional endorsement only and does not imply financial sponsorship.</strong>
+          <strong>The generated letter (PDF/PNG) is a professional endorsement only and does not imply financial sponsorship.</strong>
           <br/><br/>
-          <strong>No data is stored by this tool – your details are used only to generate this one-off PDF and the confirmation emails.</strong>
+          <strong>No data is stored by this tool – your details are used only to generate this one-off letter and the confirmation emails.</strong>
         </div>
 
         <div class="steps-nav">
@@ -2308,7 +2308,7 @@ window.addEventListener('DOMContentLoaded', () => {
               <button type="button" class="ghost" onclick="printLetter()">Print Preview</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
-            <small class="hint">On submit, the PDF will download to your device and an email copy will be sent to both you and Alex.</small>
+            <small class="hint">On submit, the letter (PDF/PNG) will download to your device and an email copy will be sent to both you and Alex.</small>
           </div>
         </form>
       </div>
@@ -2325,7 +2325,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
     <h4>Thank you for your endorsement</h4>
     <p>Your digital letter of support has been generated successfully.</p>
-    <p>A secure PDF copy has been downloaded to your device.</p>
+    <p>A copy has been downloaded to your device.</p>
     <p id="toast-email-status">Email copies will be sent to you and Alex.</p>
     <p><em>— With appreciation, Alex Monterubio</em></p>
   </div>
