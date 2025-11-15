@@ -1536,11 +1536,36 @@ async function makePDF(){
     }
 
     // Hospital name
+    let currentY = headerTextY + 12;
     if (data.hospitalName) {
       pdf.setFontSize(11);
       pdf.setFont('Arial', 'bold');
       const hospWidth = pdf.getTextWidth(data.hospitalName);
-      pdf.text(data.hospitalName, pageWidth - margin - hospWidth, headerTextY + 12);
+      pdf.text(data.hospitalName, pageWidth - margin - hospWidth, currentY);
+      currentY += 5;
+    }
+
+    // Hospital address
+    pdf.setFontSize(10);
+    pdf.setFont('Arial', 'normal');
+    if (data.hospitalAddr1) {
+      const addr1Width = pdf.getTextWidth(data.hospitalAddr1);
+      pdf.text(data.hospitalAddr1, pageWidth - margin - addr1Width, currentY);
+      currentY += 4;
+    }
+    if (data.hospitalAddr2) {
+      const addr2Width = pdf.getTextWidth(data.hospitalAddr2);
+      pdf.text(data.hospitalAddr2, pageWidth - margin - addr2Width, currentY);
+      currentY += 4;
+    }
+    if (data.hospitalCity) {
+      const cityWidth = pdf.getTextWidth(data.hospitalCity);
+      pdf.text(data.hospitalCity, pageWidth - margin - cityWidth, currentY);
+      currentY += 4;
+    }
+    if (data.hospitalPostcode) {
+      const postcodeWidth = pdf.getTextWidth(data.hospitalPostcode);
+      pdf.text(data.hospitalPostcode, pageWidth - margin - postcodeWidth, currentY);
     }
   }
 
