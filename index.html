@@ -557,6 +557,42 @@ button.ghost:hover{ background:#f9fafb; }
   .grid{ grid-template-columns: 1fr; }
   .col-2{ grid-column: span 1; }
 }
+
+/* Submit status animation */
+.submit-status{
+  display: none;
+  text-align: center;
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.submit-status.active{
+  display: block;
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+.submit-status.success{
+  display: block;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+  animation: none;
+}
+.submit-status.error{
+  display: block;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  animation: none;
+}
+@keyframes pulse{
+  0%, 100%{ opacity: 1; }
+  50%{ opacity: 0.7; }
+}
 </style>
 
 <!-- external libs for PDF & canvas -->
@@ -1506,45 +1542,76 @@ function showToast(){
   setTimeout(() => toast.classList.remove('show'), 7000);
 }
 
-async function handleSubmit(){
+async function sendAndDownload(){
   if (!validateForm()) { return; }
 
-  updatePreview();
+  const statusEl = document.getElementById('submit-status');
+  const submitBtn = document.getElementById('submit-btn');
 
-  const data = readForm();
-  const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
 
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(pdfBlob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  URL.revokeObjectURL(a.href);
-  a.remove();
+    // Step 1: Generate PDF
+    statusEl.textContent = 'Generating PDF...';
+    statusEl.className = 'submit-status active';
+    updatePreview();
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-  const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
+    const data = readForm();
+    const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
+    const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
 
-  if (data.email){
-    await sendToBackend({
-      refCode: ref,
-      filename,
-      pdfBase64: pdfDataURI.split(',')[1],
-      referee: {
-        name: data.refName,
-        role: effectiveRole,
-        email: data.email,
-        phone: data.phone
-      }
-    });
+    // Step 2: Send email
+    if (data.email){
+      statusEl.textContent = 'Sending emails...';
+      await sendToBackend({
+        refCode: ref,
+        filename,
+        pdfBase64: pdfDataURI.split(',')[1],
+        referee: {
+          name: data.refName,
+          role: effectiveRole,
+          email: data.email,
+          phone: data.phone
+        }
+      });
+
+      // Step 3: Download PDF
+      statusEl.textContent = 'Downloading PDF...';
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(pdfBlob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      a.remove();
+
+      // Step 4: Complete
+      statusEl.textContent = 'Complete! Emails sent and PDF downloaded.';
+      statusEl.className = 'submit-status success';
+
+      // Reset form after brief delay
+      setTimeout(() => {
+        document.getElementById('endorsement-form').reset();
+        if (sigPad){ sigPad.clear(); }
+        const dateInput = document.getElementById('date_line');
+        dateInput.type = 'date';
+        dateInput.value = todayUKISO();
+        updatePreview();
+        statusEl.className = 'submit-status';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit';
+        showStep(1);
+      }, 3000);
+    }
+  } catch (error) {
+    statusEl.textContent = 'Error: ' + error.message;
+    statusEl.className = 'submit-status error';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit';
   }
-
-  document.getElementById('endorsement-form').reset();
-  if (sigPad){ sigPad.clear(); }
-  const dateInput = document.getElementById('date_line');
-  dateInput.type = 'date';
-  dateInput.value = todayUKISO();
-  updatePreview();
-  showToast();
 }
 
 function printLetter(){
@@ -2325,17 +2392,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
           <!-- STEP 3: NHSCEP DOMAINS -->
           <div class="form-step" data-step="3">
-            <div class="section-title">NHSCEP Domains – Quick Selections</div>
-            <small class="hint">
-              For each area below, please select up to <strong>three</strong> statements that best reflect your view of Alex.
-              You can also add a short comment in your own words if you wish.
-            </small>
+            <div class="section-title">Professional Endorsement Assessment</div>
+            <div class="hint" style="font-size:15px; line-height:1.6; margin-bottom:16px;">
+              Please provide focused feedback in each of the five areas below.<br>
+              Select up to <strong>three</strong> statements per section that best reflect your experience of Alex.<br>
+              You may add a brief comment if you wish.
+            </div>
 
             <div class="grid">
               <!-- PERSONAL MOTIVATION -->
               <div class="col-2" id="motivation_group">
-                <label>1. Personal motivation</label>
-                <small class="hint">Select up to three that best describe Alex’s motivation to pursue innovation and improvement.</small>
+                <label style="font-weight:700; font-size:14px;">1. Personal Motivation</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">What best reflects Alex's motivation for contributing to improvement and innovation within clinical services?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="motivation" value="a consistent drive to improve perioperative efficiency and theatre workflow">
@@ -2371,8 +2439,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- PERSONAL CAPABILITY -->
               <div class="col-2" id="capability_group">
-                <label>2. Personal capability</label>
-                <small class="hint">Select up to three that best describe Alex’s capability to deliver meaningful innovation.</small>
+                <label style="font-weight:700; font-size:14px;">2. Personal Capability</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">What best reflects Alex's capability to deliver meaningful innovation in a busy clinical setting?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="capability" value="the ability to interpret operational issues and translate them into workable solutions">
@@ -2408,8 +2476,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- CLINICAL IMPACT -->
               <div class="col-2" id="impact_group">
-                <label>3. Clinical impact</label>
-                <small class="hint">Select up to three that best reflect the potential clinical impact of Alex’s innovation work.</small>
+                <label style="font-weight:700; font-size:14px;">3. Clinical Impact</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">In your view, how might Alex's innovation work benefit patients, teams, or the wider service?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="impact" value="improve theatre utilisation and reduce avoidable downtime">
@@ -2445,8 +2513,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- PRIORITY TO THE NHS -->
               <div class="col-2" id="priority_group">
-                <label>4. Priority to the NHS</label>
-                <small class="hint">Select up to three that best describe how Alex’s ideas or approach align with wider NHS priorities.</small>
+                <label style="font-weight:700; font-size:14px;">4. Priority to the NHS</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">How do Alex's ideas or approach align with wider NHS priorities?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="priority" value="support elective recovery and improved surgical throughput">
@@ -2482,8 +2550,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- VIABILITY OF THE INNOVATION -->
               <div class="col-2" id="viability_group">
-                <label>5. Viability of the innovation</label>
-                <small class="hint">Select up to three that best reflect how viable you feel Alex’s innovation is within the NHS setting.</small>
+                <label style="font-weight:700; font-size:14px;">5. Viability of the Innovation</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">How viable do you consider Alex's innovation to be within the NHS setting?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="viability" value="grounded in real operational needs and frontline experience">
@@ -2560,13 +2628,16 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="section-title">Submit Your Letter</div>
+
+            <!-- Status message for submission animation -->
+            <div id="submit-status" class="submit-status"></div>
+
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="3">Back</button>
-              <button type="button" onclick="handleSubmit()">Submit Letter</button>
+              <button type="button" id="submit-btn" onclick="sendAndDownload()">Submit</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
-              <button type="button" class="ghost" onclick="printLetter()">Print</button>
             </div>
-            <small class="hint">On submit: a PDF will download to your computer and can be emailed via your configured backend (e.g., Resend on Vercel).</small>
+            <small class="hint">Your letter will be emailed to you and the referee, then downloaded as a PDF.</small>
           </div>
         </form>
       </div>
