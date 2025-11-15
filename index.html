@@ -420,7 +420,7 @@ button.ghost:hover{ background:#f9fafb; }
   box-shadow: 0 4px 12px rgba(0,0,0,.15);
   border: 1px solid #d1d5db;
   position: relative;
-  zoom: 0.5; /* Scale down to show full page */
+  zoom: 0.75; /* Scale down to show full page */
   transform-origin: top center;
   max-width: 100%;
 }
@@ -1516,6 +1516,11 @@ function updatePreview(){
     data.priorityOther ||
     data.viabilitySelected.length ||
     data.viabilityOther ||
+    data.customMotivation ||
+    data.customCapability ||
+    data.customImpact ||
+    data.customPriority ||
+    data.customViability ||
     data.qSuitabilitySelect ||
     data.qSuitabilityDetail;
 
