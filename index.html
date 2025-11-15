@@ -814,6 +814,7 @@ function readForm(){
 
     professionalArea: (document.getElementById('professional_area')?.value || ""),
     relationship: document.getElementById('relationship').value,
+    relationshipSpecify: (document.getElementById('relationship_specify')?.value || "").trim(),
     customLetterText: (document.getElementById('custom_letter_text')?.value || "").trim(),
 
     hospitalName: (document.getElementById('hospital_name')?.value || "").trim(),
@@ -1062,6 +1063,7 @@ function buildLetterHTML(data, signatureDataURL){
     phone,
     professionalArea,
     relationship,
+    relationshipSpecify,
     customLetterText,
     dateLine,
     hospitalName,
@@ -1663,19 +1665,22 @@ function handleProfessionalAreaChange(){
   const areaSelect = document.getElementById('professional_area');
   const relationshipWrap = document.getElementById('relationship_wrap');
   const relationshipSelect = document.getElementById('relationship');
+  const relationshipSpecifyWrap = document.getElementById('relationship_specify_wrap');
 
   if (!areaSelect) return;
 
   const area = areaSelect.value;
 
   if (area === 'different'){
-    // Hide relationship dropdown for different area
+    // Hide relationship fields for different area
     if (relationshipWrap) relationshipWrap.classList.add('hidden');
     if (relationshipSelect) relationshipSelect.removeAttribute('required');
+    if (relationshipSpecifyWrap) relationshipSpecifyWrap.classList.add('hidden');
   } else if (area === 'perioperative'){
-    // Show relationship dropdown for perioperative
+    // Show relationship fields for perioperative
     if (relationshipWrap) relationshipWrap.classList.remove('hidden');
     if (relationshipSelect) relationshipSelect.setAttribute('required', 'required');
+    if (relationshipSpecifyWrap) relationshipSpecifyWrap.classList.remove('hidden');
   }
 
   updatePreview();
@@ -2310,9 +2315,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 <small class="hint">If you select "Other Professional Relationship", you'll write a custom letter instead of using the template.</small>
               </div>
 
-              <!-- Specify relationship (only shown for perioperative) -->
+              <!-- Capacity (only shown for perioperative) -->
               <div class="col-2 hidden" id="relationship_wrap">
-                <label for="relationship">Please specify</label>
+                <label for="relationship">In what capacity have you worked with Alex?</label>
                 <select id="relationship" name="relationship">
                   <option value="">Please select...</option>
                   <option>Senior Line Manager</option>
@@ -2326,6 +2331,13 @@ window.addEventListener('DOMContentLoaded', () => {
                   <option>Clinical Supervisor</option>
                   <option>Senior Clinical Colleague from Locum Assignments</option>
                 </select>
+              </div>
+
+              <!-- Free text specify (only shown for perioperative) -->
+              <div class="col-2 hidden" id="relationship_specify_wrap">
+                <label for="relationship_specify">Please specify</label>
+                <input id="relationship_specify" name="relationship_specify"/>
+                <small class="hint">Provide any additional details about your working relationship with Alex.</small>
               </div>
 
               <div class="col-2">
