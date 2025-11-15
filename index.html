@@ -370,14 +370,14 @@ button.ghost:hover{ background:#f9fafb; }
 }
 .paper{
   width: 210mm;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,.15);
-  border: 1px solid #d1d5db;
+  background: transparent;
   position: relative;
   zoom: 0.65; /* Scale down to show whole page */
   transform-origin: top center;
 }
 .paper .page{
+  width: 210mm;
+  min-height: 297mm;
   padding: 15mm 20mm 20mm 20mm;
   font-family: Arial, sans-serif;
   color: #1f2937;
@@ -386,15 +386,10 @@ button.ghost:hover{ background:#f9fafb; }
   page-break-after: always;
   break-after: page;
   position: relative;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 296mm,
-    #e5e7eb 296mm,
-    #e5e7eb 297mm,
-    #f3f4f6 297mm,
-    #f3f4f6 317mm
-  );
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: 1px solid #d1d5db;
+  margin-bottom: 20mm;
 }
 
 /* Mobile preview adjustments */
