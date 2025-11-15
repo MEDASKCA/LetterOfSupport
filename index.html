@@ -377,7 +377,6 @@ button.ghost:hover{ background:#f9fafb; }
 }
 .paper .page{
   width: 210mm;
-  min-height: 297mm;
   padding: 15mm 20mm 20mm 20mm;
   font-family: Arial, sans-serif;
   color: #1f2937;
@@ -389,7 +388,23 @@ button.ghost:hover{ background:#f9fafb; }
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   border: 1px solid #d1d5db;
-  margin-bottom: 20mm;
+  /* Show page breaks with repeating background pattern */
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      #fff 0,
+      #fff calc(297mm - 40mm),
+      #f9fafb calc(297mm - 40mm),
+      #f9fafb calc(297mm - 20mm),
+      #e5e7eb calc(297mm - 20mm),
+      #e5e7eb 297mm,
+      #d1d5db 297mm,
+      #d1d5db calc(297mm + 2px),
+      transparent calc(297mm + 2px),
+      transparent calc(297mm + 20mm)
+    );
+  background-size: 100% calc(297mm + 20mm);
+  background-repeat: repeat-y;
 }
 
 /* Mobile preview adjustments */
