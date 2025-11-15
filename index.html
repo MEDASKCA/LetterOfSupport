@@ -1828,8 +1828,9 @@ async function makePDF(){
 
   // SIGNATURE (if available)
   if (sigPad && !sigPad.isEmpty()){
-    const sigDataURL = sigPad.toDataURL();
-    pdf.addImage(sigDataURL, 'PNG', margin, y, 40, 10);
+    // Use JPEG with compression to reduce file size
+    const sigDataURL = sigPad.toDataURL('image/jpeg', 0.7);
+    pdf.addImage(sigDataURL, 'JPEG', margin, y, 40, 10);
     y += 12;
   } else {
     y += 8;
