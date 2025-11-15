@@ -771,10 +771,12 @@ function readForm(){
     refName: document.getElementById('ref_name').value.trim(),
     refRole: document.getElementById('ref_role').value,
     refRoleOther: (document.getElementById('ref_role_other')?.value || "").trim(),
+    relationshipType: document.getElementById('relationship_type').value,
+    relationship: (document.getElementById('relationship')?.value || ""),
+    freeTextContent: (document.getElementById('free_text_content')?.value || "").trim(),
     org: document.getElementById('org').value.trim(),
     email: document.getElementById('ref_email').value.trim(),
     phone: document.getElementById('ref_phone').value.trim(),
-    relationship: document.getElementById('relationship').value,
 
     hospitalName: (document.getElementById('hospital_name')?.value || "").trim(),
     hospitalAddr1: (document.getElementById('hospital_addr1')?.value || "").trim(),
@@ -1000,11 +1002,117 @@ function buildSkeletonLetterHTML(data){
   `;
 }
 
+function buildFreeTextLetterHTML(data, freeTextContent){
+  const {
+    refName,
+    refRole,
+    refRoleOther,
+    org,
+    email,
+    phone,
+    dateLine,
+    hospitalName,
+    hospitalAddr1,
+    hospitalAddr2,
+    hospitalCity,
+    hospitalPostcode,
+    useHeader
+  } = data;
+
+  const effectiveRole = (refRole === "Other" && refRoleOther) ? refRoleOther : refRole;
+  const dateStr = dateLine ? toUKLong(dateLine) : todayUK();
+  const hospital = hospitalName || "";
+  const { main: trustMain, sub: trustSub } = splitTrust(org || "");
+
+  const addressHTML = (hospitalAddr1 || hospitalAddr2 || hospitalCity || hospitalPostcode)
+    ? `
+      <div class="trust-address">
+        ${hospitalAddr1 ? hospitalAddr1 + "<br/>" : ""}
+        ${hospitalAddr2 ? hospitalAddr2 + "<br/>" : ""}
+        ${
+          (hospitalCity || hospitalPostcode)
+            ? `${hospitalCity || ""}${hospitalCity && hospitalPostcode ? ", " : ""}${hospitalPostcode || ""}`
+            : ""
+        }
+      </div>
+    `
+    : "";
+
+  const headerHTML = useHeader ? `
+    <div class="header-block">
+      <div class="trust-header">
+        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
+        ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
+        ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
+        ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
+        ${addressHTML}
+      </div>
+    </div>
+  ` : "";
+
+  const senderHTML = `
+    <div class="sender-block">
+      <div>${refName || "[Referee Name]"}</div>
+      <div>${effectiveRole || "[Role]"}</div>
+      ${phone ? `<div>Tel: ${phone}</div>` : ""}
+      ${email ? `<div>Email: ${email}</div>` : ""}
+    </div>
+  `;
+
+  const recipientHTML = `
+    <div class="recipient-block">
+      <div>NHS Clinical Entrepreneur Team</div>
+      <div>c/o Anglia Ruskin University</div>
+      <div>Bishop Hall Lane</div>
+      <div>Chelmsford</div>
+      <div>Essex</div>
+      <div>CM1 1SQ</div>
+    </div>
+    <div class="recipient-subject">
+      Re: Letter of Support for Alex Monterubio – NHS Clinical Entrepreneur Programme Application
+    </div>
+  `;
+
+  const salutationHTML = `<p class="sal">Dear NHS Clinical Entrepreneur Team,</p>`;
+
+  // Convert line breaks in free text to paragraphs
+  const paragraphs = freeTextContent.split('\n').filter(p => p.trim()).map(p => `<p>${p.trim()}</p>`).join('');
+
+  const bodyHTML = salutationHTML + paragraphs;
+
+  return `
+    <div class="paper" id="paper">
+      <div class="page">
+        <div class="header-row">
+          ${senderHTML}
+          ${headerHTML}
+        </div>
+        <div class="letter-date">Date: ${dateStr}</div>
+        ${recipientHTML}
+        <div class="letter-body">
+          ${bodyHTML}
+          <div class="letter-closing">
+            <p>Yours faithfully,</p>
+            <div class="letter-signoff">
+              <div class="name">${refName || "[Name]"}</div>
+              <div>${effectiveRole || "[Role]"}</div>
+              <div>${org || "Barts Health NHS Trust"}</div>
+              <div>${email ? `Contact: ${email}` : ""}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function buildLetterHTML(data, signatureDataURL){
   const {
     refName,
     refRole,
     refRoleOther,
+    relationshipType,
+    freeTextContent,
     org,
     email,
     phone,
@@ -1030,6 +1138,11 @@ function buildLetterHTML(data, signatureDataURL){
   } = data;
 
   const effectiveRole = (refRole === "Other" && refRoleOther) ? refRoleOther : refRole;
+
+  // Handle free text content for non-perioperative referees
+  if (relationshipType === 'other' && freeTextContent){
+    return buildFreeTextLetterHTML(data, freeTextContent);
+  }
 
   const opening = openingsByRole[effectiveRole] ||
     "I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.";
@@ -1727,6 +1840,47 @@ window.addEventListener('DOMContentLoaded', () => {
     onRoleChange();
   }
 
+  // Relationship type toggle
+  const relationshipTypeSelect = document.getElementById('relationship_type');
+  const perioperativeRelWrap = document.getElementById('perioperative_relationship_wrap');
+  if (relationshipTypeSelect){
+    const onRelationshipTypeChange = () => {
+      const type = relationshipTypeSelect.value;
+
+      // Show/hide perioperative-specific relationship dropdown
+      if (perioperativeRelWrap){
+        if (type === 'perioperative'){
+          perioperativeRelWrap.classList.remove('hidden');
+          document.getElementById('relationship').setAttribute('required', 'required');
+        } else {
+          perioperativeRelWrap.classList.add('hidden');
+          document.getElementById('relationship').removeAttribute('required');
+        }
+      }
+
+      // Show/hide appropriate step paths
+      document.querySelectorAll('.perioperative-path').forEach(el => {
+        if (type === 'perioperative'){
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      document.querySelectorAll('.other-path').forEach(el => {
+        if (type === 'other'){
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      updatePreview();
+    };
+    relationshipTypeSelect.addEventListener('change', onRelationshipTypeChange);
+    onRelationshipTypeChange();
+  }
+
   // Step navigation buttons
   document.querySelectorAll('[data-next-step]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1950,8 +2104,18 @@ window.addEventListener('DOMContentLoaded', () => {
               </div>
 
               <div class="col-2">
-                <label for="relationship">Your relationship to Alex</label>
-                <select id="relationship" name="relationship" required>
+                <label for="relationship_type">What is your professional relationship to Alex?</label>
+                <select id="relationship_type" name="relationship_type" required>
+                  <option value="">Please select...</option>
+                  <option value="perioperative">Perioperative/Theatre colleague</option>
+                  <option value="other">Other professional relationship</option>
+                </select>
+                <small class="hint">This determines which questions you'll be asked next.</small>
+              </div>
+
+              <div id="perioperative_relationship_wrap" class="hidden col-2">
+                <label for="relationship">Your specific relationship to Alex</label>
+                <select id="relationship" name="relationship">
                   <option value="">Please select...</option>
                   <option>Senior Line Manager</option>
                   <option>Line Manager</option>
@@ -1972,8 +2136,32 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
 
-          <!-- STEP 2 -->
-          <div class="form-step" data-step="2">
+          <!-- STEP 2A: For Other (Non-Perioperative) -->
+          <div class="form-step other-path hidden" data-step="2">
+            <div class="section-title">Letter Content</div>
+            <div class="grid">
+              <div class="col-2">
+                <label for="free_text_content">Please write your letter of support for Alex Monterubio</label>
+                <textarea id="free_text_content" name="free_text_content" style="min-height:400px;" placeholder="Please include:
+
+• Your professional relationship to Alex and how long you've known them
+• Why you believe Alex is suitable for the NHS Clinical Entrepreneur Programme
+• Relevant examples of Alex's skills, qualities, or achievements
+• Any other information you feel is relevant to support this application
+
+This will form the main body of your letter."></textarea>
+                <small class="hint">Write in your own words. This text will appear in the letter after the salutation "Dear NHS Clinical Entrepreneur Team,"</small>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="secondary" data-prev-step="1">Back</button>
+              <button type="button" data-next-step="4">Next</button>
+            </div>
+          </div>
+
+          <!-- STEP 2B: For Perioperative -->
+          <div class="form-step perioperative-path hidden" data-step="2">
             <div class="section-title">Relationship & Role</div>
             <div class="grid">
               <div class="col-2">
@@ -2015,8 +2203,8 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
 
-          <!-- STEP 3 -->
-          <div class="form-step" data-step="3">
+          <!-- STEP 3: For Perioperative only -->
+          <div class="form-step perioperative-path hidden" data-step="3">
             <div class="section-title">Strengths & Examples</div>
             <div class="grid">
               <div class="col-2" id="strengths_group">
