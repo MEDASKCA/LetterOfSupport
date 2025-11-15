@@ -421,9 +421,19 @@ button.ghost:hover{ background:#f9fafb; }
 }
 .letter-closing{ margin-top: 14pt; }
 .letter-sign{ margin-top: 10pt; height: 60px; }
-.letter-sign img{ max-height: 60px; }
+.letter-sign img{
+  max-height: 60px;
+  max-width: 100%;
+  object-fit: contain;
+}
 .letter-signoff{ margin: 8pt 0 0; }
 .letter-signoff .name{ font-weight:700; }
+
+/* Ensure all images in letter fit within A4 */
+.paper .page img{
+  max-width: 100%;
+  height: auto;
+}
 
 /* Toast */
 .toast {
@@ -2298,7 +2308,6 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="3">Back</button>
               <button type="button" onclick="handleSubmit()">Submit Letter</button>
-              <button type="button" class="ghost" onclick="printLetter()">Print Preview</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
             <small class="hint">On submit: a PDF will download to your computer and can be emailed via your configured backend (e.g., Resend on Vercel).</small>
