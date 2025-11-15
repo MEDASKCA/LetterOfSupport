@@ -1459,10 +1459,24 @@ async function makePDF(){
     console.warn('Could not load NHS logo:', e);
   }
 
+  // Load Arial font for NHS guidelines compliance
+  try {
+    const response = await fetch('arial.ttf');
+    const arrayBuffer = await response.arrayBuffer();
+    const base64String = btoa(
+      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+    pdf.addFileToVFS('arial.ttf', base64String);
+    pdf.addFont('arial.ttf', 'Arial', 'normal');
+    pdf.addFont('arial.ttf', 'Arial', 'bold'); // Same file, different style
+  } catch (e) {
+    console.warn('Could not load Arial font:', e);
+  }
+
   // Helper function to add text with word wrap
   const addText = (text, x, fontSize = 11, fontStyle = 'normal', maxWidth = usableWidth) => {
     pdf.setFontSize(fontSize);
-    pdf.setFont('helvetica', fontStyle);
+    pdf.setFont('Arial', fontStyle);
     const lines = pdf.splitTextToSize(text, maxWidth);
     lines.forEach(line => {
       if (y > pageHeight - margin) {
@@ -1506,7 +1520,7 @@ async function makePDF(){
 
     // Trust name
     pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont('Arial', 'bold');
     const headerText = trustMain;
     const headerWidth = pdf.getTextWidth(headerText);
     pdf.text(headerText, pageWidth - margin - headerWidth, headerTextY);
@@ -1514,7 +1528,7 @@ async function makePDF(){
     // Trust subtitle
     if (trustSub) {
       pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('Arial', 'normal');
       pdf.setTextColor(29, 143, 219); // Blue color
       const subWidth = pdf.getTextWidth(trustSub);
       pdf.text(trustSub, pageWidth - margin - subWidth, headerTextY + 6);
@@ -1524,7 +1538,7 @@ async function makePDF(){
     // Hospital name
     if (data.hospitalName) {
       pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('Arial', 'bold');
       const hospWidth = pdf.getTextWidth(data.hospitalName);
       pdf.text(data.hospitalName, pageWidth - margin - hospWidth, headerTextY + 12);
     }
@@ -1545,9 +1559,9 @@ async function makePDF(){
   addSpace(paragraphSpacing);
 
   // SUBJECT
-  pdf.setFont('helvetica', 'bold');
+  pdf.setFont('Arial', 'bold');
   addText("Re: Letter of Support for Alex Monterubio – NHS Clinical Entrepreneur Programme Application", margin, 11, 'bold');
-  pdf.setFont('helvetica', 'normal');
+  pdf.setFont('Arial', 'normal');
   addSpace(paragraphSpacing);
 
   // SALUTATION
