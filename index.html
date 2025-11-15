@@ -472,24 +472,54 @@ button.ghost:hover{ background:#f9fafb; }
 .toast em { opacity: .95; }
 
 /* Print */
+@page{
+  size: A4;
+  margin: 0;
+}
+
 @media print{
-  body{ background:#fff; }
-  .container{ border:0; box-shadow:none; margin:0; }
+  body{
+    background:#fff;
+    margin:0;
+    padding:0;
+  }
+  .container{
+    border:0;
+    box-shadow:none;
+    margin:0;
+    max-width:none;
+  }
   header{ display:none; }
-  main{ display:block; }
+  main{
+    display:block;
+    margin:0;
+    padding:0;
+  }
   .left{ display:none; }
-  .panel{ padding:0; }
-  .preview-wrap{ padding:0; }
+  .panel{
+    padding:0;
+    margin:0;
+    max-height:none;
+    overflow:visible;
+  }
+  .preview-wrap{
+    padding:0;
+    margin:0;
+  }
   .paper{
     box-shadow:none;
     border:0;
-    width:100% !important;
-    max-width:100% !important;
-    min-height:auto;
+    width:210mm;
+    max-width:210mm;
+    min-height:297mm;
     transform:none !important;
-    margin:0 !important;
+    margin:0 auto;
+    page-break-after:auto;
   }
-  .paper .page{ padding: 20mm 20mm; }
+  .paper .page{
+    padding: 20mm 20mm;
+    min-height:257mm;
+  }
 }
 
 /* Responsive */
