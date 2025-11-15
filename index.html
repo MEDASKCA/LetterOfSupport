@@ -1767,8 +1767,8 @@ window.addEventListener('DOMContentLoaded', () => {
       const current = step - 1;
       if (!validateStep(current)) return;
 
-      // Special routing from Step 1
-      if (current === 1){
+      // Special routing from Step 2
+      if (current === 2){
         const areaSelect = document.getElementById('professional_area');
         if (areaSelect && areaSelect.value === 'different'){
           // Go to custom letter step
@@ -2158,35 +2158,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 <input id="ref_phone" name="ref_phone" type="tel"/>
               </div>
 
-              <!-- 8. Professional relationship -->
-              <div class="col-2">
-                <label for="professional_area">What is your professional relationship to Alex?</label>
-                <select id="professional_area" name="professional_area" required>
-                  <option value="">Please select...</option>
-                  <option value="perioperative">Perioperative/Theatre Colleague</option>
-                  <option value="different">Other Professional Relationship</option>
-                </select>
-                <small class="hint">If you select "Other Professional Relationship", you'll write a custom letter instead of using the template.</small>
-              </div>
-
-              <!-- 9. Specify relationship (only shown for perioperative) -->
-              <div class="col-2 hidden" id="relationship_wrap">
-                <label for="relationship">Please specify</label>
-                <select id="relationship" name="relationship">
-                  <option value="">Please select...</option>
-                  <option>Senior Line Manager</option>
-                  <option>Line Manager</option>
-                  <option>Senior Clinician</option>
-                  <option>Peer / Team Leader</option>
-                  <option>Service/Operations Manager</option>
-                  <option>Senior Nursing Colleague</option>
-                  <option>Senior Clinical Colleague</option>
-                  <option>Professional Colleague</option>
-                  <option>Clinical Supervisor</option>
-                  <option>Senior Clinical Colleague from Locum Assignments</option>
-                </select>
-              </div>
-
             </div>
 
             <div class="actions">
@@ -2219,6 +2190,35 @@ window.addEventListener('DOMContentLoaded', () => {
           <div class="form-step" data-step="2" id="step-relationship">
             <div class="section-title">Relationship & Role</div>
             <div class="grid">
+              <!-- Professional relationship -->
+              <div class="col-2">
+                <label for="professional_area">What is your professional relationship to Alex?</label>
+                <select id="professional_area" name="professional_area" required>
+                  <option value="">Please select...</option>
+                  <option value="perioperative">Perioperative/Theatre Colleague</option>
+                  <option value="different">Other Professional Relationship</option>
+                </select>
+                <small class="hint">If you select "Other Professional Relationship", you'll write a custom letter instead of using the template.</small>
+              </div>
+
+              <!-- Specify relationship (only shown for perioperative) -->
+              <div class="col-2 hidden" id="relationship_wrap">
+                <label for="relationship">Please specify</label>
+                <select id="relationship" name="relationship">
+                  <option value="">Please select...</option>
+                  <option>Senior Line Manager</option>
+                  <option>Line Manager</option>
+                  <option>Senior Clinician</option>
+                  <option>Peer / Team Leader</option>
+                  <option>Service/Operations Manager</option>
+                  <option>Senior Nursing Colleague</option>
+                  <option>Senior Clinical Colleague</option>
+                  <option>Professional Colleague</option>
+                  <option>Clinical Supervisor</option>
+                  <option>Senior Clinical Colleague from Locum Assignments</option>
+                </select>
+              </div>
+
               <div class="col-2">
                 <label for="q_duration_select">How long have you known or worked with Alex?</label>
                 <select id="q_duration_select" name="q_duration_select" required>
