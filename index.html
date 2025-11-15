@@ -479,7 +479,16 @@ button.ghost:hover{ background:#f9fafb; }
   main{ display:block; }
   .left{ display:none; }
   .panel{ padding:0; }
-  .paper{ box-shadow:none; border:0; width:auto; min-height:auto; }
+  .preview-wrap{ padding:0; }
+  .paper{
+    box-shadow:none;
+    border:0;
+    width:100% !important;
+    max-width:100% !important;
+    min-height:auto;
+    transform:none !important;
+    margin:0 !important;
+  }
   .paper .page{ padding: 20mm 20mm; }
 }
 
