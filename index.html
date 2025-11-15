@@ -397,6 +397,8 @@ button.ghost:hover{ background:#f9fafb; }
 @media (max-width: 980px){
   main{ grid-template-columns: 1fr; }
   .left{ border-right:0; border-bottom:1px solid var(--line); }
+  .grid{ grid-template-columns: 1fr; }
+  .col-2{ grid-column: span 1; }
 }
 </style>
 
@@ -587,7 +589,7 @@ function readForm(){
     hospitalCity: (document.getElementById('hospital_city')?.value || "").trim(),
     hospitalPostcode: (document.getElementById('hospital_postcode')?.value || "").trim(),
 
-    useHeader: document.getElementById('use_header')?.checked || false,
+    useHeader: true, // Always include NHS header
     dateLine: document.getElementById('date_line').value.trim(),
 
     qDurationSelect: document.getElementById('q_duration_select').value,
@@ -1534,11 +1536,14 @@ window.addEventListener('DOMContentLoaded', () => {
           <div class="form-step active" data-step="1">
             <div class="section-title">Your Information</div>
             <div class="grid">
-              <div>
+              <!-- 1. Full name -->
+              <div class="col-2">
                 <label for="ref_name">Your full name</label>
                 <input id="ref_name" name="ref_name" required/>
               </div>
-              <div>
+
+              <!-- 2. Job title/role -->
+              <div class="col-2">
                 <label for="ref_role">Your job title/role</label>
                 <select id="ref_role" name="ref_role" required>
                   <option value="">Please select...</option>
@@ -1617,22 +1622,44 @@ window.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <div>
+              <!-- 3. Organisation -->
+              <div class="col-2">
                 <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
                 <input id="org" name="org"/>
                 <small class="hint">Anything after "NHS" will appear as the blue sub-header.</small>
               </div>
-              <div>
+
+              <!-- 4. Hospital name -->
+              <div class="col-2">
+                <label for="hospital_name">Hospital name</label>
+                <input id="hospital_name" name="hospital_name"/>
+              </div>
+
+              <!-- 5. Hospital address -->
+              <div class="col-2">
+                <label>Hospital address</label>
+                <div class="grid">
+                  <div><input id="hospital_addr1" name="hospital_addr1"/></div>
+                  <div><input id="hospital_addr2" name="hospital_addr2"/></div>
+                  <div><input id="hospital_city" name="hospital_city"/></div>
+                  <div><input id="hospital_postcode" name="hospital_postcode"/></div>
+                </div>
+              </div>
+
+              <!-- 6. Work email -->
+              <div class="col-2">
                 <label for="ref_email">Your work email</label>
                 <input id="ref_email" name="ref_email" type="email" required/>
                 <small class="hint">You'll receive a copy of the letter.</small>
               </div>
 
-              <div>
+              <!-- 7. Contact number -->
+              <div class="col-2">
                 <label for="ref_phone">Your contact number (optional)</label>
                 <input id="ref_phone" name="ref_phone" type="tel"/>
               </div>
 
+              <!-- 8. Relationship to Alex -->
               <div class="col-2">
                 <label for="relationship">Your relationship to Alex</label>
                 <select id="relationship" name="relationship" required>
@@ -1650,32 +1677,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 </select>
               </div>
 
-              <!-- Hospital + Address -->
-              <div class="col-2">
-                <label for="hospital_name">Hospital name</label>
-                <input id="hospital_name" name="hospital_name"/>
-              </div>
-
-              <div class="col-2" style="margin-top:8px;">
-                <label>Hospital address</label>
-                <div class="grid">
-                  <div><input id="hospital_addr1" name="hospital_addr1"/></div>
-                  <div><input id="hospital_addr2" name="hospital_addr2"/></div>
-                  <div><input id="hospital_city" name="hospital_city"/></div>
-                  <div><input id="hospital_postcode" name="hospital_postcode"/></div>
-                </div>
-              </div>
-
-              <!-- NHS HEADER TOGGLE -->
-              <div class="col-2" style="margin-top:8px;">
-                <label class="inline-option" style="margin-top:0;">
-                  <input type="checkbox" id="use_header" name="use_header" checked />
-                  <span>Include NHS header with logo and hospital details</span>
-                </label>
-                <small class="hint">
-                  When ticked, the letter will show the NHS logo, Trust name and hospital address in the top-right, like your standard letterhead.
-                </small>
-              </div>
             </div>
 
             <div class="actions">
@@ -1734,28 +1735,40 @@ window.addEventListener('DOMContentLoaded', () => {
                 <label>What key strengths has Alex demonstrated?</label>
                 <div class="grid">
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="calm leadership under pressure">
-                    <span>Calm leadership under pressure</span>
+                    <input type="checkbox" name="strengths" value="promotes a positive, respectful, and supportive team culture">
+                    <span>Positive team culture</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="clear and respectful communication with the multidisciplinary team">
+                    <input type="checkbox" name="strengths" value="delegates effectively while maintaining oversight of standards and safety">
+                    <span>Effective delegation</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="communicates clearly with surgeons, anaesthetists, and wider MDT members">
                     <span>Clear MDT communication</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="a consistent focus on patient safety and escalation of concerns">
-                    <span>Patient safety focus</span>
+                    <input type="checkbox" name="strengths" value="able to escalate concerns appropriately and confidently">
+                    <span>Escalates concerns appropriately</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="reliable and organised management of theatre lists and resources">
-                    <span>Reliable and organised</span>
+                    <input type="checkbox" name="strengths" value="uses incident reports, utilisation data, KPIs, and audit results to guide decisions">
+                    <span>Data-driven decision making</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="supportive and constructive supervision of colleagues">
-                    <span>Supportive to colleagues</span>
+                    <input type="checkbox" name="strengths" value="builds strong working relationships with surgeons, anaesthetists, managers, and procurement teams">
+                    <span>Strong stakeholder relationships</span>
                   </label>
                   <label class="inline-option">
-                    <input type="checkbox" name="strengths" value="a reflective and learning-oriented approach to practice">
-                    <span>Reflective, learning-oriented approach</span>
+                    <input type="checkbox" name="strengths" value="aware of financial constraints, transformation plans, and long-term workforce challenges">
+                    <span>Strategic awareness</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="aligns team behaviour with organisational priorities">
+                    <span>Aligns with priorities</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="advocates for improvements that enhance quality and efficiency">
+                    <span>Advocates for improvement</span>
                   </label>
                 </div>
                 <input id="q_strengths_other" name="q_strengths_other" style="margin-top:8px;"/>
