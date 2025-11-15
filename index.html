@@ -425,6 +425,7 @@ button.ghost:hover{ background:#f9fafb; }
 @media print{
   body{ background:#fff; }
   .container{ border:0; box-shadow:none; margin:0; }
+  header{ display:none; }
   main{ display:block; }
   .left{ display:none; }
   .panel{ padding:0; }
@@ -1433,6 +1434,10 @@ function buildLetterHTML(data, signatureDataURL){
 
   const bodyHTML = narrativeParts.join("");
 
+  const sigHTML = signatureDataURL
+    ? `<div class="letter-sign"><img src="${signatureDataURL}" alt="Signature"/></div>`
+    : "";
+
   return `
     <div class="paper" id="paper">
       <div class="page">
@@ -1447,6 +1452,7 @@ function buildLetterHTML(data, signatureDataURL){
           ${bodyHTML}
           <div class="letter-closing">
             <p>Yours faithfully,</p>
+            ${sigHTML}
             <div class="letter-signoff">
               <div class="name">${refName || "[Name]"}</div>
               <div>${effectiveRole || "[Role]"}</div>
