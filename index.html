@@ -267,17 +267,20 @@ button.ghost:hover{ background:#f9fafb; }
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  padding: 10px;
+  padding: 20px;
   width: 100%;
+  min-height: 100%;
 }
 .paper{
-  width: 100%;
-  max-width: 210mm;
+  width: 210mm;
   min-height: 297mm;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  border: 1px solid #d1d5db;
   position: relative;
+  transform: scale(0.75);
+  transform-origin: top center;
+  margin-bottom: -20%;
 }
 .paper .page{
   padding: 15mm 20mm 20mm 20mm;
@@ -293,13 +296,14 @@ button.ghost:hover{ background:#f9fafb; }
     padding: 10px 5px;
   }
   .paper{
-    width: 100%;
-    max-width: 100%;
-    min-height: auto;
+    width: 210mm;
+    min-height: 297mm;
+    transform: scale(0.5);
+    margin-bottom: -50%;
   }
   .paper .page{
-    padding: 10mm 5mm;
-    font-size: 10pt;
+    padding: 15mm 20mm;
+    font-size: 11pt;
   }
 }
 
