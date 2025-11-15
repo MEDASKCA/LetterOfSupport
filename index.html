@@ -1496,8 +1496,9 @@ function showStep(step){
   }
 
   document.querySelectorAll('.form-step').forEach(s => {
-    const stepNum = parseInt(s.dataset.step, 10);
-    s.classList.toggle('active', stepNum === step);
+    // Exact match to avoid "2a" matching when step is 2
+    const isMatch = (s.dataset.step == step);
+    s.classList.toggle('active', isMatch);
   });
 
   const progress = document.querySelector('.progress-bar');
