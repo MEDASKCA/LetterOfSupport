@@ -375,13 +375,15 @@ button.ghost:hover{ background:#f9fafb; }
 }
 .paper{
   width: 210mm;
+  max-width: 100%; /* Fit container width */
   background: transparent;
   position: relative;
   zoom: 0.65; /* Scale down to show whole page */
   transform-origin: top center;
 }
 .paper .page{
-  width: 210mm;
+  width: 100%; /* Match parent width */
+  max-width: 210mm; /* Cap at A4 width */
   padding: 15mm 20mm 20mm 20mm;
   font-family: Arial, sans-serif;
   color: #1f2937;
@@ -419,7 +421,8 @@ button.ghost:hover{ background:#f9fafb; }
     justify-content: flex-start;
   }
   .paper{
-    width: 210mm;
+    width: 100%; /* Full container width on mobile */
+    max-width: 210mm; /* Cap at A4 width */
     min-height: 297mm;
   }
   .paper .page{
