@@ -227,6 +227,51 @@ button.ghost{
 }
 button.ghost:hover{ background:#f9fafb; }
 
+/* Signature canvas - DocuSign style */
+.sig-wrap{
+  border:2px solid #2563eb;
+  border-radius:8px;
+  background:#fffbeb;
+  padding:16px;
+  position:relative;
+}
+.sig-wrap::before{
+  content:"✕ Sign Here";
+  position:absolute;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#94a3b8;
+  font-size:48px;
+  font-weight:300;
+  pointer-events:none;
+  opacity:0.3;
+}
+.sig-canvas{
+  width:100%;
+  height:140px;
+  background:transparent;
+  border:none;
+  border-bottom:2px dashed #cbd5e1;
+  border-radius:0;
+  cursor:crosshair;
+  touch-action:none;
+  position:relative;
+  z-index:1;
+}
+.sig-row{
+  margin-top:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.sig-row::before{
+  content:"Sign above the line";
+  font-size:12px;
+  color:#64748b;
+  font-style:italic;
+}
+
 /* Preview page */
 .preview-wrap{
   display:flex;
@@ -773,6 +818,7 @@ function toUKLong(dateISO){
   }catch(e){ return todayUK(); }
 }
 
+let sigPad;
 let currentStep = 1;
 const totalSteps = 4;
 
@@ -1816,6 +1862,99 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Signature pad setup
+  const canvas = document.getElementById('signature-canvas');
+  if (canvas){
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas(){
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      canvas.width = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      ctx.scale(ratio, ratio);
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#000';
+    }
+
+    sigPad = {
+      _empty: true,
+      _drawing: false,
+      _lastX: 0,
+      _lastY: 0,
+      clear(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this._empty = true;
+      },
+      isEmpty(){
+        return this._empty;
+      },
+      toDataURL(){
+        return canvas.toDataURL('image/png');
+      }
+    };
+
+    function getPos(e){
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function startDraw(e){
+      e.preventDefault();
+      resizeCanvas();
+      const pos = getPos(e);
+      sigPad._drawing = true;
+      sigPad._lastX = pos.x;
+      sigPad._lastY = pos.y;
+      sigPad._empty = false;
+    }
+
+    function draw(e){
+      if (!sigPad._drawing) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(sigPad._lastX, sigPad._lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      sigPad._lastX = pos.x;
+      sigPad._lastY = pos.y;
+    }
+
+    function endDraw(e){
+      if (!sigPad._drawing) return;
+      e.preventDefault();
+      sigPad._drawing = false;
+      updatePreview();
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', startDraw, {passive:false});
+    canvas.addEventListener('touchmove', draw, {passive:false});
+    canvas.addEventListener('touchend', endDraw, {passive:false});
+
+    const clearBtn = document.getElementById('clear-signature-btn');
+    if (clearBtn){
+      clearBtn.addEventListener('click', () => {
+        sigPad.clear();
+        updatePreview();
+      });
+    }
+
+    resizeCanvas();
+  }
+
   // Date default
   const dateInput = document.getElementById('date_line');
   if (dateInput){
@@ -2308,10 +2447,21 @@ Example structure:
               </div>
             </div>
 
+            <div class="section-title">Sign Your Letter</div>
+            <div class="col-2">
+              <label>Draw your signature below</label>
+              <div class="sig-wrap">
+                <canvas id="signature-canvas" class="sig-canvas"></canvas>
+                <div class="sig-row">
+                  <button type="button" id="clear-signature-btn" class="ghost">Clear Signature</button>
+                </div>
+              </div>
+            </div>
+
             <div style="margin-top:16px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">
               <label style="display:flex; align-items:start; gap:10px; margin:0;">
                 <input type="checkbox" required style="width:auto; margin-top:3px;"/>
-                <span style="flex:1;">I confirm this endorsement is accurate and consent to its electronic submission to Alex Monterubio for the NHS Clinical Entrepreneur Programme. By typing my name above, I affirm this as my digital signature.</span>
+                <span style="flex:1;">I confirm this endorsement is accurate and consent to its electronic submission to Alex Monterubio for the NHS Clinical Entrepreneur Programme.</span>
               </label>
             </div>
 
