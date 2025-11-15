@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/send-letter.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "api": {
+    "bodyParser": {
+      "sizeLimit": "4.5mb"
+    }
+  }
+}
