@@ -1376,6 +1376,8 @@ function handleCapacityChange(){
 function showStep(step){
   currentStep = step;
 
+  const stepNames = ['Your details', 'Relationship', 'Strengths', 'Sign & submit'];
+
   // Handle special step "2a" for custom letter
   if (step === '2a' || step === 2.5){
     document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
@@ -1387,6 +1389,15 @@ function showStep(step){
 
     const labelSpan = document.getElementById('step-counter');
     if (labelSpan) labelSpan.textContent = 'Step 2 of 3';
+
+    // Update step labels - show previous and current
+    const labelsContainer = document.getElementById('step-labels-container');
+    if (labelsContainer){
+      labelsContainer.innerHTML = `
+        <span>Your details</span>
+        <span class="is-active">Custom letter</span>
+      `;
+    }
 
     const leftPanel = document.querySelector('.panel.left');
     if (leftPanel && leftPanel.scrollTo){
@@ -1411,9 +1422,21 @@ function showStep(step){
     labelSpan.textContent = `Step ${step} of ${totalSteps}`;
   }
 
-  document.querySelectorAll('.step-labels span').forEach((el, idx) => {
-    el.classList.toggle('is-active', idx+1 === step);
-  });
+  // Update step labels - show only previous and current
+  const labelsContainer = document.getElementById('step-labels-container');
+  if (labelsContainer){
+    let html = '';
+
+    // Show previous step if not on step 1
+    if (step > 1){
+      html += `<span>${stepNames[step - 2]}</span>`;
+    }
+
+    // Show current step
+    html += `<span class="is-active">${stepNames[step - 1]}</span>`;
+
+    labelsContainer.innerHTML = html;
+  }
 
   const leftPanel = document.querySelector('.panel.left');
   if (leftPanel && leftPanel.scrollTo){
@@ -1736,11 +1759,8 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="progress-track">
               <div class="progress-bar"></div>
             </div>
-            <div class="step-labels">
+            <div class="step-labels" id="step-labels-container">
               <span class="is-active">Your details</span>
-              <span>Relationship</span>
-              <span>Strengths</span>
-              <span>Sign & submit</span>
             </div>
           </div>
         </div>
