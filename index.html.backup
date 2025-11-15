@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NHS Clinical Entrepreneur Programme – Digital Letter of Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{ --brand:#2563eb; --ink:#1f2937; --muted:#6b7280; --bg:#f9fafb; --line:#e5e7eb; }
+*{ box-sizing:border-box; }
+html, body{ height:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height:1.6;
+}
+.hidden{ display:none; }
+
+.container{
+  max-width:1400px;
+  margin:20px auto;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:8px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+  overflow:hidden;
+  min-height: calc(100vh - 40px);
+  display:flex;
+  flex-direction:column;
+}
+header{
+  padding:24px 28px;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+}
+header h1{
+  margin:0 0 6px;
+  font-size:24px;
+  font-weight:700;
+  color:var(--ink);
+}
+header p{
+  margin:0;
+  color:var(--muted);
+  font-size:15px;
+}
+main{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:0;
+  min-height: 0;
+  flex:1;
+}
+.panel{
+  padding:28px 28px;
+  overflow:auto;
+}
+.left{ border-right:1px solid var(--line); }
+
+.section-title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--ink);
+  margin:24px 0 12px;
+  padding-bottom:8px;
+  border-bottom:2px solid var(--line);
+}
+.section-title:first-child{ margin-top:0; }
+
+label{
+  display:block;
+  font-weight:500;
+  margin:16px 0 6px;
+  font-size:14px;
+  color:var(--ink);
+}
+input,select,textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid #d1d5db;
+  border-radius:6px;
+  font-size:14px;
+  font-family:inherit;
+  transition:border-color 0.2s;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+}
+textarea{ min-height:100px; resize:vertical; }
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+}
+.col-2{ grid-column:span 2; }
+small.hint{
+  color:var(--muted);
+  display:block;
+  margin-top:5px;
+  font-size:13px;
+  line-height:1.4;
+}
+.note{
+  background:#f0f9ff;
+  border:1px solid #bae6fd;
+  padding:14px 16px;
+  border-radius:6px;
+  font-size:14px;
+  margin-bottom:20px;
+  line-height:1.6;
+  color:#0c4a6e;
+}
+.note a{ color:#0369a1; text-decoration:underline; }
+
+.inline-option{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:400;
+  margin-top:4px;
+  font-size:14px;
+}
+.inline-option input{
+  width:auto;
+  margin:0;
+}
+
+/* Stepper nav */
+.steps-nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.steps-nav-left{
+  font-size:14px;
+  font-weight:500;
+  color:var(--ink);
+}
+.steps-nav-right{
+  flex:1;
+  margin-left:16px;
+}
+.progress-track{
+  width:100%;
+  height:6px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+}
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:var(--brand);
+  transition:width .25s ease;
+}
+.step-labels{
+  display:flex;
+  justify-content:space-between;
+  margin-top:6px;
+  font-size:11px;
+  color:var(--muted);
+}
+.step-labels span.is-active{
+  color:var(--brand);
+  font-weight:600;
+}
+
+/* Steps */
+.form-step{
+  display:none;
+  animation:fadeIn .2s ease;
+}
+.form-step.active{
+  display:block;
+}
+@keyframes fadeIn{
+  from{ opacity:0; transform:translateY(4px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+button{
+  background:var(--brand);
+  color:#fff;
+  border:none;
+  padding:10px 18px;
+  border-radius:6px;
+  font-weight:600;
+  cursor:pointer;
+  font-size:14px;
+  transition:background 0.2s;
+}
+button:hover{ background:#1d4ed8; }
+button.secondary{
+  background:#f3f4f6;
+  color:var(--ink);
+  border:1px solid var(--line);
+}
+button.secondary:hover{ background:#e5e7eb; }
+button.ghost{
+  background:#fff;
+  color:#1f2937;
+  border:1px solid #d1d5db;
+}
+button.ghost:hover{ background:#f9fafb; }
+
+/* Signature pad */
+.sig-wrap{
+  border:1px dashed #c9d7ea;
+  border-radius:10px;
+  background:#fafcff;
+  padding:10px;
+}
+.sig-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top:8px;
+}
+.sig-canvas{
+  width:100%;
+  height:160px;
+  background:#fff;
+  border:1px solid #d7e0ea;
+  border-radius:8px;
+}
+.sig-actions{
+  display:flex;
+  gap:8px;
+}
+
+/* Preview page */
+.preview-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding: 10px 0 20px;
+}
+.paper{
+  width: 210mm; min-height: 297mm;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+.paper .page{
+  padding: 15mm 20mm 20mm 20mm;
+  font-family: Arial, sans-serif;
+  color: #1f2937;
+  line-height: 1.5;
+  font-size: 11pt;
+}
+
+/* Sender, header, date, recipient, subject */
+.sender-block{
+  font-family: Arial, sans-serif;
+  font-size:14px;
+  line-height:1.4;
+  text-align:left;
+  margin: 0 0 4px 0;
+}
+.header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+.header-block {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+.trust-header { text-align: right; }
+
+/* NHS logo image */
+.nhs-logo-img{
+  display:block;
+  width:72px;      /* adjust if you want it bigger/smaller */
+  height:auto;
+  margin-left:auto;
+}
+
+/* trust text bits */
+.trust-header .trust-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 6px;
+  color: #000;
+}
+.trust-header .trust-sub {
+  font-size: 12px;
+  font-weight: bold;
+  color: #1D8FDB;
+}
+.trust-header .trust-hospital {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  margin-top: 10px;
+}
+.trust-header .trust-address {
+  font-size: 14px;
+  font-weight: 400;
+  color: #000;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.letter-date{
+font-size: 12pt;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  text-align:left;
+}
+
+.recipient-block{
+  margin-bottom: 8px;
+}
+.recipient-subject{
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.letter-body p{
+  margin: 0 0 9pt;
+}
+.letter-body p.sal{
+  margin-top: 10pt;
+  font-weight:500;
+}
+.letter-closing{ margin-top: 14pt; }
+.letter-sign{ margin-top: 10pt; height: 60px; }
+.letter-sign img{ max-height: 60px; }
+.letter-signoff{ margin: 8pt 0 0; }
+.letter-signoff .name{ font-weight:700; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--brand);
+  color: #fff;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  width: min(680px, calc(100% - 32px));
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease, transform .35s ease;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.toast h4 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.toast p {
+  margin: 0;
+  line-height: 1.45;
+  font-size: 14px;
+}
+.toast p + p { margin-top: 4px; }
+.toast em { opacity: .95; }
+
+/* Print */
+@media print{
+  body{ background:#fff; }
+  .container{ border:0; box-shadow:none; }
+  main{ display:block; }
+  .left{ display:none; }
+  .panel{ padding:0; }
+  .paper{ box-shadow:none; border:0; width:auto; min-height:auto; }
+  .paper .page{ padding: 15mm 20mm; }
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  main{ grid-template-columns: 1fr; }
+  .left{ border-right:0; border-bottom:1px solid var(--line); }
+}
+</style>
+
+<!-- external libs for PDF & canvas -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+// --- CONFIG: adjust if you want to call your Vercel API/Resend endpoint ---
+const BACKEND_ENDPOINT = "/api/send-letter"; // change or remove if not needed
+
+// Opening paragraphs by role (for key roles; others get generic)
+const openingsByRole = {
+  // Executive
+  "Chief Executive Officer":
+    "As Chief Executive Officer of our organisation, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Chief Nurse":
+    "In my capacity as Chief Nurse, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Medical Director":
+    "In my role as Medical Director, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Director of Nursing":
+    "As Director of Nursing, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Chief Operating Officer (COO)":
+    "In my capacity as Chief Operating Officer (COO), I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+
+  // Digital & information
+  "Chief Information Officer (CIO)":
+    "As Chief Information Officer (CIO) for our organisation, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Chief Nursing Information Officer (CNIO)":
+    "In my capacity as Chief Nursing Information Officer (CNIO), I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Chief Clinical Information Officer (CCIO)":
+    "As Chief Clinical Information Officer (CCIO), I am pleased to support Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Chief Digital Information Officer (CDIO)":
+    "In my role as Chief Digital Information Officer (CDIO), I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+
+  // Divisional / senior management
+  "Divisional Operations Director":
+    "As Divisional Operations Director, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Divisional General Manager":
+    "As Divisional General Manager, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Divisional/Clinical Director":
+    "In my capacity as Divisional/Clinical Director, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Divisional Nurse Director":
+    "As Divisional Nurse Director, I am pleased to support Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+
+  // Service management
+  "General Manager":
+    "As General Manager for the service, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Deputy General Manager":
+    "As Deputy General Manager, I am pleased to support Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Service Manager":
+    "As Service Manager for the department, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Associate Service Manager":
+    "In my role as Associate Service Manager, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Service Delivery Manager":
+    "In my role as Service Delivery Manager for Theatres at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader within the department.",
+
+  // Operational management
+  "Head of Perioperative Services":
+    "As Head of Perioperative Services at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres.",
+  "Perioperative Services Manager":
+    "In my role as Perioperative Services Manager, I am pleased to support Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Operations Manager":
+    "As Operations Manager for perioperative services, I am pleased to support Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Deputy Operations Manager":
+    "In my role as Deputy Operations Manager, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Site Manager":
+    "As Site Manager, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+
+  // Professional / nursing leadership
+  "Associate Director of Nursing":
+    "In my capacity as Associate Director of Nursing, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Head of Nursing":
+    "As Head of Nursing, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Matron":
+    "As Matron for the Theatre Department, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Deputy Matron":
+    "In my role as Deputy Matron, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Practice Development Nurse":
+    "In my role as Practice Development Nurse, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Senior Team Leader":
+    "In my capacity as a Senior Team Leader in theatres, I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Associate Team Leader":
+    "As an Associate Team Leader within the perioperative service, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+
+  // Medical staff
+  "Consultant Anaesthetist":
+    "I am pleased to provide a letter of support for Alex Monterubio, with whom I worked during theatre sessions at the Royal London Hospital, Barts Health NHS Trust, where Alex previously held the position of Senior Team Leader in Theatres.",
+  "Consultant Surgeon":
+    "As a Consultant Surgeon at the Royal London Hospital, Barts Health NHS Trust, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres.",
+  "Senior Registrar":
+    "I am pleased to provide a letter of support for Alex Monterubio, whom I had the opportunity to work with during surgical lists at the Royal London Hospital, Barts Health NHS Trust, where Alex previously worked as a Senior Team Leader in Theatres.",
+  "Surgical Fellow":
+    "As a Surgical Fellow working within the theatre environment, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Anaesthetic Fellow":
+    "As an Anaesthetic Fellow, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.",
+  "Specialty Doctor / SAS Doctor":
+    "As a Specialty (SAS) Doctor working regularly in theatres, I am pleased to provide this letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust."
+};
+
+// local hospital entry; can be extended
+let hospitalDirectory = [
+  {
+    trustName: "Barts Health NHS Trust",
+    hospitalName: "Royal London Hospital",
+    addressLine1: "Whitechapel Road",
+    addressLine2: "Whitechapel",
+    city: "London",
+    postcode: "E1 1FR"
+  }
+];
+
+async function loadHospitalDirectory(){
+  try{
+    const res = await fetch('hospitals.json');
+    if (res.ok){
+      hospitalDirectory = await res.json();
+    }
+  }catch(e){
+    console.warn("Optional hospitals.json not loaded");
+  }
+}
+
+function findHospitalMatch(name){
+  if (!name || !hospitalDirectory.length) return null;
+  const q = name.toLowerCase().trim();
+  let m = hospitalDirectory.find(h => h.hospitalName.toLowerCase() === q);
+  if (m) return m;
+  m = hospitalDirectory.find(h => h.hospitalName.toLowerCase().includes(q));
+  return m || null;
+}
+
+// trust splitter
+function splitTrust(orgValue){
+  if (!orgValue) return { main:"", sub:"" };
+  const v = orgValue.trim();
+  const idx = v.indexOf(" NHS");
+  if (idx === -1){
+    return { main: v, sub: "" };
+  }
+  return {
+    main: v.slice(0, idx).trim(),
+    sub:  v.slice(idx + 1).trim()
+  };
+}
+
+// date helpers
+function todayUK(){
+  const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+  return new Date().toLocaleDateString('en-GB', opts);
+}
+function todayUKISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function toUKLong(dateISO){
+  try{
+    const d = new Date(dateISO);
+    if (isNaN(d)) return todayUK();
+    return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  }catch(e){ return todayUK(); }
+}
+
+let sigPad; // custom wrapper
+let currentStep = 1;
+const totalSteps = 4;
+
+function readForm(){
+  const strengthsSelected = Array.from(
+    document.querySelectorAll('input[name="strengths"]:checked')
+  ).map(el => el.value);
+
+  return {
+    refName: document.getElementById('ref_name').value.trim(),
+    refRole: document.getElementById('ref_role').value,
+    refRoleOther: (document.getElementById('ref_role_other')?.value || "").trim(),
+    org: document.getElementById('org').value.trim(),
+    email: document.getElementById('ref_email').value.trim(),
+    phone: document.getElementById('ref_phone').value.trim(),
+    relationship: document.getElementById('relationship').value,
+
+    hospitalName: (document.getElementById('hospital_name')?.value || "").trim(),
+    hospitalAddr1: (document.getElementById('hospital_addr1')?.value || "").trim(),
+    hospitalAddr2: (document.getElementById('hospital_addr2')?.value || "").trim(),
+    hospitalCity: (document.getElementById('hospital_city')?.value || "").trim(),
+    hospitalPostcode: (document.getElementById('hospital_postcode')?.value || "").trim(),
+
+    useHeader: document.getElementById('use_header')?.checked || false,
+    dateLine: document.getElementById('date_line').value.trim(),
+
+    qDurationSelect: document.getElementById('q_duration_select').value,
+    qDurationDetail: (document.getElementById('q_duration_detail')?.value || "").trim(),
+
+    qCapacitySelect: document.getElementById('q_capacity_select').value,
+    qCapacityOther: (document.getElementById('q_capacity_other')?.value || "").trim(),
+    qCapacityDetail: (document.getElementById('q_capacity_detail')?.value || "").trim(),
+
+    strengthsSelected,
+    qStrengthsOther: (document.getElementById('q_strengths_other')?.value || "").trim(),
+
+    qProfessionalism: (document.getElementById('q_professionalism')?.value || "").trim(),
+    qTeamwork: (document.getElementById('q_teamwork')?.value || "").trim(),
+
+    qSuitabilitySelect: document.getElementById('q_suitability_select').value,
+    qSuitabilityDetail: (document.getElementById('q_suitability_detail')?.value || "").trim()
+  };
+}
+
+/* Step validation – only for the visible step */
+function validateStep(stepNumber){
+  const stepEl = document.querySelector(`.form-step[data-step="${stepNumber}"]`);
+  if (!stepEl) return true;
+
+  const fields = stepEl.querySelectorAll('input, select, textarea');
+  fields.forEach(el => { el.style.borderColor = '#d1d5db'; });
+
+  let valid = true;
+  let firstProblem = null;
+
+  const required = stepEl.querySelectorAll('[required]');
+  required.forEach(el => {
+    if (!el.checkValidity()) {
+      valid = false;
+      el.style.borderColor = '#dc2626';
+      if (!firstProblem) firstProblem = el;
+    }
+  });
+
+  if (stepNumber === 3){
+    const strengthsGroup = document.getElementById('strengths_group');
+    if (strengthsGroup){
+      strengthsGroup.style.border = 'none';
+      strengthsGroup.style.padding = '0';
+      const strengthsChecked = document.querySelectorAll('input[name="strengths"]:checked').length;
+      const strengthsOtherVal = (document.getElementById('q_strengths_other')?.value || "").trim();
+      const strengthsValid = strengthsChecked > 0 || strengthsOtherVal.length > 0;
+      if (!strengthsValid){
+        valid = false;
+        strengthsGroup.style.border = '1px solid #dc2626';
+        strengthsGroup.style.borderRadius = '6px';
+        strengthsGroup.style.padding = '8px';
+        if (!firstProblem) firstProblem = strengthsGroup;
+      }
+    }
+  }
+
+  if (!valid && firstProblem){
+    if (firstProblem.scrollIntoView){
+      firstProblem.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+    if (firstProblem.focus){
+      firstProblem.focus();
+    }
+  }
+
+  return valid;
+}
+
+/* Full-form validation (for final submit) */
+function validateForm(){
+  const form = document.getElementById('endorsement-form');
+  if (!form) return true;
+
+  const fields = form.querySelectorAll('input, select, textarea');
+  fields.forEach(el => { el.style.borderColor = '#d1d5db'; });
+  const strengthsGroup = document.getElementById('strengths_group');
+  if (strengthsGroup){
+    strengthsGroup.style.border = 'none';
+    strengthsGroup.style.padding = '0';
+  }
+
+  let formValid = true;
+  let firstInvalidElement = null;
+
+  const required = form.querySelectorAll('[required]');
+  required.forEach(el => {
+    if (!el.checkValidity()){
+      formValid = false;
+      el.style.borderColor = '#dc2626';
+      if (!firstInvalidElement) firstInvalidElement = el;
+    }
+  });
+
+  const strengthsChecked = form.querySelectorAll('input[name="strengths"]:checked').length;
+  const strengthsOtherVal = (document.getElementById('q_strengths_other')?.value || "").trim();
+  const strengthsValid = strengthsChecked > 0 || strengthsOtherVal.length > 0;
+  if (!strengthsValid){
+    formValid = false;
+    if (strengthsGroup){
+      strengthsGroup.style.border = '1px solid #dc2626';
+      strengthsGroup.style.borderRadius = '6px';
+      strengthsGroup.style.padding = '8px';
+    }
+    if (!firstInvalidElement && strengthsGroup){
+      firstInvalidElement = strengthsGroup;
+    }
+  }
+
+  // require a drawn signature
+  if (sigPad && sigPad.isEmpty()){
+    formValid = false;
+    alert("Please provide your signature before submitting.");
+    const stepEl = document.querySelector('.form-step[data-step="4"]');
+    if (stepEl){
+      showStep(4);
+      stepEl.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }
+
+  if (!formValid && firstInvalidElement){
+    const stepEl = firstInvalidElement.closest('.form-step');
+    if (stepEl && stepEl.dataset.step){
+      showStep(parseInt(stepEl.dataset.step, 10));
+    }
+    if (firstInvalidElement.scrollIntoView){
+      firstInvalidElement.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+    if (firstInvalidElement.focus){
+      firstInvalidElement.focus();
+    }
+    return false;
+  }
+
+  return true;
+}
+
+/* Skeleton letter: up to Re: line only */
+function buildSkeletonLetterHTML(data){
+  const {
+    refName,
+    refRole,
+    refRoleOther,
+    org,
+    email,
+    phone,
+    dateLine,
+    hospitalName,
+    hospitalAddr1,
+    hospitalAddr2,
+    hospitalCity,
+    hospitalPostcode,
+    useHeader
+  } = data;
+
+  const effectiveRole = (refRole === "Other" && refRoleOther) ? refRoleOther : refRole;
+
+  const dateStr = dateLine ? toUKLong(dateLine) : todayUK();
+  const hospital = hospitalName || "";
+  const { main: trustMain, sub: trustSub } = splitTrust(org || "");
+
+  const addressHTML = (hospitalAddr1 || hospitalAddr2 || hospitalCity || hospitalPostcode)
+    ? `
+      <div class="trust-address">
+        ${hospitalAddr1 ? hospitalAddr1 + "<br/>" : ""}
+        ${hospitalAddr2 ? hospitalAddr2 + "<br/>" : ""}
+        ${
+          (hospitalCity || hospitalPostcode)
+            ? `${hospitalCity || ""}${hospitalCity && hospitalPostcode ? ", " : ""}${hospitalPostcode || ""}`
+            : ""
+        }
+      </div>
+    `
+    : "";
+
+  const headerHTML = useHeader ? `
+    <div class="header-block">
+      <div class="trust-header">
+        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
+        ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
+        ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
+        ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
+        ${addressHTML}
+      </div>
+    </div>
+  ` : "";
+
+  const senderHTML = `
+    <div class="sender-block">
+      <div>${refName || "[Referee Name]"}</div>
+      <div>${effectiveRole || "[Role]"}</div>
+      ${phone ? `<div>Tel: ${phone}</div>` : ""}
+      ${email ? `<div>Email: ${email}</div>` : ""}
+    </div>
+  `;
+
+  const recipientHTML = `
+    <div class="recipient-block">
+      <div>NHS Clinical Entrepreneur Team</div>
+      <div>c/o Anglia Ruskin University</div>
+      <div>Bishop Hall Lane</div>
+      <div>Chelmsford</div>
+      <div>Essex</div>
+      <div>CM1 1SQ</div>
+    </div>
+    <div class="recipient-subject">
+      Re: Letter of Support for Alex Monterubio – NHS Clinical Entrepreneur Programme Application
+    </div>
+  `;
+
+  return `
+    <div class="paper" id="paper">
+      <div class="page">
+        <div class="header-row">
+          ${senderHTML}
+          ${headerHTML}
+        </div>
+        <div class="letter-date">Date: ${dateStr}</div>
+        ${recipientHTML}
+        <div style="font-family: Arial, sans-serif; font-size: 10pt; color:#9ca3af; margin-top:16px;">
+          The body of your letter will appear here once you start answering the endorsement questions.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildLetterHTML(data, signatureDataURL){
+  const {
+    refName,
+    refRole,
+    refRoleOther,
+    org,
+    email,
+    phone,
+    relationship,
+    dateLine,
+    hospitalName,
+    hospitalAddr1,
+    hospitalAddr2,
+    hospitalCity,
+    hospitalPostcode,
+    useHeader,
+    qDurationSelect,
+    qDurationDetail,
+    qCapacitySelect,
+    qCapacityOther,
+    qCapacityDetail,
+    strengthsSelected,
+    qStrengthsOther,
+    qProfessionalism,
+    qTeamwork,
+    qSuitabilitySelect,
+    qSuitabilityDetail
+  } = data;
+
+  const effectiveRole = (refRole === "Other" && refRoleOther) ? refRoleOther : refRole;
+
+  const opening = openingsByRole[effectiveRole] ||
+    "I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.";
+
+  const dateStr = dateLine ? toUKLong(dateLine) : todayUK();
+
+  const hospital = hospitalName || "";
+  const { main: trustMain, sub: trustSub } = splitTrust(org || "");
+
+  const addressHTML = (hospitalAddr1 || hospitalAddr2 || hospitalCity || hospitalPostcode)
+    ? `
+      <div class="trust-address">
+        ${hospitalAddr1 ? hospitalAddr1 + "<br/>" : ""}
+        ${hospitalAddr2 ? hospitalAddr2 + "<br/>" : ""}
+        ${
+          (hospitalCity || hospitalPostcode)
+            ? `${hospitalCity || ""}${hospitalCity && hospitalPostcode ? ", " : ""}${hospitalPostcode || ""}`
+            : ""
+        }
+      </div>
+    `
+    : "";
+
+  const headerHTML = useHeader ? `
+    <div class="header-block">
+      <div class="trust-header">
+        <img src="nhs-logo.png" alt="NHS logo" class="nhs-logo-img"/>
+        ${trustMain ? `<div class="trust-name">${trustMain}</div>` : ""}
+        ${trustSub  ? `<div class="trust-sub">${trustSub}</div>` : ""}
+        ${hospital ? `<div class="trust-hospital">${hospital}</div>` : ""}
+        ${addressHTML}
+      </div>
+    </div>
+  ` : "";
+
+  const senderHTML = `
+    <div class="sender-block">
+      <div>${refName || "[Referee Name]"}</div>
+      <div>${effectiveRole || "[Role]"}</div>
+      ${phone ? `<div>Tel: ${phone}</div>` : ""}
+      ${email ? `<div>Email: ${email}</div>` : ""}
+    </div>
+  `;
+
+  const recipientHTML = `
+    <div class="recipient-block">
+      <div>NHS Clinical Entrepreneur Team</div>
+      <div>c/o Anglia Ruskin University</div>
+      <div>Bishop Hall Lane</div>
+      <div>Chelmsford</div>
+      <div>Essex</div>
+      <div>CM1 1SQ</div>
+    </div>
+    <div class="recipient-subject">
+      Re: Letter of Support for Alex Monterubio – NHS Clinical Entrepreneur Programme Application
+    </div>
+  `;
+
+  const salutationHTML = `<p class="sal">Dear NHS Clinical Entrepreneur Team,</p>`;
+
+  const narrativeParts = [];
+
+  // Duration phrase
+  let durationPhrase = "";
+  if (qDurationSelect){
+    if (qDurationSelect === "other" && qDurationDetail){
+      durationPhrase = qDurationDetail;
+    } else {
+      switch (qDurationSelect){
+        case "less than six months":
+          durationPhrase = ""; // handled with "Although..."
+          break;
+        case "between six and twelve months":
+          durationPhrase = "the past six to twelve months";
+          break;
+        case "between one and three years":
+          durationPhrase = "the past one to three years";
+          break;
+        case "more than three years":
+          durationPhrase = "a period of more than three years";
+          break;
+        default:
+          durationPhrase = qDurationSelect;
+      }
+      if (qDurationDetail && qDurationSelect !== "less than six months"){
+        durationPhrase += ` (${qDurationDetail})`;
+      }
+    }
+  }
+
+  // Capacity
+  let capacityBase = "";
+  if (qCapacitySelect === "other" && qCapacityOther){
+    capacityBase = qCapacityOther;
+  } else if (qCapacitySelect){
+    capacityBase = qCapacitySelect;
+  }
+  let capacityDetail = "";
+  if (qCapacityDetail){
+    capacityDetail = qCapacityDetail;
+  }
+
+  // Relationship sentence
+  let relationshipSentence = "";
+  if (qDurationSelect || capacityBase || relationship){
+    if (qDurationSelect === "less than six months") {
+      relationshipSentence = "Although my time working with Alex has been relatively short";
+    } else {
+      relationshipSentence = "Over ";
+      relationshipSentence += durationPhrase ? durationPhrase : "the time that Alex worked within our service";
+    }
+
+    relationshipSentence += ", I have known Alex";
+
+    if (capacityBase){
+      relationshipSentence += ` in my capacity as ${capacityBase.toLowerCase()}`;
+    } else if (relationship){
+      relationshipSentence += ` in my capacity as ${relationship.toLowerCase()}`;
+    }
+
+    if (capacityDetail){
+      relationshipSentence += `, with specific responsibility for ${capacityDetail}`;
+    }
+
+    relationshipSentence += ", and have been able to observe their practice in a busy perioperative environment.";
+  }
+
+  let intro = opening;
+  if (relationshipSentence){
+    intro += " " + relationshipSentence;
+  }
+  narrativeParts.push(`<p>${intro}</p>`);
+
+  // Strengths
+  let strengthsSentence = "";
+  if (strengthsSelected.length || qStrengthsOther){
+    const pieces = [...strengthsSelected];
+    if (qStrengthsOther){
+      pieces.push(qStrengthsOther);
+    }
+
+    let strengthsPhrase = "";
+    if (pieces.length === 1){
+      strengthsPhrase = pieces[0];
+    } else if (pieces.length === 2){
+      strengthsPhrase = pieces.join(" and ");
+    } else {
+      strengthsPhrase = pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
+    }
+
+    strengthsSentence = `In day-to-day practice, Alex has demonstrated ${strengthsPhrase}.`;
+  }
+
+  // Professionalism / safety
+  let professionalismSentence = "";
+  if (qProfessionalism){
+    professionalismSentence = ` In terms of professionalism and patient safety, I would highlight the following example: ${qProfessionalism}`;
+  }
+
+  // Teamwork / leadership
+  let teamworkSentence = "";
+  if (qTeamwork){
+    teamworkSentence = ` Regarding teamwork and leadership within theatres, an illustrative example is: ${qTeamwork}`;
+  }
+
+  let middlePara = "";
+  if (strengthsSentence){
+    middlePara += strengthsSentence;
+  }
+  if (professionalismSentence){
+    middlePara += professionalismSentence;
+  }
+  if (teamworkSentence){
+    middlePara += teamworkSentence;
+  }
+  if (middlePara){
+    narrativeParts.push(`<p>${middlePara}</p>`);
+  }
+
+  // Suitability + MBA
+  let suitabilitySentence = "";
+  if (qSuitabilitySelect || qSuitabilityDetail){
+    const reasons = [];
+    if (qSuitabilitySelect){
+      reasons.push(qSuitabilitySelect);
+    }
+    if (qSuitabilityDetail){
+      reasons.push(qSuitabilityDetail);
+    }
+
+    let reasonsPhrase = "";
+    if (reasons.length === 1){
+      reasonsPhrase = reasons[0];
+    } else if (reasons.length === 2){
+      reasonsPhrase = reasons.join(" and ");
+    } else {
+      reasonsPhrase = reasons.slice(0, -1).join(", ") + ", and " + reasons[reasons.length - 1];
+    }
+
+    suitabilitySentence = `On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme because of ${reasonsPhrase}.`;
+  } else {
+    suitabilitySentence = "On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme and capable of contributing positively to innovation within the NHS.";
+  }
+
+  const mbaSentence = "Alex is currently undertaking an Executive MBA, further developing their leadership, strategic and innovation skills, qualities that align closely with the objectives of the NHS Clinical Entrepreneur Programme.";
+  narrativeParts.push(`<p>${mbaSentence} ${suitabilitySentence}</p>`);
+
+  narrativeParts.push(
+    `<p>This letter is provided as a professional endorsement of Alex Monterubio’s suitability for the NHS Clinical Entrepreneur Programme. It does not imply financial sponsorship.</p>`
+  );
+
+  const sigHTML = signatureDataURL
+    ? `<div class="letter-sign"><img src="${signatureDataURL}" alt="Signature"/></div>`
+    : "";
+
+  const bodyHTML = narrativeParts.join("");
+
+  return `
+    <div class="paper" id="paper">
+      <div class="page">
+        <div class="header-row">
+          ${senderHTML}
+          ${headerHTML}
+        </div>
+        <div class="letter-date">Date: ${dateStr}</div>
+        ${recipientHTML}
+        <div class="letter-body">
+          ${salutationHTML}
+          ${bodyHTML}
+          <div class="letter-closing">
+            <p>Yours faithfully,</p>
+            ${sigHTML}
+            <div class="letter-signoff">
+              <div class="name">${refName || "[Name]"}</div>
+              <div>${effectiveRole || "[Role]"}</div>
+              <div>${org || "Barts Health NHS Trust"}</div>
+              <div>${email ? `Contact: ${email}` : ""}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updatePreview(){
+  const data = readForm();
+  const preview = document.getElementById('preview');
+
+  const hasRefDetails =
+    data.refName ||
+    data.refRole ||
+    data.refRoleOther ||
+    data.org ||
+    data.email ||
+    data.phone ||
+    data.hospitalName ||
+    data.hospitalAddr1 ||
+    data.hospitalAddr2 ||
+    data.hospitalCity ||
+    data.hospitalPostcode ||
+    data.useHeader;
+
+  const hasQuestionContent =
+    data.qDurationSelect ||
+    data.qDurationDetail ||
+    data.qCapacitySelect ||
+    data.qCapacityOther ||
+    data.qCapacityDetail ||
+    data.strengthsSelected.length ||
+    data.qStrengthsOther ||
+    data.qProfessionalism ||
+    data.qTeamwork ||
+    data.qSuitabilitySelect ||
+    data.qSuitabilityDetail;
+
+  const hasSignature = sigPad && !sigPad.isEmpty();
+
+  // 1) Nothing at all -> placeholder
+  if (!hasRefDetails && !hasQuestionContent && !hasSignature){
+    preview.innerHTML = `
+      <div style="font-family: Arial, sans-serif; font-size: 11pt; color:#6b7280; text-align:center; padding:40px 20px;">
+        Your letter preview will appear here once you have completed the questions.
+      </div>
+    `;
+    return;
+  }
+
+  // 2) Only ref details but no questions/signature -> skeleton letter up to Re: line
+  if (hasRefDetails && !hasQuestionContent && !hasSignature){
+    preview.innerHTML = buildSkeletonLetterHTML(data);
+    return;
+  }
+
+  // 3) Once any questions answered or signature added -> full letter
+  const sigDataURL = hasSignature ? sigPad.toDataURL() : "";
+  const html = buildLetterHTML(data, sigDataURL);
+  preview.innerHTML = html;
+}
+
+function formRef(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return `NHSCEP–${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+
+async function makePDF(){
+  const previewPaper = document.querySelector('#preview #paper');
+  if (!previewPaper){ throw new Error("Preview not ready"); }
+
+  const ref = formRef();
+  const footer = document.createElement('div');
+  footer.style.fontFamily = 'Arial, sans-serif';
+  footer.style.fontSize = '8pt';
+  footer.style.color = '#6b7280';
+  footer.style.marginTop = '16px';
+  footer.style.paddingTop = '8px';
+  footer.style.borderTop = '1px solid #e5e7eb';
+  footer.innerHTML = `
+    <div style="margin-bottom:4px;"><strong>Reference:</strong> ${ref}</div>
+    <div>
+      This letter was generated through the NHS Clinical Entrepreneur Programme Digital Endorsement Form developed by Alex Monterubio.
+      Submitted electronically via https://www.nhscep.com.
+      <strong>No patient or confidential data is stored by this tool – it is a one-off letter generator.</strong>
+    </div>
+  `;
+  previewPaper.appendChild(footer);
+
+  const canvas = await html2canvas(previewPaper, {
+    scale: 1.75,
+    useCORS: false,
+    backgroundColor: '#ffffff'
+  });
+  footer.remove();
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const imgWidth = pageWidth;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+
+  const blob = pdf.output('blob');
+  const dataURI = pdf.output('datauristring');
+  const filename = `Letter_of_Support_${(document.getElementById('ref_role').value || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
+  return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
+}
+
+// Call your Vercel/Resend API (optional)
+async function sendToBackend(payload){
+  if (!BACKEND_ENDPOINT) return;
+  try{
+    await fetch(BACKEND_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (e){
+    console.error("Backend send failed:", e);
+  }
+}
+
+function showToast(){
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 7000);
+}
+
+async function handleSubmit(){
+  if (!validateForm()) { return; }
+
+  // Make sure preview (with signature) is up to date
+  updatePreview();
+
+  const data = readForm();
+  const { pdfBlob, pdfDataURI, filename, ref } = await makePDF();
+
+  // Trigger download
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(pdfBlob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(a.href);
+  a.remove();
+
+  const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
+
+  // Optional: send to backend (e.g. Resend on Vercel)
+  if (data.email){
+    await sendToBackend({
+      refCode: ref,
+      filename,
+      pdfBase64: pdfDataURI.split(',')[1],
+      referee: {
+        name: data.refName,
+        role: effectiveRole,
+        email: data.email,
+        phone: data.phone
+      }
+    });
+  }
+
+  document.getElementById('endorsement-form').reset();
+  if (sigPad){ sigPad.clear(); }
+  const dateInput = document.getElementById('date_line');
+  dateInput.type = 'date';
+  dateInput.value = todayUKISO();
+  updatePreview();
+  showToast();
+}
+
+function printLetter(){
+  window.print();
+}
+
+function handleCapacityChange(){
+  const select = document.getElementById('q_capacity_select');
+  const otherWrap = document.getElementById('capacity_other_wrap');
+  if (!select || !otherWrap) return;
+  if (select.value === 'other'){
+    otherWrap.classList.remove('hidden');
+  } else {
+    otherWrap.classList.add('hidden');
+    const otherInput = document.getElementById('q_capacity_other');
+    if (otherInput) otherInput.value = "";
+  }
+}
+
+/* Stepper helpers */
+function showStep(step){
+  currentStep = step;
+  document.querySelectorAll('.form-step').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.step,10) === step);
+  });
+
+  const progress = document.querySelector('.progress-bar');
+  if (progress){
+    const pct = ((step - 1) / (totalSteps - 1)) * 100;
+    progress.style.width = `${pct}%`;
+  }
+
+  const labelSpan = document.getElementById('step-counter');
+  if (labelSpan){
+    labelSpan.textContent = `Step ${step} of ${totalSteps}`;
+  }
+
+  document.querySelectorAll('.step-labels span').forEach((el, idx) => {
+    el.classList.toggle('is-active', idx+1 === step);
+  });
+
+  const leftPanel = document.querySelector('.panel.left');
+  if (leftPanel && leftPanel.scrollTo){
+    leftPanel.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  // when going to step 4, ensure the signature canvas is sized
+  if (step === 4) {
+    const event = new Event('resize');
+    window.dispatchEvent(event);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  // --- Signature: plain canvas drawing (no external library) ---
+  const canvas = document.getElementById('signature-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function resizeSignatureCanvas(){
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return; // don't resize if hidden
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#000000';
+  }
+
+  sigPad = {
+    _empty: true,
+    clear(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this._empty = true;
+    },
+    isEmpty(){
+      return this._empty;
+    },
+    toDataURL(){
+      return canvas.toDataURL('image/png');
+    }
+  };
+
+  let drawing = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  function getPos(evt){
+    const rect = canvas.getBoundingClientRect();
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  function startDraw(evt){
+    evt.preventDefault();
+    resizeSignatureCanvas(); // ensure size when first used
+    const pos = getPos(evt);
+    drawing = true;
+    lastX = pos.x;
+    lastY = pos.y;
+    sigPad._empty = false;
+  }
+
+  function draw(evt){
+    if (!drawing) return;
+    evt.preventDefault();
+    const pos = getPos(evt);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function endDraw(evt){
+    if (!drawing) return;
+    evt.preventDefault();
+    drawing = false;
+    updatePreview();
+  }
+
+  // Pointer/mouse
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+
+  // Touch
+  canvas.addEventListener('touchstart', startDraw, { passive:false });
+  canvas.addEventListener('touchmove', draw, { passive:false });
+  canvas.addEventListener('touchend', endDraw, { passive:false });
+  canvas.addEventListener('touchcancel', endDraw, { passive:false });
+
+  const clearBtn = document.getElementById('clear-signature-btn');
+  if (clearBtn){
+    clearBtn.addEventListener('click', () => {
+      sigPad.clear();
+      updatePreview();
+    });
+  }
+
+  // Date default
+  const dateInput = document.getElementById('date_line');
+  if (dateInput){
+    dateInput.type = 'date';
+    if (!dateInput.value){ dateInput.value = todayUKISO(); }
+  }
+
+  document.getElementById('endorsement-form').addEventListener('input', () => {
+    updatePreview();
+  });
+
+  const capacitySelect = document.getElementById('q_capacity_select');
+  if (capacitySelect){
+    capacitySelect.addEventListener('change', () => {
+      handleCapacityChange();
+      updatePreview();
+    });
+  }
+
+  // Role "Other" toggle
+  const refRoleSelect = document.getElementById('ref_role');
+  const refRoleOtherWrap = document.getElementById('ref_role_other_wrap');
+  if (refRoleSelect && refRoleOtherWrap){
+    const onRoleChange = () => {
+      if (refRoleSelect.value === "Other"){
+        refRoleOtherWrap.classList.remove('hidden');
+      } else {
+        refRoleOtherWrap.classList.add('hidden');
+        const input = document.getElementById('ref_role_other');
+        if (input) input.value = "";
+      }
+      updatePreview();
+    };
+    refRoleSelect.addEventListener('change', onRoleChange);
+    onRoleChange();
+  }
+
+  // Step navigation buttons
+  document.querySelectorAll('[data-next-step]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step = parseInt(btn.dataset.nextStep,10);
+      const current = step - 1;
+      if (!validateStep(current)) return;
+      showStep(step);
+    });
+  });
+  document.querySelectorAll('[data-prev-step]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step = parseInt(btn.dataset.prevStep,10);
+      showStep(step);
+    });
+  });
+
+  showStep(1);
+  updatePreview();
+  loadHospitalDirectory();
+
+  const hospitalInput = document.getElementById('hospital_name');
+  if (hospitalInput){
+    hospitalInput.addEventListener('change', () => {
+      const name = hospitalInput.value;
+      const match = findHospitalMatch(name);
+      if (!match){
+        updatePreview();
+        return;
+      }
+
+      const orgInput = document.getElementById('org');
+      if (orgInput && !orgInput.value.trim()){
+        orgInput.value = match.trustName;
+      }
+
+      hospitalInput.value = match.hospitalName;
+
+      const addr1 = document.getElementById('hospital_addr1');
+      const addr2 = document.getElementById('hospital_addr2');
+      const city  = document.getElementById('hospital_city');
+      const pc    = document.getElementById('hospital_postcode');
+
+      if (addr1) addr1.value = match.addressLine1 || "";
+      if (addr2) addr2.value = match.addressLine2 || "";
+      if (city)  city.value  = match.city || "";
+      if (pc)    pc.value    = match.postcode || "";
+
+      updatePreview();
+    });
+  }
+});
+</script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Digital Letter of Support</h1>
+      <p>NHS Clinical Entrepreneur Programme – Candidate: Alex Monterubio</p>
+    </header>
+    <main>
+      <!-- LEFT: WIZARD FORM -->
+      <div class="panel left">
+        <div class="note">
+          <strong>About this form:</strong> This endorsement supports Alex Monterubio's application to the NHS Clinical Entrepreneur Programme
+          (see <a href="https://www.nhscep.com" target="_blank" rel="noopener">www.nhscep.com</a>).
+          The generated PDF is a professional endorsement only and does not imply financial sponsorship.
+          <br/><br/>
+          <strong>No data is stored by this tool – your details are used only to generate this one-off PDF and the confirmation emails.</strong>
+        </div>
+
+        <div class="steps-nav">
+          <div class="steps-nav-left">
+            <span id="step-counter">Step 1 of 4</span>
+          </div>
+          <div class="steps-nav-right">
+            <div class="progress-track">
+              <div class="progress-bar"></div>
+            </div>
+            <div class="step-labels">
+              <span class="is-active">Your details</span>
+              <span>Relationship</span>
+              <span>Strengths</span>
+              <span>Sign & submit</span>
+            </div>
+          </div>
+        </div>
+
+        <form id="endorsement-form" onsubmit="event.preventDefault();">
+          <!-- STEP 1 -->
+          <div class="form-step active" data-step="1">
+            <div class="section-title">Your Information</div>
+            <div class="grid">
+              <div>
+                <label for="ref_name">Your full name</label>
+                <input id="ref_name" name="ref_name" required placeholder="e.g., Dr Jane Smith"/>
+              </div>
+              <div>
+                <label for="ref_role">Your job title/role</label>
+                <select id="ref_role" name="ref_role" required>
+                  <option value="">Please select...</option>
+
+                  <!-- Professional / Nursing Leadership -->
+                  <optgroup label="Professional / Nursing Leadership">
+                    <option>Head of Nursing</option>
+                    <option>Associate Director of Nursing</option>
+                    <option>Matron</option>
+                    <option>Deputy Matron</option>
+                    <option>Practice Development Nurse</option>
+                    <option>Senior Team Leader</option>
+                    <option>Associate Team Leader</option>
+                  </optgroup>
+
+                  <!-- Divisional / Senior Management -->
+                  <optgroup label="Divisional / Senior Management">
+                    <option>Divisional Operations Director</option>
+                    <option>Divisional Nurse Director</option>
+                    <option>Divisional/Clinical Director</option>
+                    <option>Divisional General Manager</option>
+                  </optgroup>
+
+                  <!-- Service Management -->
+                  <optgroup label="Service Management">
+                    <option>General Manager</option>
+                    <option>Deputy General Manager</option>
+                    <option>Service Manager</option>
+                    <option>Service Delivery Manager</option>
+                    <option>Associate Service Manager</option>
+                  </optgroup>
+
+                  <!-- Operational Management -->
+                  <optgroup label="Operational Management">
+                    <option>Head of Perioperative Services</option>
+                    <option>Perioperative Services Manager</option>
+                    <option>Operations Manager</option>
+                    <option>Deputy Operations Manager</option>
+                    <option>Site Manager</option>
+                  </optgroup>
+
+                  <!-- Medical Staff -->
+                  <optgroup label="Medical Staff">
+                    <option>Consultant Surgeon</option>
+                    <option>Consultant Anaesthetist</option>
+                    <option>Senior Registrar</option>
+                    <option>Surgical Fellow</option>
+                    <option>Anaesthetic Fellow</option>
+                    <option>Specialty Doctor / SAS Doctor</option>
+                  </optgroup>
+
+                  <!-- Executive Leadership -->
+                  <optgroup label="Executive Leadership">
+                    <option>Chief Executive Officer</option>
+                    <option>Chief Operating Officer (COO)</option>
+                    <option>Medical Director</option>
+                    <option>Chief Nurse</option>
+                    <option>Director of Nursing</option>
+                  </optgroup>
+
+                  <!-- Digital & Information Leadership -->
+                  <optgroup label="Digital & Information Leadership">
+                    <option>Chief Digital Information Officer (CDIO)</option>
+                    <option>Chief Information Officer (CIO)</option>
+                    <option>Chief Nursing Information Officer (CNIO)</option>
+                    <option>Chief Clinical Information Officer (CCIO)</option>
+                  </optgroup>
+
+                  <!-- External / Custom -->
+                  <optgroup label="Other">
+                    <option>Other</option>
+                  </optgroup>
+                </select>
+                <div id="ref_role_other_wrap" class="hidden" style="margin-top:6px;">
+                  <input id="ref_role_other" name="ref_role_other" placeholder="Please specify your job title"/>
+                  <small class="hint">For unique job titles or roles not listed above.</small>
+                </div>
+              </div>
+
+              <div>
+                <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
+                <input id="org" name="org" placeholder="Barts Health NHS Trust"/>
+                <small class="hint">Anything after “NHS” (e.g. NHS Trust / NHS Foundation Trust) will appear as the blue sub-header.</small>
+              </div>
+              <div>
+                <label for="ref_email">Your work email</label>
+                <input id="ref_email" name="ref_email" type="email" required placeholder="your.name@nhs.net"/>
+                <small class="hint">You'll receive a copy of the letter at this address.</small>
+              </div>
+
+              <div>
+                <label for="ref_phone">Your contact number (optional)</label>
+                <input id="ref_phone" name="ref_phone" placeholder="020 1234 5678"/>
+                <small class="hint">Used for the “Tel:” line in the sender block.</small>
+              </div>
+
+              <div class="col-2">
+                <label for="relationship">Your relationship to Alex</label>
+                <select id="relationship" name="relationship" required>
+                  <option value="">Please select...</option>
+                  <option>Senior Line Manager</option>
+                  <option>Line Manager</option>
+                  <option>Senior Clinician</option>
+                  <option>Peer / Team Leader</option>
+                  <option>Service/Operations Manager</option>
+                  <option>Senior Nursing Colleague</option>
+                  <option>Senior Clinical Colleague</option>
+                  <option>Professional Colleague</option>
+                  <option>Clinical Supervisor</option>
+                  <option>Senior Clinical Colleague from Locum Assignments</option>
+                </select>
+              </div>
+
+              <!-- Hospital + Address -->
+              <div class="col-2">
+                <label for="hospital_name">Hospital name</label>
+                <input id="hospital_name" name="hospital_name" placeholder="Royal London Hospital"/>
+                <small class="hint">
+                  If recognised, the Trust and address will auto-fill.
+                </small>
+              </div>
+
+              <div class="col-2" style="margin-top:8px;">
+                <label>Hospital address (editable)</label>
+                <div class="grid">
+                  <div><input id="hospital_addr1" name="hospital_addr1" placeholder="Whitechapel Road"/></div>
+                  <div><input id="hospital_addr2" name="hospital_addr2" placeholder="Whitechapel"/></div>
+                  <div><input id="hospital_city" name="hospital_city" placeholder="London"/></div>
+                  <div><input id="hospital_postcode" name="hospital_postcode" placeholder="E1 1FR"/></div>
+                </div>
+                <small class="hint">
+                  These appear under the hospital name in the top-right header.
+                </small>
+              </div>
+
+              <!-- NHS HEADER TOGGLE -->
+              <div class="col-2" style="margin-top:8px;">
+                <label class="inline-option" style="margin-top:0;">
+                  <input type="checkbox" id="use_header" name="use_header" />
+                  <span>Include NHS header with logo and hospital details</span>
+                </label>
+                <small class="hint">
+                  When ticked, the letter will show the NHS logo, Trust name and hospital address in the top-right, like your standard letterhead.
+                </small>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button" data-next-step="2">Next</button>
+            </div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="form-step" data-step="2">
+            <div class="section-title">Relationship & Role</div>
+            <div class="grid">
+              <div class="col-2">
+                <label for="q_duration_select">How long have you known or worked with Alex?</label>
+                <select id="q_duration_select" name="q_duration_select" required>
+                  <option value="">Please select...</option>
+                  <option value="less than six months">Less than six months</option>
+                  <option value="between six and twelve months">Between six and twelve months</option>
+                  <option value="between one and three years">Between one and three years</option>
+                  <option value="more than three years">More than three years</option>
+                  <option value="other">Other (please add a short description below)</option>
+                </select>
+                <input id="q_duration_detail" name="q_duration_detail" placeholder="Optional – e.g., since March 2023, across elective and trauma lists"/>
+                <small class="hint">This will be turned into a narrative sentence in the letter.</small>
+              </div>
+
+              <div class="col-2">
+                <label for="q_capacity_select">In what capacity have you worked with Alex?</label>
+                <select id="q_capacity_select" name="q_capacity_select" required>
+                  <option value="">Please select...</option>
+                  <option value="their line manager">As their line manager</option>
+                  <option value="a senior clinician overseeing their work">As a senior clinician overseeing their work</option>
+                  <option value="a peer / fellow team leader">As a peer / fellow team leader</option>
+                  <option value="a service or operations manager">As a service or operations manager</option>
+                  <option value="a consultant colleague">As a consultant colleague</option>
+                  <option value="other">Other (please specify)</option>
+                </select>
+                <div id="capacity_other_wrap" class="hidden" style="margin-top:6px;">
+                  <input id="q_capacity_other" name="q_capacity_other" placeholder="Briefly describe your capacity (e.g., education supervisor, project lead)"/>
+                </div>
+                <input id="q_capacity_detail" name="q_capacity_detail" style="margin-top:6px;" placeholder="Optional – e.g., responsible for theatre staffing and patient flow"/>
+                <small class="hint">Your answer will be blended with the duration to describe your relationship to Alex.</small>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="secondary" data-prev-step="1">Back</button>
+              <button type="button" data-next-step="3">Next</button>
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="form-step" data-step="3">
+            <div class="section-title">Strengths & Examples</div>
+            <div class="grid">
+              <div class="col-2" id="strengths_group">
+                <label>What key strengths has Alex demonstrated?</label>
+                <div class="grid">
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="calm leadership under pressure">
+                    <span>Calm leadership under pressure</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="clear and respectful communication with the multidisciplinary team">
+                    <span>Clear MDT communication</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="a consistent focus on patient safety and escalation of concerns">
+                    <span>Patient safety focus</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="reliable and organised management of theatre lists and resources">
+                    <span>Reliable and organised</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="supportive and constructive supervision of colleagues">
+                    <span>Supportive to colleagues</span>
+                  </label>
+                  <label class="inline-option">
+                    <input type="checkbox" name="strengths" value="a reflective and learning-oriented approach to practice">
+                    <span>Reflective, learning-oriented approach</span>
+                  </label>
+                </div>
+                <input id="q_strengths_other" name="q_strengths_other" style="margin-top:8px;" placeholder="Other strengths or a short description in your own words"/>
+                <small class="hint">Please select at least one option or add your own wording – this will be turned into a narrative sentence.</small>
+              </div>
+
+              <div class="col-2">
+                <label for="q_professionalism">Example related to professionalism or patient safety (optional)</label>
+                <textarea id="q_professionalism" name="q_professionalism" placeholder="e.g., a time Alex escalated concerns appropriately or managed a complex list safely."></textarea>
+              </div>
+
+              <div class="col-2">
+                <label for="q_teamwork">Example related to teamwork or leadership (optional)</label>
+                <textarea id="q_teamwork" name="q_teamwork" placeholder="e.g., coordinating theatre staff, supporting colleagues during staff shortages, or leading a change in practice."></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="secondary" data-prev-step="2">Back</button>
+              <button type="button" data-next-step="4">Next</button>
+            </div>
+          </div>
+
+          <!-- STEP 4 -->
+          <div class="form-step" data-step="4">
+            <div class="section-title">Suitability, Date & Signature</div>
+            <div class="grid">
+              <div class="col-2">
+                <label for="q_suitability_select">Why do you feel Alex is suitable for the NHS Clinical Entrepreneur Programme?</label>
+                <select id="q_suitability_select" name="q_suitability_select" required>
+                  <option value="">Please select...</option>
+                  <option value="their interest in innovation and ability to turn ideas into practical improvements">Interest in innovation and ability to turn ideas into practical improvements</option>
+                  <option value="their reflective approach and willingness to learn from experience">Reflective and willing to learn</option>
+                  <option value="their leadership potential within perioperative services">Leadership potential within perioperative services</option>
+                  <option value="their ability to work collaboratively across professional boundaries">Collaborative approach across professional boundaries</option>
+                  <option value="their motivation to improve patient pathways and service efficiency">Motivation to improve patient pathways and service efficiency</option>
+                </select>
+                <textarea id="q_suitability_detail" name="q_suitability_detail" style="margin-top:6px;" placeholder="Optional – add anything specific that you feel is important for the panel to know."></textarea>
+                <small class="hint">Your selection and comments here will form the core of the suitability paragraph.</small>
+              </div>
+
+              <div>
+                <label for="date_line">Letter date</label>
+                <input id="date_line" name="date_line"/>
+                <small class="hint">Today's date is pre-filled. You can change it if needed.</small>
+              </div>
+            </div>
+
+            <div class="section-title">Sign Your Letter</div>
+            <div class="col-2">
+              <label>Draw your signature below</label>
+              <div class="sig-wrap">
+                <canvas id="signature-canvas" class="sig-canvas"></canvas>
+                <div class="sig-row">
+                  <div class="sig-actions">
+                    <button type="button" id="clear-signature-btn" class="ghost">Clear</button>
+                  </div>
+                  <small class="hint">Use your mouse, trackpad, or touchscreen to sign</small>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">
+              <label style="display:flex; align-items:start; gap:10px; margin:0;">
+                <input type="checkbox" required style="width:auto; margin-top:3px;"/>
+                <span style="flex:1;">I confirm this endorsement is accurate and consent to its electronic submission to Alex Monterubio for the NHS Clinical Entrepreneur Programme. This serves as my digital signature.</span>
+              </label>
+            </div>
+
+            <div class="section-title">Submit Your Letter</div>
+            <div class="actions">
+              <button type="button" class="secondary" data-prev-step="3">Back</button>
+              <button type="button" onclick="handleSubmit()">Submit Letter</button>
+              <button type="button" class="ghost" onclick="printLetter()">Print Preview</button>
+              <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
+            </div>
+            <small class="hint">On submit: a PDF will download to your computer and can be emailed via your configured backend (e.g., Resend on Vercel).</small>
+          </div>
+        </form>
+      </div>
+
+      <!-- RIGHT: PREVIEW -->
+      <div class="panel">
+        <div class="preview-wrap">
+          <div id="preview"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+    <h4>Thank you for your endorsement</h4>
+    <p>Your digital letter of support has been generated successfully.</p>
+    <p>A secure PDF copy has been downloaded to your device.</p>
+    <p><em>— With appreciation, Alex Monterubio</em></p>
+  </div>
+</body>
+</html>

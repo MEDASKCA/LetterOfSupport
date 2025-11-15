@@ -899,7 +899,10 @@ function readForm(){
     qDurationSelect: (document.getElementById('q_duration_select')?.value || ""),
     qDurationDetail: (document.getElementById('q_duration_detail')?.value || "").trim(),
 
-    // 5 NHSCEP domains
+    // Template or custom mode
+    letterMode: (document.getElementById('letter_mode')?.value || ""),
+
+    // 5 NHSCEP domains (template mode)
     motivationSelected,
     motivationOther: (document.getElementById('motivation_other')?.value || "").trim(),
     capabilitySelected,
@@ -910,6 +913,13 @@ function readForm(){
     priorityOther: (document.getElementById('priority_other')?.value || "").trim(),
     viabilitySelected,
     viabilityOther: (document.getElementById('viability_other')?.value || "").trim(),
+
+    // Custom mode fields
+    customMotivation: (document.getElementById('custom_motivation')?.value || "").trim(),
+    customCapability: (document.getElementById('custom_capability')?.value || "").trim(),
+    customImpact: (document.getElementById('custom_impact')?.value || "").trim(),
+    customPriority: (document.getElementById('custom_priority')?.value || "").trim(),
+    customViability: (document.getElementById('custom_viability')?.value || "").trim(),
 
     qSuitabilitySelect: (document.getElementById('q_suitability_select')?.value || ""),
     qSuitabilityDetail: (document.getElementById('q_suitability_detail')?.value || "").trim()
@@ -997,18 +1007,48 @@ function validateForm(){
     }
   });
 
-  const strengthsChecked = form.querySelectorAll('input[name="strengths"]:checked').length;
-  const strengthsOtherVal = (document.getElementById('q_strengths_other')?.value || "").trim();
-  const strengthsValid = strengthsChecked > 0 || strengthsOtherVal.length > 0;
-  if (!strengthsValid){
+  // Validate Step 3: Template or Custom mode
+  const letterMode = document.getElementById('letter_mode')?.value;
+  let step3Valid = false;
+
+  if (letterMode === 'template'){
+    // Template mode: Check if at least one checkbox or "other" field is filled
+    const motivationChecked = form.querySelectorAll('input[name="motivation"]:checked').length;
+    const motivationOther = (document.getElementById('motivation_other')?.value || "").trim();
+    const capabilityChecked = form.querySelectorAll('input[name="capability"]:checked').length;
+    const capabilityOther = (document.getElementById('capability_other')?.value || "").trim();
+    const impactChecked = form.querySelectorAll('input[name="impact"]:checked').length;
+    const impactOther = (document.getElementById('impact_other')?.value || "").trim();
+    const priorityChecked = form.querySelectorAll('input[name="priority"]:checked').length;
+    const priorityOther = (document.getElementById('priority_other')?.value || "").trim();
+    const viabilityChecked = form.querySelectorAll('input[name="viability"]:checked').length;
+    const viabilityOther = (document.getElementById('viability_other')?.value || "").trim();
+
+    step3Valid = motivationChecked > 0 || motivationOther.length > 0 ||
+                 capabilityChecked > 0 || capabilityOther.length > 0 ||
+                 impactChecked > 0 || impactOther.length > 0 ||
+                 priorityChecked > 0 || priorityOther.length > 0 ||
+                 viabilityChecked > 0 || viabilityOther.length > 0;
+  } else if (letterMode === 'custom'){
+    // Custom mode: Check if at least one text area is filled
+    const customMotivation = (document.getElementById('custom_motivation')?.value || "").trim();
+    const customCapability = (document.getElementById('custom_capability')?.value || "").trim();
+    const customImpact = (document.getElementById('custom_impact')?.value || "").trim();
+    const customPriority = (document.getElementById('custom_priority')?.value || "").trim();
+    const customViability = (document.getElementById('custom_viability')?.value || "").trim();
+
+    step3Valid = customMotivation.length > 0 || customCapability.length > 0 ||
+                 customImpact.length > 0 || customPriority.length > 0 ||
+                 customViability.length > 0;
+  }
+
+  if (letterMode && !step3Valid){
     formValid = false;
-    if (strengthsGroup){
-      strengthsGroup.style.border = '1px solid #dc2626';
-      strengthsGroup.style.borderRadius = '6px';
-      strengthsGroup.style.padding = '8px';
-    }
-    if (!firstInvalidElement && strengthsGroup){
-      firstInvalidElement = strengthsGroup;
+    alert("Please provide feedback in at least one of the five areas in Step 3.");
+    const step3El = document.querySelector('.form-step[data-step="3"]');
+    if (step3El){
+      showStep(3);
+      step3El.scrollIntoView({ behavior:'smooth', block:'start' });
     }
   }
 
@@ -1328,56 +1368,55 @@ function buildLetterHTML(data, signatureDataURL){
   }
   narrativeParts.push(`<p>${intro}</p>`);
 
-  // Build narrative from 5 NHSCEP domains
+  // Build narrative from 5 NHSCEP domains (template OR custom mode)
+  if (letterMode === 'custom'){
+    // Custom mode: Insert free-text answers
+    if (customMotivation) narrativeParts.push(`<p>${customMotivation}</p>`);
+    if (customCapability) narrativeParts.push(`<p>${customCapability}</p>`);
+    if (customImpact) narrativeParts.push(`<p>${customImpact}</p>`);
+    if (customPriority) narrativeParts.push(`<p>${customPriority}</p>`);
+    if (customViability) narrativeParts.push(`<p>${customViability}</p>`);
+  } else {
+    // Template mode: Use toggle.html narrative structure
+    const motivationItems = [...motivationSelected];
+    if (motivationOther) motivationItems.push(motivationOther);
+    if (motivationItems.length){
+      narrativeParts.push(
+        `<p>In terms of personal motivation, Alex has demonstrated ${joinAsAcademicList(motivationItems)}.</p>`
+      );
+    }
 
-  // 1. Motivation
-  if (motivationSelected.length > 0 || motivationOther){
-    const pieces = [...motivationSelected];
-    if (motivationOther) pieces.push(motivationOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    narrativeParts.push(`<p>In terms of motivation, Alex has shown ${phrase}.</p>`);
-  }
+    const capabilityItems = [...capabilitySelected];
+    if (capabilityOther) capabilityItems.push(capabilityOther);
+    if (capabilityItems.length){
+      narrativeParts.push(
+        `<p>Regarding personal capability, Alex consistently demonstrates ${joinAsAcademicList(capabilityItems)}.</p>`
+      );
+    }
 
-  // 2. Capability
-  if (capabilitySelected.length > 0 || capabilityOther){
-    const pieces = [...capabilitySelected];
-    if (capabilityOther) pieces.push(capabilityOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    narrativeParts.push(`<p>From my experience, Alex demonstrates ${phrase}.</p>`);
-  }
+    const impactItems = [...impactSelected];
+    if (impactOther) impactItems.push(impactOther);
+    if (impactItems.length){
+      narrativeParts.push(
+        `<p>In my view, Alex's innovation work has the potential to ${joinAsAcademicList(impactItems)}.</p>`
+      );
+    }
 
-  // 3. Impact
-  if (impactSelected.length > 0 || impactOther){
-    const pieces = [...impactSelected];
-    if (impactOther) pieces.push(impactOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    narrativeParts.push(`<p>I believe Alex's innovation work has the potential to ${phrase}.</p>`);
-  }
+    const priorityItems = [...prioritySelected];
+    if (priorityOther) priorityItems.push(priorityOther);
+    if (priorityItems.length){
+      narrativeParts.push(
+        `<p>Alex's ideas align well with wider NHS priorities, particularly in their potential to ${joinAsAcademicList(priorityItems)}.</p>`
+      );
+    }
 
-  // 4. Priority alignment
-  if (prioritySelected.length > 0 || priorityOther){
-    const pieces = [...prioritySelected];
-    if (priorityOther) pieces.push(priorityOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    narrativeParts.push(`<p>Alex's approach aligns well with service priorities, particularly in how it may ${phrase}.</p>`);
-  }
-
-  // 5. Viability
-  if (viabilitySelected.length > 0 || viabilityOther){
-    const pieces = [...viabilitySelected];
-    if (viabilityOther) pieces.push(viabilityOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    narrativeParts.push(`<p>In my view, the innovation is ${phrase}.</p>`);
+    const viabilityItems = [...viabilitySelected];
+    if (viabilityOther) viabilityItems.push(viabilityOther);
+    if (viabilityItems.length){
+      narrativeParts.push(
+        `<p>I consider Alex's innovation highly viable within the NHS, as it is ${joinAsAcademicList(viabilityItems)}.</p>`
+      );
+    }
   }
 
   // Suitability + MBA
@@ -1733,61 +1772,86 @@ async function makePDF(){
   addText(intro, margin, 11, 'normal');
   addSpace(paragraphSpacing);
 
-  // Build narrative from 5 NHSCEP domains
+  // Build narrative from 5 NHSCEP domains (template OR custom mode)
+  if (data.letterMode === 'custom'){
+    // Custom mode: Insert free-text answers
+    if (data.customMotivation){
+      addText(data.customMotivation, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customCapability){
+      addText(data.customCapability, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customImpact){
+      addText(data.customImpact, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customPriority){
+      addText(data.customPriority, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+    if (data.customViability){
+      addText(data.customViability, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
+  } else {
+    // Template mode: Use toggle.html narrative structure
 
-  // 1. Motivation
-  if (data.motivationSelected && data.motivationSelected.length > 0 || data.motivationOther){
-    const pieces = [...(data.motivationSelected || [])];
-    if (data.motivationOther) pieces.push(data.motivationOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    addText(`In terms of motivation, Alex has shown ${phrase}.`, margin, 11, 'normal');
-    addSpace(paragraphSpacing);
-  }
+    // 1. Motivation
+    const motivationItems = [...(data.motivationSelected || [])];
+    if (data.motivationOther) motivationItems.push(data.motivationOther);
+    if (motivationItems.length){
+      const phrase = motivationItems.length === 1 ? motivationItems[0] :
+                     motivationItems.length === 2 ? motivationItems.join(" and ") :
+                     motivationItems.slice(0, -1).join(", ") + ", and " + motivationItems[motivationItems.length - 1];
+      addText(`In terms of personal motivation, Alex has demonstrated ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
 
-  // 2. Capability
-  if (data.capabilitySelected && data.capabilitySelected.length > 0 || data.capabilityOther){
-    const pieces = [...(data.capabilitySelected || [])];
-    if (data.capabilityOther) pieces.push(data.capabilityOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    addText(`From my experience, Alex demonstrates ${phrase}.`, margin, 11, 'normal');
-    addSpace(paragraphSpacing);
-  }
+    // 2. Capability
+    const capabilityItems = [...(data.capabilitySelected || [])];
+    if (data.capabilityOther) capabilityItems.push(data.capabilityOther);
+    if (capabilityItems.length){
+      const phrase = capabilityItems.length === 1 ? capabilityItems[0] :
+                     capabilityItems.length === 2 ? capabilityItems.join(" and ") :
+                     capabilityItems.slice(0, -1).join(", ") + ", and " + capabilityItems[capabilityItems.length - 1];
+      addText(`Regarding personal capability, Alex consistently demonstrates ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
 
-  // 3. Impact
-  if (data.impactSelected && data.impactSelected.length > 0 || data.impactOther){
-    const pieces = [...(data.impactSelected || [])];
-    if (data.impactOther) pieces.push(data.impactOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    addText(`I believe Alex's innovation work has the potential to ${phrase}.`, margin, 11, 'normal');
-    addSpace(paragraphSpacing);
-  }
+    // 3. Impact
+    const impactItems = [...(data.impactSelected || [])];
+    if (data.impactOther) impactItems.push(data.impactOther);
+    if (impactItems.length){
+      const phrase = impactItems.length === 1 ? impactItems[0] :
+                     impactItems.length === 2 ? impactItems.join(" and ") :
+                     impactItems.slice(0, -1).join(", ") + ", and " + impactItems[impactItems.length - 1];
+      addText(`In my view, Alex's innovation work has the potential to ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
 
-  // 4. Priority alignment
-  if (data.prioritySelected && data.prioritySelected.length > 0 || data.priorityOther){
-    const pieces = [...(data.prioritySelected || [])];
-    if (data.priorityOther) pieces.push(data.priorityOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    addText(`Alex's approach aligns well with service priorities, particularly in how it may ${phrase}.`, margin, 11, 'normal');
-    addSpace(paragraphSpacing);
-  }
+    // 4. Priority alignment
+    const priorityItems = [...(data.prioritySelected || [])];
+    if (data.priorityOther) priorityItems.push(data.priorityOther);
+    if (priorityItems.length){
+      const phrase = priorityItems.length === 1 ? priorityItems[0] :
+                     priorityItems.length === 2 ? priorityItems.join(" and ") :
+                     priorityItems.slice(0, -1).join(", ") + ", and " + priorityItems[priorityItems.length - 1];
+      addText(`Alex's ideas align well with wider NHS priorities, particularly in their potential to ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
 
-  // 5. Viability
-  if (data.viabilitySelected && data.viabilitySelected.length > 0 || data.viabilityOther){
-    const pieces = [...(data.viabilitySelected || [])];
-    if (data.viabilityOther) pieces.push(data.viabilityOther);
-    const phrase = pieces.length === 1 ? pieces[0] :
-                   pieces.length === 2 ? pieces.join(" and ") :
-                   pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
-    addText(`In my view, the innovation is ${phrase}.`, margin, 11, 'normal');
-    addSpace(paragraphSpacing);
+    // 5. Viability
+    const viabilityItems = [...(data.viabilitySelected || [])];
+    if (data.viabilityOther) viabilityItems.push(data.viabilityOther);
+    if (viabilityItems.length){
+      const phrase = viabilityItems.length === 1 ? viabilityItems[0] :
+                     viabilityItems.length === 2 ? viabilityItems.join(" and ") :
+                     viabilityItems.slice(0, -1).join(", ") + ", and " + viabilityItems[viabilityItems.length - 1];
+      addText(`I consider Alex's innovation highly viable within the NHS, as it is ${phrase}.`, margin, 11, 'normal');
+      addSpace(paragraphSpacing);
+    }
   }
 
   // MBA + Suitability
@@ -2123,6 +2187,69 @@ function toggleOptionalField(wrapId){
     if (textarea) textarea.value = '';
   }
   updatePreview();
+}
+
+// Toggle between template and custom letter mode
+function toggleLetterMode(){
+  const modeSelect = document.getElementById('letter_mode');
+  const templateWrap = document.getElementById('template_mode_wrap');
+  const customWrap = document.getElementById('custom_mode_wrap');
+
+  if (!modeSelect || !templateWrap || !customWrap) return;
+
+  const mode = modeSelect.value;
+
+  if (mode === 'template'){
+    templateWrap.classList.remove('hidden');
+    customWrap.classList.add('hidden');
+  } else if (mode === 'custom'){
+    templateWrap.classList.add('hidden');
+    customWrap.classList.remove('hidden');
+  } else {
+    templateWrap.classList.add('hidden');
+    customWrap.classList.add('hidden');
+  }
+
+  updatePreview();
+}
+
+// Checkbox limit helper (max 3 per domain)
+function setupCheckboxLimit(name, max){
+  const boxes = Array.from(document.querySelectorAll(`input[name="${name}"]`));
+  if (!boxes.length) return;
+
+  function update(){
+    const checked = boxes.filter(b => b.checked);
+    const limitReached = checked.length >= max;
+
+    boxes.forEach(b => {
+      const label = b.closest('.inline-option');
+      if (!b.checked){
+        b.disabled = limitReached;
+        if (label){
+          label.style.opacity = limitReached ? '0.5' : '1';
+          label.style.cursor = limitReached ? 'not-allowed' : 'pointer';
+        }
+      } else {
+        b.disabled = false;
+        if (label){
+          label.style.opacity = '1';
+          label.style.cursor = 'pointer';
+        }
+      }
+    });
+  }
+
+  boxes.forEach(b => b.addEventListener('change', update));
+  update();
+}
+
+// Join list items academically (like toggle.html)
+function joinAsAcademicList(items){
+  if (!items || !items.length) return "";
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
 function toggleDurationDetail(){
@@ -2514,6 +2641,13 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Setup checkbox limits for 5 domains (max 3 each)
+  setupCheckboxLimit('motivation', 3);
+  setupCheckboxLimit('capability', 3);
+  setupCheckboxLimit('impact', 3);
+  setupCheckboxLimit('priority', 3);
+  setupCheckboxLimit('viability', 3);
 });
 </script>
 </head>
@@ -2780,17 +2914,31 @@ window.addEventListener('DOMContentLoaded', () => {
           <!-- STEP 3 -->
           <div class="form-step" data-step="3">
             <div class="section-title">Professional Endorsement Assessment</div>
-            <small class="hint">
-              Please provide focused feedback in each of the five areas below.<br>
-              Select up to <strong>three</strong> statements per section that best reflect your experience of Alex.<br>
-              You may add a brief comment if you wish.
-            </small>
+
+            <!-- TEMPLATE OR CUSTOM CHOICE -->
+            <div class="col-2" style="margin-bottom:20px;">
+              <label style="font-weight:700; font-size:15px;">How would you like to provide your endorsement?</label>
+              <select id="letter_mode" name="letter_mode" onchange="toggleLetterMode()" required>
+                <option value="">Please select...</option>
+                <option value="template">Use guided template (recommended)</option>
+                <option value="custom">Write my own letter</option>
+              </select>
+              <small class="hint">The guided template helps structure your feedback. Custom mode lets you write freely.</small>
+            </div>
+
+            <!-- TEMPLATE MODE -->
+            <div id="template_mode_wrap" class="hidden">
+              <small class="hint" style="display:block; margin-bottom:16px;">
+                Please provide focused feedback in each of the five areas below.<br>
+                Select up to <strong>three</strong> statements per section that best reflect your experience of Alex.<br>
+                You may add a brief comment if you wish.
+              </small>
 
             <div class="grid">
               <!-- 1. PERSONAL MOTIVATION -->
               <div class="col-2" id="motivation_group">
-                <label>1. Personal Motivation</label>
-                <small class="hint">What best reflects Alex's motivation for contributing to improvement and innovation within clinical services?</small>
+                <label style="font-weight:700; font-size:14px;">1. Personal Motivation</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">What best reflects Alex's motivation for contributing to improvement and innovation within clinical services?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="motivation" value="a consistent drive to improve perioperative efficiency and theatre workflow">
@@ -2826,8 +2974,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- 2. PERSONAL CAPABILITY -->
               <div class="col-2" id="capability_group">
-                <label>2. Personal Capability</label>
-                <small class="hint">Which statements best describe Alex's capability and professional strengths in their current role?</small>
+                <label style="font-weight:700; font-size:14px;">2. Personal Capability</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">Which statements best describe Alex's capability and professional strengths in their current role?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="capability" value="the ability to interpret operational issues and translate them into workable solutions">
@@ -2863,8 +3011,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- 3. POTENTIAL CLINICAL IMPACT -->
               <div class="col-2" id="impact_group">
-                <label>3. Potential Clinical Impact</label>
-                <small class="hint">Based on your experience, what potential impact could Alex's ideas or approach have on clinical practice or service delivery?</small>
+                <label style="font-weight:700; font-size:14px;">3. Potential Clinical Impact</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">Based on your experience, what potential impact could Alex's ideas or approach have on clinical practice or service delivery?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="impact" value="improve theatre utilisation and reduce avoidable downtime">
@@ -2900,8 +3048,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- 4. ALIGNMENT WITH SERVICE PRIORITIES -->
               <div class="col-2" id="priority_group">
-                <label>4. Alignment with Service Priorities</label>
-                <small class="hint">How well do Alex's ideas or approach align with wider service needs, challenges, or priorities?</small>
+                <label style="font-weight:700; font-size:14px;">4. Alignment with Service Priorities</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">How well do Alex's ideas or approach align with wider service needs, challenges, or priorities?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="priority" value="support elective recovery and improved surgical throughput">
@@ -2937,8 +3085,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <!-- 5. VIABILITY AND PRACTICALITY -->
               <div class="col-2" id="viability_group">
-                <label>5. Viability and Practicality</label>
-                <small class="hint">In your view, how viable or practical are Alex's ideas within a real NHS working environment?</small>
+                <label style="font-weight:700; font-size:14px;">5. Viability and Practicality</label>
+                <label style="font-weight:600; font-size:13px; margin-top:6px;">In your view, how viable or practical are Alex's ideas within a real NHS working environment?</label>
                 <div class="grid">
                   <label class="inline-option">
                     <input type="checkbox" name="viability" value="grounded in real operational needs and frontline experience">
@@ -2972,6 +3120,45 @@ window.addEventListener('DOMContentLoaded', () => {
                 <input id="viability_other" name="viability_other" style="margin-top:8px;" placeholder="Brief comment (optional)"/>
               </div>
             </div>
+            </div> <!-- End template_mode_wrap -->
+
+            <!-- CUSTOM MODE -->
+            <div id="custom_mode_wrap" class="hidden">
+              <small class="hint" style="display:block; margin-bottom:16px;">
+                Please answer the following questions in your own words. Your responses will be incorporated into the endorsement letter.
+              </small>
+              <div class="grid">
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:14px;">1. Personal Motivation</label>
+                  <label style="font-weight:600; font-size:13px; margin-top:6px;">What best reflects Alex's motivation for contributing to improvement and innovation within clinical services?</label>
+                  <textarea id="custom_motivation" name="custom_motivation" rows="4" style="margin-top:8px;"></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:14px;">2. Personal Capability</label>
+                  <label style="font-weight:600; font-size:13px; margin-top:6px;">Which statements best describe Alex's capability and professional strengths in their current role?</label>
+                  <textarea id="custom_capability" name="custom_capability" rows="4" style="margin-top:8px;"></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:14px;">3. Potential Clinical Impact</label>
+                  <label style="font-weight:600; font-size:13px; margin-top:6px;">Based on your experience, what potential impact could Alex's ideas or approach have on clinical practice or service delivery?</label>
+                  <textarea id="custom_impact" name="custom_impact" rows="4" style="margin-top:8px;"></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:14px;">4. Alignment with Service Priorities</label>
+                  <label style="font-weight:600; font-size:13px; margin-top:6px;">How well do Alex's ideas or approach align with wider service needs, challenges, or priorities?</label>
+                  <textarea id="custom_priority" name="custom_priority" rows="4" style="margin-top:8px;"></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:14px;">5. Viability and Practicality</label>
+                  <label style="font-weight:600; font-size:13px; margin-top:6px;">In your view, how viable or practical are Alex's ideas within a real NHS working environment?</label>
+                  <textarea id="custom_viability" name="custom_viability" rows="4" style="margin-top:8px;"></textarea>
+                </div>
+              </div>
+            </div> <!-- End custom_mode_wrap -->
 
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="2">Back</button>
