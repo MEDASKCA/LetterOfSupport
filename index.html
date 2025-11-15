@@ -1463,8 +1463,8 @@ async function makePDF(){
     // Temporarily remove shadow and border for clean capture
     const originalBoxShadow = previewPaper.style.boxShadow;
     const originalBorder = previewPaper.style.border;
-    previewPaper.style.boxShadow = 'none';
-    previewPaper.style.border = 'none';
+    previewPaper.style.setProperty('box-shadow', 'none', 'important');
+    previewPaper.style.setProperty('border', 'none', 'important');
 
     const canvas = await html2canvas(previewPaper, {
       scale: scale,
@@ -1476,8 +1476,16 @@ async function makePDF(){
     });
 
     // Restore shadow and border
-    previewPaper.style.boxShadow = originalBoxShadow;
-    previewPaper.style.border = originalBorder;
+    if (originalBoxShadow) {
+      previewPaper.style.setProperty('box-shadow', originalBoxShadow);
+    } else {
+      previewPaper.style.removeProperty('box-shadow');
+    }
+    if (originalBorder) {
+      previewPaper.style.setProperty('border', originalBorder);
+    } else {
+      previewPaper.style.removeProperty('border');
+    }
 
     // Convert to PNG (lossless, high quality)
     const imgData = canvas.toDataURL('image/png', 1.0);
@@ -1500,8 +1508,8 @@ async function makePDF(){
   // Temporarily remove shadow and border for clean capture
   const originalBoxShadow = previewPaper.style.boxShadow;
   const originalBorder = previewPaper.style.border;
-  previewPaper.style.boxShadow = 'none';
-  previewPaper.style.border = 'none';
+  previewPaper.style.setProperty('box-shadow', 'none', 'important');
+  previewPaper.style.setProperty('border', 'none', 'important');
 
   const canvas = await html2canvas(previewPaper, {
     scale: scale,
@@ -1512,8 +1520,16 @@ async function makePDF(){
   });
 
   // Restore shadow and border
-  previewPaper.style.boxShadow = originalBoxShadow;
-  previewPaper.style.border = originalBorder;
+  if (originalBoxShadow) {
+    previewPaper.style.setProperty('box-shadow', originalBoxShadow);
+  } else {
+    previewPaper.style.removeProperty('box-shadow');
+  }
+  if (originalBorder) {
+    previewPaper.style.setProperty('border', originalBorder);
+  } else {
+    previewPaper.style.removeProperty('border');
+  }
 
   const imgData = canvas.toDataURL('image/jpeg', quality);
 
