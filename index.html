@@ -1423,57 +1423,237 @@ function formRef(){
 }
 
 async function makePDF(){
-  const previewPaper = document.querySelector('#preview #paper');
-  if (!previewPaper){ throw new Error("Preview not ready"); }
-
-  // Temporarily remove zoom for proper A4 capture
-  const originalZoom = previewPaper.style.zoom;
-  previewPaper.style.zoom = '1';
-
-  const ref = formRef();
-  const footer = document.createElement('div');
-  footer.style.fontFamily = 'Arial, sans-serif';
-  footer.style.fontSize = '8pt';
-  footer.style.color = '#6b7280';
-  footer.style.marginTop = '16px';
-  footer.style.paddingTop = '8px';
-  footer.style.borderTop = '1px solid #e5e7eb';
-  footer.innerHTML = `
-    <div style="margin-bottom:4px;"><strong>Reference:</strong> ${ref}</div>
-    <div>
-      This letter was generated through the NHS Clinical Entrepreneur Programme Digital Endorsement Form developed by Alex Monterubio.
-      Submitted electronically via https://www.nhscep.com.
-      <strong>No patient or confidential data is stored by this tool – it is a one-off letter generator.</strong>
-    </div>
-  `;
-  previewPaper.appendChild(footer);
-
-  // Capture at proper A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI)
-  const canvas = await html2canvas(previewPaper, {
-    scale: 2,
-    useCORS: false,
-    backgroundColor: '#ffffff',
-    windowWidth: 794,
-    windowHeight: 1123
-  });
-  footer.remove();
-
-  // Restore zoom
-  previewPaper.style.zoom = originalZoom;
-
-  const imgData = canvas.toDataURL('image/png', 1.0);
+  const data = readForm();
   const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
 
-  // A4 dimensions in mm
+  // A4 dimensions and margins
   const pageWidth = 210;
   const pageHeight = 297;
+  const margin = 20;
+  const usableWidth = pageWidth - (margin * 2);
 
-  // Add image to fit A4 perfectly with proper margins
-  pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+  let y = margin; // Current Y position
+  const lineHeight = 5;
+  const paragraphSpacing = 6;
+
+  // Helper function to add text with word wrap
+  const addText = (text, x, fontSize = 11, fontStyle = 'normal', maxWidth = usableWidth) => {
+    pdf.setFontSize(fontSize);
+    pdf.setFont('helvetica', fontStyle);
+    const lines = pdf.splitTextToSize(text, maxWidth);
+    lines.forEach(line => {
+      if (y > pageHeight - margin) {
+        pdf.addPage();
+        y = margin;
+      }
+      pdf.text(line, x, y);
+      y += lineHeight;
+    });
+  };
+
+  const addSpace = (space = lineHeight) => {
+    y += space;
+  };
+
+  // Reference
+  const ref = formRef();
+
+  // SENDER DETAILS (top left)
+  const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
+  addText(data.refName || "[Referee Name]", margin, 11, 'normal');
+  addText(effectiveRole || "[Role]", margin, 11, 'normal');
+  if (data.phone) addText(`Tel: ${data.phone}`, margin, 11, 'normal');
+  if (data.email) addText(`Email: ${data.email}`, margin, 11, 'normal');
+
+  addSpace(paragraphSpacing);
+
+  // NHS HEADER (right side) - simplified text version
+  const { main: trustMain, sub: trustSub } = splitTrust(data.org || "");
+  if (trustMain) {
+    const headerY = margin;
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    const headerText = trustMain;
+    const headerWidth = pdf.getTextWidth(headerText);
+    pdf.text(headerText, pageWidth - margin - headerWidth, headerY);
+
+    if (trustSub) {
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(29, 143, 219); // Blue color
+      const subWidth = pdf.getTextWidth(trustSub);
+      pdf.text(trustSub, pageWidth - margin - subWidth, headerY + 6);
+      pdf.setTextColor(0, 0, 0); // Reset to black
+    }
+
+    if (data.hospitalName) {
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      const hospWidth = pdf.getTextWidth(data.hospitalName);
+      pdf.text(data.hospitalName, pageWidth - margin - hospWidth, headerY + 12);
+    }
+  }
+
+  // DATE
+  const dateStr = data.dateLine ? toUKLong(data.dateLine) : todayUK();
+  addText(`Date: ${dateStr}`, margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // RECIPIENT
+  addText("NHS Clinical Entrepreneur Team", margin, 11, 'normal');
+  addText("c/o Anglia Ruskin University", margin, 11, 'normal');
+  addText("Bishop Hall Lane", margin, 11, 'normal');
+  addText("Chelmsford", margin, 11, 'normal');
+  addText("Essex", margin, 11, 'normal');
+  addText("CM1 1SQ", margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // SUBJECT
+  pdf.setFont('helvetica', 'bold');
+  addText("Re: Letter of Support for Alex Monterubio – NHS Clinical Entrepreneur Programme Application", margin, 11, 'bold');
+  pdf.setFont('helvetica', 'normal');
+  addSpace(paragraphSpacing);
+
+  // SALUTATION
+  addText("Dear NHS Clinical Entrepreneur Team,", margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // BODY - Build the narrative
+  const opening = openingsByRole[effectiveRole] || "I am pleased to provide a letter of support for Alex Monterubio, who previously worked as a Senior Team Leader in Theatres at the Royal London Hospital, Barts Health NHS Trust.";
+
+  // Build relationship sentence (same logic as buildLetterHTML)
+  let capacityText = "";
+  if (data.professionalArea === 'perioperative' && data.relationship){
+    capacityText = data.relationship;
+  } else if (data.professionalArea === 'different' && data.otherRelationshipCapacity){
+    capacityText = data.otherRelationshipCapacity;
+  }
+
+  let durationPhrase = "";
+  if (data.qDurationSelect){
+    if (data.qDurationSelect === "other" && data.qDurationDetail){
+      durationPhrase = data.qDurationDetail;
+    } else {
+      switch (data.qDurationSelect){
+        case "less than six months": break;
+        case "between six and twelve months": durationPhrase = "the past six to twelve months"; break;
+        case "between one and three years": durationPhrase = "the past one to three years"; break;
+        case "more than three years": durationPhrase = "a period of more than three years"; break;
+        default: durationPhrase = data.qDurationSelect;
+      }
+      if (data.qDurationDetail && data.qDurationSelect !== "less than six months"){
+        durationPhrase += ` (${data.qDurationDetail})`;
+      }
+    }
+  }
+
+  let relationshipSentence = "";
+  if (data.qDurationSelect || capacityText){
+    if (data.qDurationSelect === "less than six months") {
+      relationshipSentence = "Although my time working with Alex has been relatively short";
+    } else {
+      relationshipSentence = "Over ";
+      relationshipSentence += durationPhrase ? durationPhrase : "the time that Alex worked within our service";
+    }
+    relationshipSentence += ", I have known Alex";
+    if (capacityText){
+      relationshipSentence += ` in my capacity as ${capacityText.toLowerCase()}`;
+    }
+    relationshipSentence += ", and have been able to observe their practice in a busy perioperative environment.";
+  }
+
+  let intro = opening;
+  if (relationshipSentence){
+    intro += " " + relationshipSentence;
+  }
+
+  addText(intro, margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // Strengths
+  if (data.strengthsSelected && data.strengthsSelected.length > 0){
+    const pieces = [...data.strengthsSelected];
+    if (data.qStrengthsOther){
+      pieces.push(data.qStrengthsOther);
+    }
+
+    let strengthsPhrase = "";
+    if (pieces.length === 1){
+      strengthsPhrase = pieces[0];
+    } else if (pieces.length === 2){
+      strengthsPhrase = pieces.join(" and ");
+    } else {
+      strengthsPhrase = pieces.slice(0, -1).join(", ") + ", and " + pieces[pieces.length - 1];
+    }
+
+    addText(`In day-to-day practice, Alex has demonstrated ${strengthsPhrase}.`, margin, 11, 'normal');
+    addSpace(paragraphSpacing);
+  }
+
+  // Professionalism
+  if (data.qProfessionalism){
+    addText(`In terms of professionalism and patient safety, I would highlight the following example: ${data.qProfessionalism}`, margin, 11, 'normal');
+    addSpace(paragraphSpacing);
+  }
+
+  // Teamwork
+  if (data.qTeamwork){
+    addText(`Regarding teamwork and leadership within theatres, an illustrative example is: ${data.qTeamwork}`, margin, 11, 'normal');
+    addSpace(paragraphSpacing);
+  }
+
+  // MBA + Suitability
+  const mbaSentence = "Alex is currently undertaking an Executive MBA, further developing their leadership, strategic and innovation skills, qualities that align closely with the objectives of the NHS Clinical Entrepreneur Programme.";
+
+  let suitabilitySentence = "";
+  if (data.qSuitabilitySelect || data.qSuitabilityDetail){
+    const reasons = [];
+    if (data.qSuitabilitySelect) reasons.push(data.qSuitabilitySelect);
+    if (data.qSuitabilityDetail) reasons.push(data.qSuitabilityDetail);
+
+    let reasonsPhrase = "";
+    if (reasons.length === 1){
+      reasonsPhrase = reasons[0];
+    } else if (reasons.length === 2){
+      reasonsPhrase = reasons.join(" and ");
+    } else {
+      reasonsPhrase = reasons.slice(0, -1).join(", ") + ", and " + reasons[reasons.length - 1];
+    }
+
+    suitabilitySentence = `On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme because of ${reasonsPhrase}.`;
+  } else {
+    suitabilitySentence = "On the basis of the above, and my experience of working with Alex, I consider them well suited to the NHS Clinical Entrepreneur Programme and capable of contributing positively to innovation within the NHS.";
+  }
+
+  addText(`${mbaSentence} ${suitabilitySentence}`, margin, 11, 'normal');
+  addSpace(paragraphSpacing);
+
+  // Disclaimer
+  addText("This letter is provided as a professional endorsement of Alex Monterubio's suitability for the NHS Clinical Entrepreneur Programme. It does not imply financial sponsorship.", margin, 11, 'normal');
+  addSpace(paragraphSpacing * 2);
+
+  // CLOSING
+  addText("Yours faithfully,", margin, 11, 'normal');
+  addSpace(lineHeight * 2);
+
+  // SIGNATURE (if available)
+  if (sigPad && !sigPad.isEmpty()){
+    const sigDataURL = sigPad.toDataURL();
+    pdf.addImage(sigDataURL, 'PNG', margin, y, 50, 15);
+    y += 20;
+  } else {
+    y += 15;
+  }
+
+  // SIGNOFF
+  addText(data.refName || "[Name]", margin, 11, 'bold');
+  addText(effectiveRole || "[Role]", margin, 11, 'normal');
+  addText(data.org || "Barts Health NHS Trust", margin, 11, 'normal');
+  if (data.email) addText(`Contact: ${data.email}`, margin, 11, 'normal');
 
   const blob = pdf.output('blob');
   const dataURI = pdf.output('datauristring');
-  const filename = `Letter_of_Support_${(document.getElementById('ref_role').value || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
+  const filename = `Letter_of_Support_${(effectiveRole || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
   return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
 }
 
