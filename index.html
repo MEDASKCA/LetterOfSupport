@@ -1714,9 +1714,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Postcode lookup
   const postcodeInput = document.getElementById('hospital_postcode');
   if (postcodeInput){
-    postcodeInput.addEventListener('change', () => {
+    const handlePostcodeLookup = () => {
       const pc = postcodeInput.value.trim().toUpperCase();
-      if (!pc) return;
+      if (!pc || pc.length < 5) return; // Need at least 5 chars for valid UK postcode
 
       const match = hospitalDirectory.find(h =>
         h.postcode.toUpperCase().replace(/\s/g, '') === pc.replace(/\s/g, '')
@@ -1748,6 +1748,17 @@ window.addEventListener('DOMContentLoaded', () => {
       postcodeInput.value = match.postcode; // Format correctly
 
       updatePreview();
+    };
+
+    // Trigger on blur (when user clicks away)
+    postcodeInput.addEventListener('blur', handlePostcodeLookup);
+
+    // Also trigger on Enter key
+    postcodeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        handlePostcodeLookup();
+      }
     });
   }
 });
@@ -1886,16 +1897,20 @@ window.addEventListener('DOMContentLoaded', () => {
               <div class="col-2">
                 <label for="hospital_name">Hospital name</label>
                 <input id="hospital_name" name="hospital_name"/>
+                <small class="hint">Or enter postcode below to auto-fill</small>
               </div>
 
               <!-- 5. Hospital address -->
               <div class="col-2">
                 <label>Hospital address</label>
                 <div class="grid">
-                  <div><input id="hospital_addr1" name="hospital_addr1"/></div>
-                  <div><input id="hospital_addr2" name="hospital_addr2"/></div>
-                  <div><input id="hospital_city" name="hospital_city"/></div>
-                  <div><input id="hospital_postcode" name="hospital_postcode"/></div>
+                  <div><input id="hospital_addr1" name="hospital_addr1" placeholder="Street address"/></div>
+                  <div><input id="hospital_addr2" name="hospital_addr2" placeholder="Area (optional)"/></div>
+                  <div><input id="hospital_city" name="hospital_city" placeholder="City"/></div>
+                  <div>
+                    <input id="hospital_postcode" name="hospital_postcode" placeholder="Postcode"/>
+                    <small class="hint">Enter postcode to auto-fill hospital details</small>
+                  </div>
                 </div>
               </div>
 
