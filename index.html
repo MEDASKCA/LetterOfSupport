@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>NHS Clinical Entrepreneur Programme – Digital Professional Endorsement</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,11 +11,7 @@
 <style>
 :root{ --brand:#2563eb; --ink:#1f2937; --muted:#6b7280; --bg:#f9fafb; --line:#e5e7eb; }
 *{ box-sizing:border-box; }
-html, body{
-  height:100%;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  width: 100%;
-}
+html, body{ height:100%; }
 body{
   margin:0;
   background:var(--bg);
@@ -371,7 +367,6 @@ button.ghost:hover{ background:#f9fafb; }
   width: 100%;
   min-height: 100%;
   overflow: auto;
-  touch-action: pinch-zoom; /* Allow pinch-zoom on preview only */
 }
 .paper{
   width: 210mm;
@@ -1278,6 +1273,7 @@ function buildLetterHTML(data, signatureDataURL){
                 <div class="name">${refName || "[Name]"}</div>
                 <div>${effectiveRole || "[Role]"}</div>
                 <div>${org || "Barts Health NHS Trust"}</div>
+                <div>${email ? `Contact: ${email}` : ""}</div>
               </div>
             </div>
           </div>
@@ -1598,26 +1594,11 @@ async function sendAndDownload(){
     });
 
     if (!pdfResponse.ok) {
-      const errorText = await pdfResponse.text();
-      console.error('PDF generation failed:', errorText);
-      let errorMsg = 'PDF generation failed';
-      try {
-        const errorJson = JSON.parse(errorText);
-        errorMsg = errorJson.message || errorMsg;
-      } catch (e) {
-        errorMsg += ': ' + errorText.substring(0, 100);
-      }
-      throw new Error(errorMsg);
+      const error = await pdfResponse.json();
+      throw new Error(error.message || 'PDF generation failed');
     }
 
-    const pdfResult = await pdfResponse.json();
-    console.log('PDF generated successfully, base64 length:', pdfResult.pdfBase64?.length);
-
-    if (!pdfResult.pdfBase64) {
-      throw new Error('No PDF data received from server');
-    }
-
-    const { pdfBase64, filename } = pdfResult;
+    const { pdfBase64, filename } = await pdfResponse.json();
 
     // Step 2: Send email FIRST
     if (data.email){
