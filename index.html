@@ -1389,15 +1389,10 @@ function updatePreview(){
   preview.innerHTML = html;
 }
 
-function formRef(){
-  const d = new Date();
-  const pad = n => String(n).padStart(2, "0");
-  return `NHSCEP–${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-}
+// Reference code generation removed per user request
 
 async function makePDF(){
   const data = readForm();
-  const ref = formRef();
 
   // Get signature data URL
   const signatureDataURL = (sigPad && !sigPad.isEmpty()) ? sigPad.toDataURL() : "";
@@ -1435,8 +1430,7 @@ async function makePDF(){
         return {
           pdfBlob: blob,
           pdfDataURI: dataURI,
-          filename: result.filename,
-          ref
+          filename: result.filename
         };
       }
     }
@@ -1497,7 +1491,7 @@ async function makePDF(){
     const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
     const filename = `Letter_of_Support_${(effectiveRole || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.png`;
 
-    return { pdfBlob: blob, pdfDataURI: imgData, filename, ref };
+    return { pdfBlob: blob, pdfDataURI: imgData, filename };
   }
 
   // Desktop: Generate PDF
@@ -1557,7 +1551,7 @@ async function makePDF(){
   const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
   const filename = `Letter_of_Support_${(effectiveRole || 'Referee').replace(/\s+/g,'_')}_Alex_Monterubio.pdf`;
 
-  return { pdfBlob: blob, pdfDataURI: dataURI, filename, ref };
+  return { pdfBlob: blob, pdfDataURI: dataURI, filename };
 }
 
 // Call your Vercel/Resend API (optional)
@@ -1600,13 +1594,12 @@ async function handleSubmit(){
 
   const data = readForm();
 
-  let pdfBlob, pdfDataURI, filename, ref;
+  let pdfBlob, pdfDataURI, filename;
   try {
     const result = await makePDF();
     pdfBlob = result.pdfBlob;
     pdfDataURI = result.pdfDataURI;
     filename = result.filename;
-    ref = result.ref;
   } catch (error) {
     console.error('PDF generation failed:', error);
     alert('Letter generation failed. This may be due to browser limitations. Please try:\n\n1. Using Chrome or Safari (not in-app browser)\n2. Refreshing the page\n3. Using a desktop computer\n\nError: ' + error.message);
@@ -1641,7 +1634,6 @@ async function handleSubmit(){
   // Optional: send to backend (e.g. Resend on Vercel)
   if (data.email){
     await sendToBackend({
-      refCode: ref,
       filename,
       pdfBase64: pdfDataURI.split(',')[1],
       referee: {

@@ -11,13 +11,12 @@ export default async function handler(req, res) {
 
   try {
     const {
-      refCode,
       filename,
       pdfBase64,
       referee
     } = req.body;
 
-    console.log('Received payload:', { refCode, filename, referee });
+    console.log('Received payload:', { filename, referee });
 
     // Validate required fields
     if (!filename || !pdfBase64 || !referee || !referee.name || !referee.email) {
@@ -35,7 +34,7 @@ export default async function handler(req, res) {
     const fileType = filename.toLowerCase().endsWith('.png') ? 'PNG image' : 'PDF';
 
     // Email subject
-    const emailSubject = `NHS CEP Letter of Support – ${referee.name}${refCode ? ` – Ref: ${refCode}` : ''}`;
+    const emailSubject = `NHS CEP Letter of Support – ${referee.name}`;
 
     // Email to referee
     const refereeEmailBody = `
@@ -51,8 +50,6 @@ export default async function handler(req, res) {
       <p>Please find the signed letter attached. A copy has also been sent to me for submission.</p>
 
       <p>I am hopeful that my innovation will be accepted into the programme, and I look forward to the possibility of collaborating with you in the future as the work continues to progress.</p>
-
-      ${refCode ? `<p><strong>Reference Code:</strong> ${refCode}</p>` : ''}
 
       <p>If you have any questions, please feel free to contact me at ${ALEX_EMAIL}.</p>
 
@@ -70,7 +67,6 @@ export default async function handler(req, res) {
 
       <p>The signed letter is attached. A copy has also been sent to the referee at ${referee.email}.</p>
 
-      ${refCode ? `<p><strong>Reference Code:</strong> ${refCode}</p>` : ''}
       ${referee.phone ? `<p><strong>Contact:</strong> ${referee.phone}</p>` : ''}
 
       <p>Best regards,<br/>
