@@ -1513,7 +1513,7 @@ async function makePDF(){
     // Add NHS logo if available
     if (nhsLogoDataURL) {
       const logoWidth = 18; // mm
-      const logoHeight = 18; // mm (adjust proportionally)
+      const logoHeight = 7.5; // mm (proper NHS logo aspect ratio ~2.4:1)
       pdf.addImage(nhsLogoDataURL, 'PNG', pageWidth - margin - logoWidth, headerY, logoWidth, logoHeight);
       headerTextY = headerY + logoHeight + 3; // Position text below logo
     }
@@ -1684,15 +1684,15 @@ async function makePDF(){
 
   // CLOSING
   addText("Yours faithfully,", margin, 11, 'normal');
-  addSpace(lineHeight * 2);
+  addSpace(lineHeight);
 
   // SIGNATURE (if available)
   if (sigPad && !sigPad.isEmpty()){
     const sigDataURL = sigPad.toDataURL();
-    pdf.addImage(sigDataURL, 'PNG', margin, y, 50, 15);
-    y += 20;
+    pdf.addImage(sigDataURL, 'PNG', margin, y, 40, 10);
+    y += 12;
   } else {
-    y += 15;
+    y += 8;
   }
 
   // SIGNOFF
