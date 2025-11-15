@@ -1700,11 +1700,18 @@ async function makePDF(){
     // Use high quality settings for PNG
     const scale = 2.5;
 
-    // Temporarily remove shadow and border for clean capture
+    // Temporarily set to full A4 size and remove styling for clean capture
     const originalBoxShadow = previewPaper.style.boxShadow;
     const originalBorder = previewPaper.style.border;
+    const originalTransform = previewPaper.style.transform;
+    const originalWidth = previewPaper.style.width;
+    const originalMinHeight = previewPaper.style.minHeight;
+
     previewPaper.style.setProperty('box-shadow', 'none', 'important');
     previewPaper.style.setProperty('border', 'none', 'important');
+    previewPaper.style.setProperty('transform', 'none', 'important');
+    previewPaper.style.setProperty('width', '210mm', 'important');
+    previewPaper.style.setProperty('min-height', '297mm', 'important');
 
     const canvas = await html2canvas(previewPaper, {
       scale: scale,
@@ -1715,7 +1722,7 @@ async function makePDF(){
       removeContainer: true
     });
 
-    // Restore shadow and border
+    // Restore all original styles
     if (originalBoxShadow) {
       previewPaper.style.setProperty('box-shadow', originalBoxShadow);
     } else {
@@ -1725,6 +1732,21 @@ async function makePDF(){
       previewPaper.style.setProperty('border', originalBorder);
     } else {
       previewPaper.style.removeProperty('border');
+    }
+    if (originalTransform) {
+      previewPaper.style.setProperty('transform', originalTransform);
+    } else {
+      previewPaper.style.removeProperty('transform');
+    }
+    if (originalWidth) {
+      previewPaper.style.setProperty('width', originalWidth);
+    } else {
+      previewPaper.style.removeProperty('width');
+    }
+    if (originalMinHeight) {
+      previewPaper.style.setProperty('min-height', originalMinHeight);
+    } else {
+      previewPaper.style.removeProperty('min-height');
     }
 
     // Convert to PNG (lossless, high quality)
@@ -1745,11 +1767,18 @@ async function makePDF(){
   const scale = 2.0;
   const quality = 0.95;
 
-  // Temporarily remove shadow and border for clean capture
+  // Temporarily set to full A4 size and remove styling for clean capture
   const originalBoxShadow = previewPaper.style.boxShadow;
   const originalBorder = previewPaper.style.border;
+  const originalTransform = previewPaper.style.transform;
+  const originalWidth = previewPaper.style.width;
+  const originalMinHeight = previewPaper.style.minHeight;
+
   previewPaper.style.setProperty('box-shadow', 'none', 'important');
   previewPaper.style.setProperty('border', 'none', 'important');
+  previewPaper.style.setProperty('transform', 'none', 'important');
+  previewPaper.style.setProperty('width', '210mm', 'important');
+  previewPaper.style.setProperty('min-height', '297mm', 'important');
 
   const canvas = await html2canvas(previewPaper, {
     scale: scale,
@@ -1759,7 +1788,7 @@ async function makePDF(){
     removeContainer: true
   });
 
-  // Restore shadow and border
+  // Restore all original styles
   if (originalBoxShadow) {
     previewPaper.style.setProperty('box-shadow', originalBoxShadow);
   } else {
@@ -1769,6 +1798,21 @@ async function makePDF(){
     previewPaper.style.setProperty('border', originalBorder);
   } else {
     previewPaper.style.removeProperty('border');
+  }
+  if (originalTransform) {
+    previewPaper.style.setProperty('transform', originalTransform);
+  } else {
+    previewPaper.style.removeProperty('transform');
+  }
+  if (originalWidth) {
+    previewPaper.style.setProperty('width', originalWidth);
+  } else {
+    previewPaper.style.removeProperty('width');
+  }
+  if (originalMinHeight) {
+    previewPaper.style.setProperty('min-height', originalMinHeight);
+  } else {
+    previewPaper.style.removeProperty('min-height');
   }
 
   const imgData = canvas.toDataURL('image/jpeg', quality);
@@ -2602,7 +2646,6 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="3">Back</button>
               <button type="button" onclick="handleSubmit()">Submit Letter</button>
-              <button type="button" class="ghost" onclick="printLetter()">Print Preview</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
             <small class="hint">The letter will download and email copies will be sent to you and Alex.</small>
