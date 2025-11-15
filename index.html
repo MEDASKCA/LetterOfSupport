@@ -1188,7 +1188,6 @@ function buildLetterHTML(data, signatureDataURL){
                 <div class="name">${refName || "[Name]"}</div>
                 <div>${effectiveRole || "[Role]"}</div>
                 <div>${org || "Barts Health NHS Trust"}</div>
-                <div>${email ? `Contact: ${email}` : ""}</div>
               </div>
             </div>
           </div>
@@ -1367,7 +1366,6 @@ function buildLetterHTML(data, signatureDataURL){
               <div class="name">${refName || "[Name]"}</div>
               <div>${effectiveRole || "[Role]"}</div>
               <div>${org || "Barts Health NHS Trust"}</div>
-              <div>${email ? `Contact: ${email}` : ""}</div>
             </div>
           </div>
         </div>
@@ -1740,7 +1738,6 @@ async function makePDF(){
   addText(data.refName || "[Name]", margin, 11, 'bold');
   addText(effectiveRole || "[Role]", margin, 11, 'normal');
   addText(data.org || "Barts Health NHS Trust", margin, 11, 'normal');
-  if (data.email) addText(`Contact: ${data.email}`, margin, 11, 'normal');
 
   const blob = pdf.output('blob');
   const dataURI = pdf.output('datauristring');
