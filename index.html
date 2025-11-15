@@ -813,7 +813,7 @@ function readForm(){
     phone: document.getElementById('ref_phone').value.trim(),
 
     professionalArea: (document.getElementById('professional_area')?.value || ""),
-    relationship: document.getElementById('relationship').value,
+    relationship: (document.getElementById('relationship')?.value || ""),
     otherRelationshipCapacity: (document.getElementById('other_relationship_capacity')?.value || "").trim(),
     customLetterText: (document.getElementById('custom_letter_text')?.value || "").trim(),
 
@@ -824,14 +824,10 @@ function readForm(){
     hospitalPostcode: (document.getElementById('hospital_postcode')?.value || "").trim(),
 
     useHeader: true, // Always include NHS header
-    dateLine: document.getElementById('date_line').value.trim(),
+    dateLine: (document.getElementById('date_line')?.value || "").trim(),
 
-    qDurationSelect: document.getElementById('q_duration_select').value,
+    qDurationSelect: (document.getElementById('q_duration_select')?.value || ""),
     qDurationDetail: (document.getElementById('q_duration_detail')?.value || "").trim(),
-
-    qCapacitySelect: document.getElementById('q_capacity_select').value,
-    qCapacityOther: (document.getElementById('q_capacity_other')?.value || "").trim(),
-    qCapacityDetail: (document.getElementById('q_capacity_detail')?.value || "").trim(),
 
     strengthsSelected,
     qStrengthsOther: (document.getElementById('q_strengths_other')?.value || "").trim(),
@@ -840,7 +836,7 @@ function readForm(){
     qProfessionalism: (document.getElementById('q_professionalism')?.value || "").trim(),
     qTeamwork: (document.getElementById('q_teamwork')?.value || "").trim(),
 
-    qSuitabilitySelect: document.getElementById('q_suitability_select').value,
+    qSuitabilitySelect: (document.getElementById('q_suitability_select')?.value || ""),
     qSuitabilityDetail: (document.getElementById('q_suitability_detail')?.value || "").trim()
   };
 }
@@ -1074,9 +1070,6 @@ function buildLetterHTML(data, signatureDataURL){
     useHeader,
     qDurationSelect,
     qDurationDetail,
-    qCapacitySelect,
-    qCapacityOther,
-    qCapacityDetail,
     strengthsSelected,
     qStrengthsOther,
     qProfessionalism,
@@ -1220,21 +1213,19 @@ function buildLetterHTML(data, signatureDataURL){
     }
   }
 
-  // Capacity
-  let capacityBase = "";
-  if (qCapacitySelect === "other" && qCapacityOther){
-    capacityBase = qCapacityOther;
-  } else if (qCapacitySelect){
-    capacityBase = qCapacitySelect;
-  }
-  let capacityDetail = "";
-  if (qCapacityDetail){
-    capacityDetail = qCapacityDetail;
+  // Capacity/Relationship
+  // For Perioperative: use 'relationship' dropdown
+  // For Other: use 'otherRelationshipCapacity' free text
+  let capacityText = "";
+  if (professionalArea === 'perioperative' && relationship){
+    capacityText = relationship;
+  } else if (professionalArea === 'different' && otherRelationshipCapacity){
+    capacityText = otherRelationshipCapacity;
   }
 
   // Relationship sentence
   let relationshipSentence = "";
-  if (qDurationSelect || capacityBase || relationship){
+  if (qDurationSelect || capacityText){
     if (qDurationSelect === "less than six months") {
       relationshipSentence = "Although my time working with Alex has been relatively short";
     } else {
@@ -1244,14 +1235,8 @@ function buildLetterHTML(data, signatureDataURL){
 
     relationshipSentence += ", I have known Alex";
 
-    if (capacityBase){
-      relationshipSentence += ` in my capacity as ${capacityBase.toLowerCase()}`;
-    } else if (relationship){
-      relationshipSentence += ` in my capacity as ${relationship.toLowerCase()}`;
-    }
-
-    if (capacityDetail){
-      relationshipSentence += `, with specific responsibility for ${capacityDetail}`;
+    if (capacityText){
+      relationshipSentence += ` in my capacity as ${capacityText.toLowerCase()}`;
     }
 
     relationshipSentence += ", and have been able to observe their practice in a busy perioperative environment.";
