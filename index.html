@@ -483,50 +483,68 @@ button.ghost:hover{ background:#f9fafb; }
     -webkit-print-color-adjust: exact;
   }
   body{
-    background:#fff;
-    margin:0;
-    padding:0;
+    background:#fff !important;
+    margin:0 !important;
+    padding:0 !important;
   }
   .container{
-    border:0;
-    box-shadow:none;
-    margin:0;
-    max-width:none;
-    min-height:auto;
+    border:0 !important;
+    box-shadow:none !important;
+    margin:0 !important;
+    max-width:none !important;
+    min-height:auto !important;
+    height:auto !important;
   }
-  header{ display:none; }
+  header{ display:none !important; }
   main{
-    display:block;
-    margin:0;
-    padding:0;
+    display:block !important;
+    margin:0 !important;
+    padding:0 !important;
+    height:auto !important;
   }
-  .left{ display:none; }
+  .left{ display:none !important; }
   .panel{
-    padding:0;
-    margin:0;
-    max-height:none;
-    overflow:visible;
+    padding:0 !important;
+    margin:0 !important;
+    max-height:none !important;
+    height:auto !important;
+    overflow:visible !important;
   }
   .preview-wrap{
-    padding:0;
-    margin:0;
-    display:block;
+    padding:0 !important;
+    margin:0 !important;
+    display:block !important;
+    max-height:none !important;
+    height:auto !important;
+    overflow:visible !important;
+    position:static !important;
+    background:transparent !important;
   }
   .paper{
-    box-shadow:none;
-    border:0;
-    width:100%;
-    max-width:100%;
-    min-height:auto;
-    height:auto;
+    box-shadow:none !important;
+    border:0 !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-height:auto !important;
+    height:auto !important;
     transform:none !important;
-    margin:0;
+    margin:0 !important;
     page-break-after:auto;
+    page-break-inside:auto;
   }
   .paper .page{
-    padding:0;
-    min-height:auto;
-    height:auto;
+    padding:0 !important;
+    min-height:auto !important;
+    height:auto !important;
+  }
+  /* Allow content to flow across pages */
+  .letter-body{
+    page-break-inside:auto;
+  }
+  .letter-body p{
+    page-break-inside:avoid;
+    orphans:3;
+    widows:3;
   }
 }
 
