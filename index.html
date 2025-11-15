@@ -97,6 +97,18 @@ input,select,textarea{
   appearance:none;
   min-height:37px;
 }
+/* Restore checkbox appearance */
+input[type="checkbox"]{
+  -webkit-appearance:checkbox;
+  -moz-appearance:checkbox;
+  appearance:checkbox;
+  width:auto;
+  min-height:18px;
+  height:18px;
+  margin:0;
+  cursor:pointer;
+  accent-color:#0891b2;
+}
 select{
   background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230891b2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat:no-repeat;
@@ -235,38 +247,47 @@ button.ghost:hover{ background:#f9fafb; }
 
 /* Signature pad - DocuSign style */
 .sig-wrap{
-  border:2px solid #0891b2;
-  border-radius:4px;
-  background:#ffffff;
-  padding:8px;
+  border:2px solid #fbbf24;
+  border-radius:6px;
+  background:linear-gradient(to bottom, #fffbeb 0%, #fef3c7 100%);
+  padding:12px;
   position:relative;
-  box-shadow:0 1px 2px rgba(8,145,178,0.1);
+  box-shadow:0 2px 4px rgba(251,191,36,0.2);
 }
 .sig-row{
   display:flex;
   gap:8px;
   align-items:center;
-  margin-top:6px;
+  margin-top:8px;
 }
 .sig-canvas{
   width:100%;
-  height:120px;
+  height:140px;
   background:#fff;
-  border:none;
-  border-radius:3px;
-  border-bottom:2px dotted #0891b2;
+  border:2px solid #f59e0b;
+  border-radius:4px;
   position:relative;
+  cursor:crosshair;
 }
 .sig-watermark{
   position:absolute;
   top:50%;
   left:50%;
   transform:translate(-50%, -50%);
-  color:#cbd5e1;
-  font-size:14px;
-  font-style:italic;
+  color:#d1d5db;
+  font-size:16px;
+  font-weight:500;
   pointer-events:none;
   user-select:none;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.sig-watermark::before{
+  content:'✕';
+  font-size:24px;
+  color:#f59e0b;
+  font-weight:bold;
 }
 .sig-actions{
   display:flex;
