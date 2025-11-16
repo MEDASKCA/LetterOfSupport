@@ -3562,5 +3562,73 @@ window.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
   </div>
+
+  <!-- Analytics Tracking Script (invisible) -->
+  <script>
+  (function() {
+    // Only track in production (not local dev)
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return;
+    }
+
+    // Webhook endpoint - replace this with your own webhook URL
+    const WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
+
+    async function trackPageView() {
+      try {
+        // Get visitor geo/IP data from free API
+        const geoResponse = await fetch('https://ipapi.co/json/');
+        const geoData = await geoResponse.json();
+
+        // Prepare tracking data
+        const trackingData = {
+          timestamp: new Date().toISOString(),
+          page_url: window.location.href,
+          referrer: document.referrer || 'Direct',
+          ip_address: geoData.ip || 'Unknown',
+          country: geoData.country_name || 'Unknown',
+          city: geoData.city || 'Unknown',
+          region: geoData.region || 'Unknown',
+          postal_code: geoData.postal || 'Unknown',
+          latitude: geoData.latitude || null,
+          longitude: geoData.longitude || null,
+          timezone: geoData.timezone || 'Unknown',
+          isp: geoData.org || 'Unknown',
+          user_agent: navigator.userAgent,
+          screen_resolution: `${screen.width}x${screen.height}`,
+          language: navigator.language || 'Unknown',
+          platform: navigator.platform || 'Unknown'
+        };
+
+        // Send to webhook if URL is configured
+        if (WEBHOOK_URL && WEBHOOK_URL !== 'YOUR_WEBHOOK_URL_HERE') {
+          await fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(trackingData),
+            mode: 'no-cors' // Avoid CORS issues
+          });
+        }
+
+        // Also store locally for dashboard viewing
+        const visits = JSON.parse(localStorage.getItem('analytics_visits') || '[]');
+        visits.unshift(trackingData);
+        // Keep last 100 visits
+        if (visits.length > 100) visits.length = 100;
+        localStorage.setItem('analytics_visits', JSON.stringify(visits));
+
+      } catch (error) {
+        console.error('Analytics tracking error:', error);
+      }
+    }
+
+    // Track page view on load
+    if (document.readyState === 'complete') {
+      trackPageView();
+    } else {
+      window.addEventListener('load', trackPageView);
+    }
+  })();
+  </script>
 </body>
 </html>

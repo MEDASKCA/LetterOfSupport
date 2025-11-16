@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letter of Support Analytics Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .header {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+      color: #1a202c;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .header p {
+      color: #718096;
+      font-size: 14px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .stat-label {
+      color: #718096;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      color: #1a202c;
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .visits-container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .visits-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .visits-header h2 {
+      color: #1a202c;
+      font-size: 20px;
+    }
+    .refresh-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover {
+      background: #5568d3;
+    }
+    .clear-btn {
+      background: #f56565;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 10px;
+      transition: background 0.2s;
+    }
+    .clear-btn:hover {
+      background: #e53e3e;
+    }
+    .filter-container {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-input {
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+      flex: 1;
+      min-width: 200px;
+    }
+    .visit-card {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 4px solid #667eea;
+      transition: all 0.2s;
+    }
+    .visit-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    .visit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 15px;
+    }
+    .visit-time {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a202c;
+    }
+    .visit-flag {
+      font-size: 24px;
+    }
+    .visit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .visit-detail {
+      font-size: 13px;
+    }
+    .visit-label {
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .visit-value {
+      color: #1a202c;
+      word-break: break-all;
+    }
+    .map-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .map-link:hover {
+      text-decoration: underline;
+    }
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #718096;
+    }
+    .no-data-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    .webhook-setup {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .webhook-setup h3 {
+      color: #856404;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .webhook-setup p {
+      color: #856404;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .webhook-setup code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    .export-btn {
+      background: #48bb78;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 10px;
+      transition: background 0.2s;
+    }
+    .export-btn:hover {
+      background: #38a169;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Letter of Support Analytics</h1>
+      <p>Track who's viewing your NHS CEP endorsement form</p>
+    </div>
+
+    <div class="webhook-setup" id="webhook-notice">
+      <h3>⚠️ Webhook Setup Required</h3>
+      <p>
+        To enable permanent tracking, set up a webhook endpoint:<br><br>
+        <strong>Option 1 (Quick):</strong> Go to <a href="https://webhook.site" target="_blank">webhook.site</a>, copy your unique URL,
+        and replace <code>YOUR_WEBHOOK_URL_HERE</code> in index.html line 3575.<br><br>
+        <strong>Option 2 (Better):</strong> I can create a Google Apps Script for you that stores data in Google Sheets.
+        For now, the dashboard shows visits stored locally in your browser.
+      </p>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Visits</div>
+        <div class="stat-value" id="total-visits">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique Countries</div>
+        <div class="stat-value" id="unique-countries">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique Cities</div>
+        <div class="stat-value" id="unique-cities">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Latest Visit</div>
+        <div class="stat-value" id="latest-visit" style="font-size: 18px;">-</div>
+      </div>
+    </div>
+
+    <div class="visits-container">
+      <div class="visits-header">
+        <h2>Recent Visits</h2>
+        <div>
+          <button class="refresh-btn" onclick="loadVisits()">🔄 Refresh</button>
+          <button class="export-btn" onclick="exportToCSV()">📥 Export CSV</button>
+          <button class="clear-btn" onclick="clearVisits()">🗑️ Clear All</button>
+        </div>
+      </div>
+
+      <div class="filter-container">
+        <input type="text" class="filter-input" id="filter-country" placeholder="Filter by country..." onkeyup="filterVisits()">
+        <input type="text" class="filter-input" id="filter-city" placeholder="Filter by city..." onkeyup="filterVisits()">
+        <input type="text" class="filter-input" id="filter-ip" placeholder="Filter by IP..." onkeyup="filterVisits()">
+      </div>
+
+      <div id="visits-list"></div>
+    </div>
+  </div>
+
+  <script>
+    let allVisits = [];
+
+    function loadVisits() {
+      // Load from localStorage (client-side storage)
+      const stored = localStorage.getItem('analytics_visits');
+      allVisits = stored ? JSON.parse(stored) : [];
+
+      // Update stats
+      updateStats();
+
+      // Display visits
+      displayVisits(allVisits);
+    }
+
+    function updateStats() {
+      document.getElementById('total-visits').textContent = allVisits.length;
+
+      const countries = new Set(allVisits.map(v => v.country));
+      document.getElementById('unique-countries').textContent = countries.size;
+
+      const cities = new Set(allVisits.map(v => v.city));
+      document.getElementById('unique-cities').textContent = cities.size;
+
+      if (allVisits.length > 0) {
+        const latest = new Date(allVisits[0].timestamp);
+        const now = new Date();
+        const diff = Math.floor((now - latest) / 1000 / 60); // minutes
+
+        let timeAgo;
+        if (diff < 1) timeAgo = 'Just now';
+        else if (diff < 60) timeAgo = `${diff}m ago`;
+        else if (diff < 1440) timeAgo = `${Math.floor(diff/60)}h ago`;
+        else timeAgo = `${Math.floor(diff/1440)}d ago`;
+
+        document.getElementById('latest-visit').textContent = timeAgo;
+      }
+    }
+
+    function displayVisits(visits) {
+      const container = document.getElementById('visits-list');
+
+      if (visits.length === 0) {
+        container.innerHTML = `
+          <div class="no-data">
+            <div class="no-data-icon">📭</div>
+            <h3>No visits yet</h3>
+            <p>When someone visits your form, their data will appear here.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = visits.map(visit => {
+        const date = new Date(visit.timestamp);
+        const formattedDate = date.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+
+        const mapLink = visit.latitude && visit.longitude
+          ? `https://www.google.com/maps?q=${visit.latitude},${visit.longitude}`
+          : '#';
+
+        // Get country flag emoji (basic version)
+        const flag = getCountryFlag(visit.country);
+
+        return `
+          <div class="visit-card">
+            <div class="visit-header">
+              <div class="visit-time">${formattedDate}</div>
+              <div class="visit-flag">${flag}</div>
+            </div>
+            <div class="visit-grid">
+              <div class="visit-detail">
+                <span class="visit-label">IP Address</span>
+                <span class="visit-value">${visit.ip_address}</span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">Location</span>
+                <span class="visit-value">
+                  ${visit.city}, ${visit.region}<br>
+                  ${visit.country} ${visit.postal_code}
+                  ${visit.latitude ? `<br><a href="${mapLink}" target="_blank" class="map-link">📍 View on Map</a>` : ''}
+                </span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">ISP / Organization</span>
+                <span class="visit-value">${visit.isp}</span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">Timezone</span>
+                <span class="visit-value">${visit.timezone}</span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">Device</span>
+                <span class="visit-value">${getDeviceType(visit.user_agent)}</span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">Browser</span>
+                <span class="visit-value">${getBrowser(visit.user_agent)}</span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">Screen Resolution</span>
+                <span class="visit-value">${visit.screen_resolution}</span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">Language</span>
+                <span class="visit-value">${visit.language}</span>
+              </div>
+              <div class="visit-detail">
+                <span class="visit-label">Referrer</span>
+                <span class="visit-value">${visit.referrer}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterVisits() {
+      const countryFilter = document.getElementById('filter-country').value.toLowerCase();
+      const cityFilter = document.getElementById('filter-city').value.toLowerCase();
+      const ipFilter = document.getElementById('filter-ip').value.toLowerCase();
+
+      const filtered = allVisits.filter(visit => {
+        const matchCountry = !countryFilter || visit.country.toLowerCase().includes(countryFilter);
+        const matchCity = !cityFilter || visit.city.toLowerCase().includes(cityFilter);
+        const matchIP = !ipFilter || visit.ip_address.toLowerCase().includes(ipFilter);
+        return matchCountry && matchCity && matchIP;
+      });
+
+      displayVisits(filtered);
+    }
+
+    function clearVisits() {
+      if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
+        localStorage.removeItem('analytics_visits');
+        allVisits = [];
+        loadVisits();
+      }
+    }
+
+    function exportToCSV() {
+      if (allVisits.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      const headers = ['Timestamp', 'IP Address', 'Country', 'City', 'Region', 'Postal Code',
+                       'Latitude', 'Longitude', 'Timezone', 'ISP', 'Referrer', 'User Agent',
+                       'Screen Resolution', 'Language', 'Platform'];
+
+      const rows = allVisits.map(v => [
+        v.timestamp, v.ip_address, v.country, v.city, v.region, v.postal_code,
+        v.latitude, v.longitude, v.timezone, v.isp, v.referrer, v.user_agent,
+        v.screen_resolution, v.language, v.platform
+      ]);
+
+      const csv = [headers, ...rows].map(row =>
+        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analytics_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function getCountryFlag(country) {
+      const flags = {
+        'United Kingdom': '🇬🇧',
+        'United States': '🇺🇸',
+        'Germany': '🇩🇪',
+        'France': '🇫🇷',
+        'India': '🇮🇳',
+        'China': '🇨🇳',
+        'Japan': '🇯🇵',
+        'Canada': '🇨🇦',
+        'Australia': '🇦🇺',
+        'Brazil': '🇧🇷',
+        'Spain': '🇪🇸',
+        'Italy': '🇮🇹',
+        'Netherlands': '🇳🇱',
+        'Sweden': '🇸🇪',
+        'Switzerland': '🇨🇭',
+        'Poland': '🇵🇱',
+        'Belgium': '🇧🇪',
+        'Ireland': '🇮🇪',
+        'Portugal': '🇵🇹',
+        'Nigeria': '🇳🇬',
+        'South Africa': '🇿🇦',
+        'Kenya': '🇰🇪',
+        'Ghana': '🇬🇭',
+        'Singapore': '🇸🇬',
+        'Philippines': '🇵🇭'
+      };
+      return flags[country] || '🌍';
+    }
+
+    function getDeviceType(userAgent) {
+      if (/mobile|android|iphone|ipad|ipod/i.test(userAgent)) {
+        if (/ipad|tablet/i.test(userAgent)) return '📱 Tablet';
+        return '📱 Mobile';
+      }
+      return '💻 Desktop';
+    }
+
+    function getBrowser(userAgent) {
+      if (userAgent.includes('Firefox')) return 'Firefox';
+      if (userAgent.includes('Edg')) return 'Edge';
+      if (userAgent.includes('Chrome')) return 'Chrome';
+      if (userAgent.includes('Safari')) return 'Safari';
+      if (userAgent.includes('Opera')) return 'Opera';
+      return 'Unknown';
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadVisits, 30000);
+
+    // Load on page load
+    loadVisits();
+  </script>
+</body>
+</html>
