@@ -113,6 +113,42 @@ input[type="checkbox"]{
   transform:scale(1.1); /* Slightly larger for better visibility */
 }
 
+/* Input field wrapper for clear button */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-wrapper input {
+  width: 100%;
+  padding-right: 36px; /* Make room for clear button */
+}
+.input-clear-btn {
+  position: absolute;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #94a3b8;
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+.input-clear-btn:hover {
+  background: #64748b;
+}
+.input-wrapper.has-value .input-clear-btn {
+  display: flex;
+}
+
 /* iOS-style toggle switches */
 .switch {
   position: relative;
@@ -2298,9 +2334,11 @@ function fillHospitalData(hospital) {
 
   if (orgInput && orgInput.value !== hospital.trust) {
     orgInput.value = hospital.trust;
+    toggleClearButton('org-wrapper', hospital.trust);
   }
   if (hospitalInput && hospitalInput.value !== hospital.hospital) {
     hospitalInput.value = hospital.hospital;
+    toggleClearButton('hospital-wrapper', hospital.hospital);
   }
 
   const addressParts = hospital.address.split(',').map(s => s.trim());
@@ -2317,6 +2355,7 @@ function setupHospitalLinking() {
 
   orgInput.addEventListener('input', function() {
     const trustName = this.value.trim();
+    toggleClearButton('org-wrapper', trustName);
     if (!trustName) {
       clearHospitalFields();
       document.getElementById('hospital-list').innerHTML = '';
@@ -2332,6 +2371,7 @@ function setupHospitalLinking() {
 
   hospitalInput.addEventListener('input', function() {
     const hospitalName = this.value.trim();
+    toggleClearButton('hospital-wrapper', hospitalName);
     if (!hospitalName) {
       clearAddressFields();
     } else {
@@ -2342,6 +2382,34 @@ function setupHospitalLinking() {
     }
     updatePreview();
   });
+}
+
+// Clear button functions
+function toggleClearButton(wrapperId, value) {
+  const wrapper = document.getElementById(wrapperId);
+  if (!wrapper) return;
+  if (value && value.length > 0) {
+    wrapper.classList.add('has-value');
+  } else {
+    wrapper.classList.remove('has-value');
+  }
+}
+
+function clearOrgField() {
+  const orgInput = document.getElementById('org');
+  orgInput.value = '';
+  toggleClearButton('org-wrapper', '');
+  clearHospitalFields();
+  document.getElementById('hospital-list').innerHTML = '';
+  updatePreview();
+}
+
+function clearHospitalField() {
+  const hospitalInput = document.getElementById('hospital_name');
+  hospitalInput.value = '';
+  toggleClearButton('hospital-wrapper', '');
+  clearAddressFields();
+  updatePreview();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -2805,14 +2873,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
               <div class="col-2">
                 <label for="org">Your organisation (e.g., Barts Health NHS Trust)</label>
-                <input id="org" name="org" list="trust-list" autocomplete="off"/>
+                <div class="input-wrapper" id="org-wrapper">
+                  <input id="org" name="org" list="trust-list" autocomplete="off"/>
+                  <button type="button" class="input-clear-btn" onclick="clearOrgField()">×</button>
+                </div>
                 <datalist id="trust-list"></datalist>
                 <small class="hint">Type to search trusts. Anything after "NHS" will appear as the blue sub-header.</small>
               </div>
 
               <div class="col-2">
                 <label for="hospital_name">Hospital name</label>
-                <input id="hospital_name" name="hospital_name" list="hospital-list" autocomplete="off"/>
+                <div class="input-wrapper" id="hospital-wrapper">
+                  <input id="hospital_name" name="hospital_name" list="hospital-list" autocomplete="off"/>
+                  <button type="button" class="input-clear-btn" onclick="clearHospitalField()">×</button>
+                </div>
                 <datalist id="hospital-list"></datalist>
                 <small class="hint">Type to search hospitals, or enter postcode below</small>
               </div>
