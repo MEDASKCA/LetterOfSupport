@@ -5,17 +5,34 @@ async function getJWTToken() {
   const apiClient = new docusign.ApiClient();
   apiClient.setBasePath('https://account-d.docusign.com');
 
-  const privateKey = process.env.DOCUSIGN_PRIVATE_KEY.replace(/\\n/g, '\n');
+  // Handle private key - replace escaped newlines with actual newlines
+  let privateKey = process.env.DOCUSIGN_PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error('DOCUSIGN_PRIVATE_KEY environment variable is not set');
+  }
 
-  const results = await apiClient.requestJWTUserToken(
-    process.env.DOCUSIGN_INTEGRATION_KEY,
-    process.env.DOCUSIGN_USER_ID,
-    ['signature', 'impersonation'],
-    privateKey,
-    3600
-  );
+  // If the key was pasted with literal \n, replace them
+  privateKey = privateKey.replace(/\\n/g, '\n');
 
-  return results.body.access_token;
+  // Ensure key has proper header/footer
+  if (!privateKey.includes('BEGIN RSA PRIVATE KEY')) {
+    throw new Error('Invalid private key format - missing BEGIN RSA PRIVATE KEY header');
+  }
+
+  try {
+    const results = await apiClient.requestJWTUserToken(
+      process.env.DOCUSIGN_INTEGRATION_KEY,
+      process.env.DOCUSIGN_USER_ID,
+      ['signature', 'impersonation'],
+      privateKey,
+      3600
+    );
+
+    return results.body.access_token;
+  } catch (error) {
+    console.error('JWT Token Error:', error.message);
+    throw new Error(`Failed to get JWT token: ${error.message}`);
+  }
 }
 
 // Create and send DocuSign envelope
