@@ -2205,21 +2205,30 @@ async function emailLetter(){
 
     const effectiveRole = (data.refRole === "Other" && data.refRoleOther) ? data.refRoleOther : data.refRole;
 
-    // Send to backend (Resend on Vercel)
+    // Send to DocuSign for signature
     if (data.email){
-      await sendToBackend({
-        refCode: ref,
-        filename,
-        pdfBase64: pdfDataURI.split(',')[1],
-        referee: {
-          name: data.refName,
-          role: effectiveRole,
-          email: data.email,
-          phone: data.phone
-        }
+      const response = await fetch('/api/docusign-envelope', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pdfBase64: pdfDataURI.split(',')[1],
+          filename,
+          referee: {
+            name: data.refName,
+            email: data.email,
+            role: effectiveRole,
+            phone: data.phone
+          }
+        })
       });
 
-      // Reset form after successful email
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send DocuSign envelope');
+      }
+
+      // Reset form after successful send
       document.getElementById('endorsement-form').reset();
       if (sigPad){ sigPad.clear(); }
       const dateInput = document.getElementById('date_line');
@@ -3541,9 +3550,9 @@ window.addEventListener('DOMContentLoaded', () => {
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
-    <h4>Thank you for your endorsement</h4>
-    <p>Your digital letter of support has been generated successfully.</p>
-    <p>A secure PDF copy has been emailed to you and Alex Monterubio.</p>
+    <h4>DocuSign envelope sent successfully!</h4>
+    <p>The letter of support has been sent to your email for electronic signature.</p>
+    <p>Please check your inbox for the DocuSign signing link.</p>
     <p><em>— With appreciation, MEDASKCA Team</em></p>
   </div>
 
@@ -3553,7 +3562,7 @@ window.addEventListener('DOMContentLoaded', () => {
       <img src="medaskca-logo.png" alt="MEDASKCA" class="loading-logo">
       <div class="loading-text">
         <div class="loading-title">Processing your endorsement</div>
-        <div class="loading-subtitle">Generating PDF and sending via email...</div>
+        <div class="loading-subtitle">Generating PDF and sending to DocuSign...</div>
       </div>
     </div>
   </div>
