@@ -1182,7 +1182,7 @@ function validateStep(stepNumber){
     }
   });
 
-  // For step 3: require at least one selection or "other" per domain
+  // For step 3: require exactly 3 selections per domain
   if (stepNumber === 3){
     const groups = [
       {groupId: 'motivation_group', name: 'motivation', otherId: 'motivation_other'},
@@ -1200,7 +1200,7 @@ function validateStep(stepNumber){
 
       const checked = document.querySelectorAll(`input[name="${g.name}"]:checked`).length;
       const otherVal = (document.getElementById(g.otherId)?.value || "").trim();
-      const groupValid = (checked > 0 || otherVal.length > 0);
+      const groupValid = (checked === 3 || (otherVal.length > 0 && checked >= 0));
 
       if (!groupValid){
         valid = false;
@@ -1208,6 +1208,13 @@ function validateStep(stepNumber){
         groupEl.style.borderRadius = '6px';
         groupEl.style.padding = '8px';
         if (!firstProblem) firstProblem = groupEl;
+
+        // Show helpful message
+        const remaining = 3 - checked;
+        if (remaining > 0 && otherVal.length === 0) {
+          const msg = remaining === 1 ? '1 more statement' : `${remaining} more statements`;
+          alert(`Please select ${msg} in this section.`);
+        }
       }
     });
   }
@@ -3282,7 +3289,7 @@ window.addEventListener('DOMContentLoaded', () => {
             <div id="template-mode">
               <div class="hint" style="font-size:15px; line-height:1.6; margin-bottom:16px;">
                 Please provide focused feedback in each of the five areas below.<br>
-                Select up to <strong>three</strong> statements per section that best reflect your experience of Alex.<br>
+                Select <strong>three</strong> statements per section that best reflect your experience of Alex.<br>
                 You may add a brief comment if you wish.
               </div>
 
