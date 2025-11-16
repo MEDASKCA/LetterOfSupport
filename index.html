@@ -2207,8 +2207,14 @@ async function emailLetter(){
 
       const result = await response.json();
 
+      // Log full response for debugging
+      console.log('DocuSign API Response:', result);
+      console.log('Response Status:', response.status);
+      console.log('Response OK:', response.ok);
+
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to send DocuSign envelope');
+        console.error('DocuSign Error Details:', result.details || result.error);
+        throw new Error(result.details || result.error || 'Failed to send DocuSign envelope');
       }
 
       // Reset form after successful send
