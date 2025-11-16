@@ -2149,8 +2149,10 @@ async function makePDF(){
   if (sigPad && !sigPad.isEmpty()){
     const sigDataURL = sigPad.toDataURL('image/jpeg', 0.7);
     pdf.addImage(sigDataURL, 'JPEG', margin, y, 40, 10);
+    y += 12;  // Extra space after signature
+  } else {
+    y += 8;
   }
-  y += 8;
 
   // SIGNOFF
   addText(data.refName || "[Name]", margin, 11, 'bold');
@@ -2629,7 +2631,7 @@ window.addEventListener('DOMContentLoaded', () => {
     canvas.width = rect.width * ratio;
     canvas.height = rect.height * ratio;
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3.5;  // Thicker like a pen signature
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#000000';
   }
