@@ -2100,6 +2100,22 @@ function toggleDurationDetail(){
   updatePreview();
 }
 
+// Toggle between custom and template letter modes
+function toggleLetterMode() {
+  const customMode = document.getElementById('custom-mode');
+  const templateMode = document.getElementById('template-mode');
+  const selectedMode = document.querySelector('input[name="letter_mode"]:checked').value;
+
+  if (selectedMode === 'custom') {
+    customMode.classList.remove('hidden');
+    templateMode.classList.add('hidden');
+  } else {
+    customMode.classList.add('hidden');
+    templateMode.classList.remove('hidden');
+  }
+  updatePreview();
+}
+
 // Smart Hospital/Trust Linking
 let hospitalsData = [];
 
@@ -2785,11 +2801,76 @@ window.addEventListener('DOMContentLoaded', () => {
           <!-- STEP 3: NHSCEP DOMAINS -->
           <div class="form-step" data-step="3">
             <div class="section-title">Professional Endorsement Assessment</div>
-            <div class="hint" style="font-size:15px; line-height:1.6; margin-bottom:16px;">
-              Please provide focused feedback in each of the five areas below.<br>
-              Select up to <strong>three</strong> statements per section that best reflect your experience of Alex.<br>
-              You may add a brief comment if you wish.
+
+            <!-- Choice: Custom vs Template -->
+            <div style="margin-bottom:24px; padding:16px; background:#f0f9ff; border-radius:6px; border:2px solid #0891b2;">
+              <label style="font-weight:700; font-size:16px; display:block; margin-bottom:12px;">How would you prefer to provide your endorsement?</label>
+              <div class="grid" style="gap:12px;">
+                <label class="inline-option" style="background:white; padding:12px; border-radius:4px; cursor:pointer;">
+                  <input type="radio" name="letter_mode" value="custom" onchange="toggleLetterMode()">
+                  <span style="font-weight:600;">Write in my own words</span>
+                  <div style="font-size:14px; color:#64748b; margin-top:4px;">Provide detailed, personalised responses to each assessment area</div>
+                </label>
+                <label class="inline-option" style="background:white; padding:12px; border-radius:4px; cursor:pointer;">
+                  <input type="radio" name="letter_mode" value="template" checked onchange="toggleLetterMode()">
+                  <span style="font-weight:600;">Use guided template</span>
+                  <div style="font-size:14px; color:#64748b; margin-top:4px;">Select from pre-written statements that best match your observations</div>
+                </label>
+              </div>
             </div>
+
+            <!-- Custom Mode: Free Text Questions -->
+            <div id="custom-mode" class="hidden">
+              <div class="hint" style="font-size:15px; line-height:1.6; margin-bottom:16px;">
+                Please provide your own response to each of the five assessment areas below. Your answers will form the main body of the letter.
+              </div>
+
+              <div class="grid">
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:15px;">Opening Paragraph</label>
+                  <label style="font-weight:600; font-size:15px; margin-top:6px;">Please write a brief introduction explaining your professional relationship with Alex and the context in which you have worked together.</label>
+                  <textarea id="custom_opening" name="custom_opening" rows="4" placeholder="Example: I am pleased to provide this letter of support for Alex Monterubio. I have worked with Alex for..."></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:15px;">1. Personal Motivation</label>
+                  <label style="font-weight:600; font-size:15px; margin-top:6px;">What motivates Alex to contribute to improvement and innovation within clinical services?</label>
+                  <textarea id="custom_motivation" name="custom_motivation" rows="4" placeholder="Describe Alex's motivation for innovation and improvement..."></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:15px;">2. Personal Capability</label>
+                  <label style="font-weight:600; font-size:15px; margin-top:6px;">What capabilities does Alex demonstrate in delivering meaningful innovation in a busy clinical setting?</label>
+                  <textarea id="custom_capability" name="custom_capability" rows="4" placeholder="Describe Alex's capabilities and skills..."></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:15px;">3. Potential Impact</label>
+                  <label style="font-weight:600; font-size:15px; margin-top:6px;">What impact could Alex's innovation work have on patient care, staff experience, or service delivery?</label>
+                  <textarea id="custom_impact" name="custom_impact" rows="4" placeholder="Describe the potential impact of Alex's work..."></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:15px;">4. Alignment with NHS Priorities</label>
+                  <label style="font-weight:600; font-size:15px; margin-top:6px;">How do Alex's ideas align with wider NHS priorities and strategic objectives?</label>
+                  <textarea id="custom_priority" name="custom_priority" rows="4" placeholder="Describe how Alex's work aligns with NHS priorities..."></textarea>
+                </div>
+
+                <div class="col-2">
+                  <label style="font-weight:700; font-size:15px;">5. Viability within the NHS</label>
+                  <label style="font-weight:600; font-size:15px; margin-top:6px;">How viable and practical is Alex's innovation within the NHS context?</label>
+                  <textarea id="custom_viability" name="custom_viability" rows="4" placeholder="Describe the viability of Alex's innovation..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Template Mode: Checkbox Selections -->
+            <div id="template-mode">
+              <div class="hint" style="font-size:15px; line-height:1.6; margin-bottom:16px;">
+                Please provide focused feedback in each of the five areas below.<br>
+                Select up to <strong>three</strong> statements per section that best reflect your experience of Alex.<br>
+                You may add a brief comment if you wish.
+              </div>
 
             <div class="grid">
               <!-- PERSONAL MOTIVATION -->
@@ -2977,6 +3058,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 <input id="viability_other" name="viability_other" style="margin-top:8px;" placeholder="Other (free text) – add in your own words"/>
               </div>
             </div>
+
+            </div><!-- End template-mode -->
 
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="2">Back</button>
