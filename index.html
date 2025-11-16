@@ -1270,16 +1270,7 @@ function validateForm(){
     }
   });
 
-  // require a drawn signature
-  if (sigPad && sigPad.isEmpty()){
-    formValid = false;
-    alert("Please provide your signature before submitting.");
-    const stepEl = document.querySelector('.form-step[data-step="4"]');
-    if (stepEl){
-      showStep(4);
-      stepEl.scrollIntoView({ behavior:'smooth', block:'start' });
-    }
-  }
+  // Signature validation removed - DocuSign handles electronic signing
 
   if (!formValid && firstInvalidElement){
     const stepEl = firstInvalidElement.closest('.form-step');
@@ -1788,9 +1779,7 @@ function updatePreview(){
     data.viabilitySelected.length ||
     data.viabilityOther;
 
-  const hasSignature = sigPad && !sigPad.isEmpty();
-
-  if (!hasRefDetails && !hasQuestionContent && !hasSignature){
+  if (!hasRefDetails && !hasQuestionContent){
     preview.innerHTML = `
       <div style="font-family: Arial, sans-serif; font-size: 11pt; color:#6b7280; text-align:center; padding:40px 20px;">
         Your letter preview will appear here once you have completed the questions.
@@ -1799,13 +1788,13 @@ function updatePreview(){
     return;
   }
 
-  if (hasRefDetails && !hasQuestionContent && !hasSignature){
+  if (hasRefDetails && !hasQuestionContent){
     preview.innerHTML = buildSkeletonLetterHTML(data);
     return;
   }
 
-  const sigDataURL = hasSignature ? sigPad.toDataURL() : "";
-  const html = buildLetterHTML(data, sigDataURL);
+  // No signature - DocuSign handles signing electronically
+  const html = buildLetterHTML(data, "");
   preview.innerHTML = html;
 }
 
@@ -2145,14 +2134,8 @@ async function makePDF(){
   addSpace(lineHeight);
 
   // SIGNATURE (if available)
-  if (sigPad && !sigPad.isEmpty()){
-    // Use JPEG with compression to reduce file size
-    const sigDataURL = sigPad.toDataURL('image/jpeg', 0.7);
-    pdf.addImage(sigDataURL, 'JPEG', margin, y, 40, 10);
-    y += 12;
-  } else {
-    y += 8;
-  }
+  // Signature removed - will be added via DocuSign
+  y += 8;
 
   // SIGNOFF
   addText(data.refName || "[Name]", margin, 11, 'bold');
@@ -2230,7 +2213,6 @@ async function emailLetter(){
 
       // Reset form after successful send
       document.getElementById('endorsement-form').reset();
-      if (sigPad){ sigPad.clear(); }
       const dateInput = document.getElementById('date_line');
       dateInput.type = 'date';
       dateInput.value = todayUKISO();
@@ -3501,27 +3483,12 @@ window.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
 
-            <div class="section-title">Sign Your Letter</div>
-            <div class="col-2">
-              <label>Draw your signature below</label>
-              <div class="sig-wrap">
-                <div style="position:relative;">
-                  <canvas id="signature-canvas" class="sig-canvas"></canvas>
-                  <div id="sig-watermark" class="sig-watermark">Sign here</div>
-                </div>
-                <div class="sig-row">
-                  <div class="sig-actions">
-                    <button type="button" id="clear-signature-btn" class="ghost">Clear</button>
-                  </div>
-                  <small class="hint">Use your mouse, trackpad, or touchscreen to sign</small>
-                </div>
-              </div>
-            </div>
-
-            <div style="margin-top:16px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">
+            <div style="margin-top:16px; padding:16px; background:#f0f9ff; border:2px solid #0891b2; border-radius:8px;">
+              <div style="font-weight:700; font-size:16px; margin-bottom:12px; color:#0f172a;">📧 Electronic Signature via DocuSign</div>
+              <p style="margin:0 0 12px; font-size:14px; color:#475569; line-height:1.6;">After clicking "Send Letter", you'll receive an email from DocuSign with a secure link to review and electronically sign this letter of support.</p>
               <label style="display:flex; align-items:start; gap:10px; margin:0;">
                 <input type="checkbox" required style="width:auto; margin-top:3px;"/>
-                <span style="flex:1;">I confirm this endorsement is accurate and consent to its electronic submission to Alex Monterubio for the NHS Clinical Entrepreneur Programme. This serves as my digital signature.</span>
+                <span style="flex:1; font-size:14px;">I confirm this endorsement is accurate and consent to its electronic submission to Alex Monterubio for the NHS Clinical Entrepreneur Programme via DocuSign.</span>
               </label>
             </div>
 
@@ -3532,10 +3499,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
             <div class="actions">
               <button type="button" class="secondary" data-prev-step="3">Back</button>
-              <button type="button" id="submit-btn" onclick="emailLetter()">Send Letter</button>
+              <button type="button" id="submit-btn" onclick="emailLetter()">Send to DocuSign</button>
               <button type="button" class="ghost" onclick="updatePreview()">Refresh Preview</button>
             </div>
-            <small class="hint">Generates PDF and emails to you and referee.</small>
+            <small class="hint">Sends letter to DocuSign for electronic signature.</small>
           </div>
         </form>
       </div>
