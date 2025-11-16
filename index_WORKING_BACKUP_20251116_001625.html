@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>NHS Clinical Entrepreneur Programme – Digital Professional Endorsement</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,7 +87,7 @@ input,select,textarea{
   padding:8px 10px;
   border:2px solid #0891b2;
   border-radius:4px;
-  font-size:16px; /* Prevent iOS auto-zoom on focus */
+  font-size:13px;
   font-family:inherit;
   background:#ffffff;
   box-shadow:0 1px 2px rgba(8,145,178,0.1);
@@ -95,7 +95,7 @@ input,select,textarea{
   -webkit-appearance:none;
   -moz-appearance:none;
   appearance:none;
-  min-height:40px;
+  min-height:37px;
 }
 /* Restore checkbox appearance */
 input[type="checkbox"]{
@@ -366,15 +366,12 @@ button.ghost:hover{ background:#f9fafb; }
   padding: 20px;
   width: 100%;
   min-height: 100%;
-  overflow-y: scroll; /* Vertical scroll only */
+  overflow-y: auto;
   overflow-x: hidden; /* No horizontal panning */
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y pinch-zoom; /* Allow vertical scroll and pinch zoom */
 }
 /* Allow zoom on preview only (double-tap or pinch) */
 .preview-wrap .paper{
   cursor: zoom-in;
-  touch-action: pinch-zoom; /* Enable pinch-zoom on preview */
 }
 .paper{
   width: 210mm;
@@ -1931,8 +1928,6 @@ function showStep(step){
       `;
     }
 
-    // Scroll to top of page and left panel
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     const leftPanel = document.querySelector('.panel.left');
     if (leftPanel && leftPanel.scrollTo){
       leftPanel.scrollTo({ top:0, behavior:'smooth' });
@@ -1974,8 +1969,6 @@ function showStep(step){
     labelsContainer.innerHTML = html;
   }
 
-  // Scroll to top of page and left panel
-  window.scrollTo({ top: 0, behavior: 'smooth' });
   const leftPanel = document.querySelector('.panel.left');
   if (leftPanel && leftPanel.scrollTo){
     leftPanel.scrollTo({ top:0, behavior:'smooth' });
