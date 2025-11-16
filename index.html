@@ -113,6 +113,22 @@ input[type="checkbox"]{
   transform:scale(1.1); /* Slightly larger for better visibility */
 }
 
+/* Custom radio button styling for better visibility */
+input[type="radio"]{
+  -webkit-appearance:radio;
+  -moz-appearance:radio;
+  appearance:radio;
+  width:20px;
+  min-width:20px;
+  min-height:20px;
+  height:20px;
+  margin:0;
+  cursor:pointer;
+  accent-color:#0891b2;
+  flex-shrink:0;
+  transform:scale(1.2); /* Slightly larger for better visibility */
+}
+
 /* Input field wrapper for clear button */
 .input-wrapper {
   position: relative;
@@ -271,6 +287,84 @@ small.hint{
 }
 .inline-option span{
   user-select:none;
+}
+
+/* Letter mode choice styling */
+.letter-mode-choice{
+  margin-bottom:24px;
+  padding:20px;
+  background:#f0f9ff;
+  border-radius:8px;
+  border:2px solid #0891b2;
+}
+.letter-mode-title{
+  font-weight:700;
+  font-size:16px;
+  display:block;
+  margin-bottom:16px;
+  color:#0f172a;
+}
+.letter-mode-options{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.letter-mode-option{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  background:white;
+  padding:16px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:all 0.2s;
+  border:2px solid transparent;
+}
+.letter-mode-option:hover{
+  border-color:#0891b2;
+  box-shadow:0 2px 6px rgba(8,145,178,0.1);
+}
+.letter-mode-option input[type="radio"]{
+  margin-top:2px;
+}
+.letter-mode-content{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  flex:1;
+}
+.letter-mode-label{
+  font-weight:600;
+  font-size:15px;
+  color:#0f172a;
+  display:block;
+}
+.letter-mode-desc{
+  font-size:14px;
+  color:#64748b;
+  line-height:1.4;
+  display:block;
+}
+
+/* Mobile adjustments for letter mode choice */
+@media (max-width: 640px){
+  .letter-mode-choice{
+    padding:16px;
+  }
+  .letter-mode-title{
+    font-size:15px;
+    margin-bottom:12px;
+  }
+  .letter-mode-option{
+    padding:12px;
+    gap:10px;
+  }
+  .letter-mode-label{
+    font-size:14px;
+  }
+  .letter-mode-desc{
+    font-size:13px;
+  }
 }
 
 /* Stepper nav */
@@ -3006,18 +3100,22 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="section-title">Professional Endorsement Assessment</div>
 
             <!-- Choice: Custom vs Template -->
-            <div style="margin-bottom:24px; padding:16px; background:#f0f9ff; border-radius:6px; border:2px solid #0891b2;">
-              <label style="font-weight:700; font-size:16px; display:block; margin-bottom:12px;">How would you prefer to provide your endorsement?</label>
-              <div class="grid" style="gap:12px;">
-                <label class="inline-option" style="background:white; padding:12px; border-radius:4px; cursor:pointer;">
+            <div class="letter-mode-choice">
+              <label class="letter-mode-title">How would you prefer to provide your endorsement?</label>
+              <div class="letter-mode-options">
+                <label class="letter-mode-option">
                   <input type="radio" name="letter_mode" value="custom" onchange="toggleLetterMode()">
-                  <span style="font-weight:600;">Write in my own words</span>
-                  <div style="font-size:14px; color:#64748b; margin-top:4px;">Provide detailed, personalised responses to each assessment area</div>
+                  <div class="letter-mode-content">
+                    <span class="letter-mode-label">Write in my own words</span>
+                    <span class="letter-mode-desc">Provide detailed, personalised responses to each assessment area</span>
+                  </div>
                 </label>
-                <label class="inline-option" style="background:white; padding:12px; border-radius:4px; cursor:pointer;">
+                <label class="letter-mode-option">
                   <input type="radio" name="letter_mode" value="template" checked onchange="toggleLetterMode()">
-                  <span style="font-weight:600;">Use guided template</span>
-                  <div style="font-size:14px; color:#64748b; margin-top:4px;">Select from pre-written statements that best match your observations</div>
+                  <div class="letter-mode-content">
+                    <span class="letter-mode-label">Use guided template</span>
+                    <span class="letter-mode-desc">Select from pre-written statements that best match your observations</span>
+                  </div>
                 </label>
               </div>
             </div>
