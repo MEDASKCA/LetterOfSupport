@@ -2102,6 +2102,105 @@ function toggleDurationDetail(){
   updatePreview();
 }
 
+// Smart Hospital/Trust Linking
+let hospitalsData = [];
+
+async function loadHospitalData() {
+  try {
+    const response = await fetch('london_hospitals.json');
+    hospitalsData = await response.json();
+    populateTrustList();
+  } catch (e) {
+    console.warn('Could not load hospital data:', e);
+  }
+}
+
+function populateTrustList() {
+  const trustList = document.getElementById('trust-list');
+  if (!trustList) return;
+  const uniqueTrusts = [...new Set(hospitalsData.map(h => h.trust))].sort();
+  trustList.innerHTML = uniqueTrusts.map(trust => `<option value="${trust}">`).join('');
+}
+
+function populateHospitalList(trustName) {
+  const hospitalList = document.getElementById('hospital-list');
+  if (!hospitalList) return;
+  const matchingHospitals = hospitalsData.filter(h => h.trust === trustName);
+  hospitalList.innerHTML = matchingHospitals.map(h => `<option value="${h.hospital}">`).join('');
+}
+
+function getHospitalByName(hospitalName) {
+  return hospitalsData.find(h => h.hospital === hospitalName);
+}
+
+function getHospitalsByTrust(trustName) {
+  return hospitalsData.filter(h => h.trust === trustName);
+}
+
+function clearHospitalFields() {
+  document.getElementById('hospital_name').value = '';
+  clearAddressFields();
+}
+
+function clearAddressFields() {
+  document.getElementById('hospital_addr1').value = '';
+  document.getElementById('hospital_addr2').value = '';
+  document.getElementById('hospital_city').value = '';
+  document.getElementById('hospital_postcode').value = '';
+}
+
+function fillHospitalData(hospital) {
+  const orgInput = document.getElementById('org');
+  const hospitalInput = document.getElementById('hospital_name');
+
+  if (orgInput && orgInput.value !== hospital.trust) {
+    orgInput.value = hospital.trust;
+  }
+  if (hospitalInput && hospitalInput.value !== hospital.hospital) {
+    hospitalInput.value = hospital.hospital;
+  }
+
+  const addressParts = hospital.address.split(',').map(s => s.trim());
+  document.getElementById('hospital_addr1').value = addressParts[0] || '';
+  document.getElementById('hospital_addr2').value = addressParts[1] || '';
+  document.getElementById('hospital_city').value = addressParts[2] || hospital.address.split(',').pop().trim();
+  document.getElementById('hospital_postcode').value = hospital.postcode || '';
+}
+
+function setupHospitalLinking() {
+  const orgInput = document.getElementById('org');
+  const hospitalInput = document.getElementById('hospital_name');
+  if (!orgInput || !hospitalInput) return;
+
+  orgInput.addEventListener('input', function() {
+    const trustName = this.value.trim();
+    if (!trustName) {
+      clearHospitalFields();
+      document.getElementById('hospital-list').innerHTML = '';
+    } else {
+      populateHospitalList(trustName);
+      const hospitals = getHospitalsByTrust(trustName);
+      if (hospitals.length === 1) {
+        fillHospitalData(hospitals[0]);
+      }
+    }
+    updatePreview();
+  });
+
+  hospitalInput.addEventListener('input', function() {
+    const hospitalName = this.value.trim();
+    if (!hospitalName) {
+      clearAddressFields();
+    } else {
+      const hospital = getHospitalByName(hospitalName);
+      if (hospital) {
+        fillHospitalData(hospital);
+      }
+    }
+    updatePreview();
+  });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   // Signature canvas
   const canvas = document.getElementById('signature-canvas');
@@ -2447,6 +2546,10 @@ window.addEventListener('DOMContentLoaded', () => {
   setupCheckboxLimit('impact', 3);
   setupCheckboxLimit('priority', 3);
   setupCheckboxLimit('viability', 3);
+
+  // Load hospital data and setup smart linking
+  loadHospitalData();
+  setupHospitalLinking();
 
   showStep(1);
   updatePreview();

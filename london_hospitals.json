@@ -1,0 +1,134 @@
+[
+  {
+    "hospital": "The Royal London Hospital",
+    "trust": "Barts Health NHS Trust",
+    "address": "Whitechapel Road, Whitechapel, London",
+    "postcode": "E1 1FR"
+  },
+  {
+    "hospital": "St Bartholomew\u2019s Hospital",
+    "trust": "Barts Health NHS Trust",
+    "address": "West Smithfield, London",
+    "postcode": "EC1A 7BE"
+  },
+  {
+    "hospital": "Whipps Cross University Hospital",
+    "trust": "Barts Health NHS Trust",
+    "address": "Whipps Cross Road, Leytonstone, London",
+    "postcode": "E11 1NR"
+  },
+  {
+    "hospital": "Newham University Hospital",
+    "trust": "Barts Health NHS Trust",
+    "address": "Glen Road, Plaistow, London",
+    "postcode": "E13 8SL"
+  },
+  {
+    "hospital": "Guy\u2019s Hospital",
+    "trust": "Guy\u2019s and St Thomas\u2019 NHS Foundation Trust",
+    "address": "Great Maze Pond, London",
+    "postcode": "SE1 9RT"
+  },
+  {
+    "hospital": "St Thomas\u2019 Hospital",
+    "trust": "Guy\u2019s and St Thomas\u2019 NHS Foundation Trust",
+    "address": "Westminster Bridge Road, London",
+    "postcode": "SE1 7EH"
+  },
+  {
+    "hospital": "King\u2019s College Hospital",
+    "trust": "King\u2019s College Hospital NHS Foundation Trust",
+    "address": "Denmark Hill, London",
+    "postcode": "SE5 9RS"
+  },
+  {
+    "hospital": "University College Hospital",
+    "trust": "University College London Hospitals NHS Foundation Trust",
+    "address": "235 Euston Road, London",
+    "postcode": "NW1 2BU"
+  },
+  {
+    "hospital": "Hammersmith Hospital",
+    "trust": "Imperial College Healthcare NHS Trust",
+    "address": "Du Cane Road, London",
+    "postcode": "W12 0HS"
+  },
+  {
+    "hospital": "St George\u2019s Hospital",
+    "trust": "St George\u2019s University Hospitals NHS Foundation Trust",
+    "address": "Blackshaw Road, Tooting, London",
+    "postcode": "SW17 0QT"
+  },
+  {
+    "hospital": "University Hospital Lewisham",
+    "trust": "Lewisham and Greenwich NHS Trust",
+    "address": "Lewisham High Street, Lewisham, London",
+    "postcode": "SE13 6LH"
+  },
+  {
+    "hospital": "Central Middlesex Hospital",
+    "trust": "London North West University Healthcare NHS Trust",
+    "address": "Acton Lane, Park Royal, London",
+    "postcode": "NW10 7NS"
+  },
+  {
+    "hospital": "Chelsea & Westminster Hospital",
+    "trust": "Chelsea and Westminster Hospital NHS Foundation Trust",
+    "address": "369 Fulham Road, Chelsea, London",
+    "postcode": "SW10 9NH"
+  },
+  {
+    "hospital": "West Middlesex University Hospital",
+    "trust": "Chelsea and Westminster Hospital NHS Foundation Trust",
+    "address": "Twickenham Road, Isleworth, London",
+    "postcode": "TW7 6AF"
+  },
+  {
+    "hospital": "Hillingdon Hospital",
+    "trust": "The Hillingdon Hospitals NHS Foundation Trust",
+    "address": "Pield Heath Road, Hillingdon, Middlesex",
+    "postcode": "UB8 3NN"
+  },
+  {
+    "hospital": "The Royal Marsden Hospital (Chelsea)",
+    "trust": "The Royal Marsden NHS Foundation Trust",
+    "address": "Fulham Road, London",
+    "postcode": "SW3 6JJ"
+  },
+  {
+    "hospital": "Moorfields Eye Hospital",
+    "trust": "Moorfields Eye Hospital NHS Foundation Trust",
+    "address": "162 City Road, London",
+    "postcode": "EC1V 2PD"
+  },
+  {
+    "hospital": "Queen\u2019s Hospital (Romford)",
+    "trust": "Barking, Havering & Redbridge University Hospitals NHS Trust",
+    "address": "Gaynes Parkway, Romford",
+    "postcode": "RM7 0AG"
+  },
+  {
+    "hospital": "King George Hospital",
+    "trust": "Barking, Havering & Redbridge University Hospitals NHS Trust",
+    "address": "Barley Lane, Goodmayes, Ilford, London",
+    "postcode": "IG3 8YB"
+  },
+  {
+    "hospital": "Mount Vernon Hospital",
+    "trust": "The Hillingdon Hospitals NHS Foundation Trust",
+    "address": "Rickmansworth Road, Northwood, Middlesex",
+    "postcode": "HA6 2RN"
+  },
+  {
+    "hospital": "Barnet Hospital",
+    "trust": "Royal Free London NHS Foundation Trust",
+    "address": "Wellhouse Lane, Barnet, London",
+    "postcode": "EN5 3DJ"
+  },
+  {
+    "hospital": "Chase Farm Hospital",
+    "trust": "Royal Free London NHS Foundation Trust",
+    "address": "The Ridgeway, Enfield, Middlesex",
+    "postcode": "EN2 8JL"
+  }
+]
