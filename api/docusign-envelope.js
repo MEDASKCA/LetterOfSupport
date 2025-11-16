@@ -3,6 +3,7 @@ const docusign = require('docusign-esign');
 // Helper to get JWT access token
 async function getJWTToken() {
   const apiClient = new docusign.ApiClient();
+  // IMPORTANT: Use demo auth server for developer/demo accounts
   apiClient.setBasePath('https://account-d.docusign.com');
 
   // Handle private key - replace escaped newlines with actual newlines
@@ -20,6 +21,9 @@ async function getJWTToken() {
   }
 
   try {
+    // Set OAuth base path explicitly for demo environment
+    apiClient.setOAuthBasePath('account-d.docusign.com');
+
     const results = await apiClient.requestJWTUserToken(
       process.env.DOCUSIGN_INTEGRATION_KEY,
       process.env.DOCUSIGN_USER_ID,
