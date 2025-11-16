@@ -97,17 +97,20 @@ input,select,textarea{
   appearance:none;
   min-height:40px;
 }
-/* Restore checkbox appearance */
+/* Custom checkbox styling for better visibility */
 input[type="checkbox"]{
   -webkit-appearance:checkbox;
   -moz-appearance:checkbox;
   appearance:checkbox;
-  width:auto;
-  min-height:18px;
-  height:18px;
+  width:20px;
+  min-width:20px;
+  min-height:20px;
+  height:20px;
   margin:0;
   cursor:pointer;
   accent-color:#0891b2;
+  flex-shrink:0;
+  transform:scale(1.1); /* Slightly larger for better visibility */
 }
 
 /* iOS-style toggle switches */
@@ -214,14 +217,24 @@ small.hint{
 .inline-option{
   display:flex;
   align-items:center;
-  gap:6px;
+  gap:10px;
   font-weight:400;
-  margin-top:3px;
+  margin-top:6px;
   font-size:15px;
+  padding:10px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:background 0.15s;
+}
+.inline-option:hover{
+  background:#f0f9ff;
 }
 .inline-option input{
   width:auto;
   margin:0;
+}
+.inline-option span{
+  user-select:none;
 }
 
 /* Stepper nav */
@@ -363,13 +376,14 @@ button.ghost:hover{ background:#f9fafb; }
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  padding: 20px;
+  padding: 30px 20px;
   width: 100%;
   min-height: 100%;
   overflow-y: scroll; /* Vertical scroll only */
   overflow-x: hidden; /* No horizontal panning */
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y pinch-zoom; /* Allow vertical scroll and pinch zoom */
+  background: #e5e7eb; /* Print preview gray background */
 }
 /* Allow zoom on preview only (double-tap or pinch) */
 .preview-wrap .paper{
@@ -389,17 +403,17 @@ button.ghost:hover{ background:#f9fafb; }
   max-width: 210mm; /* Cap at A4 width */
   min-height: 297mm; /* A4 height */
   padding: 15mm 20mm 20mm 20mm;
-  margin-bottom: 20px; /* Gap between pages like print preview */
+  margin-bottom: 25px; /* Gap between pages like print preview */
   font-family: Arial, sans-serif;
-  color: #1f2937;
+  color: #000000;
   line-height: 1.5;
   font-size: 11pt;
   page-break-after: always;
   break-after: page;
   position: relative;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* More prominent shadow for distinct pages */
-  border: 1px solid #d1d5db;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1); /* Print preview shadow */
+  border: none;
 }
 
 /* Last page shouldn't have bottom margin */
@@ -910,7 +924,16 @@ function readForm(){
     priorityOther: (document.getElementById('priority_other')?.value || "").trim(),
 
     viabilitySelected,
-    viabilityOther: (document.getElementById('viability_other')?.value || "").trim()
+    viabilityOther: (document.getElementById('viability_other')?.value || "").trim(),
+
+    // Custom writing mode fields
+    letterMode: document.querySelector('input[name="letter_mode"]:checked')?.value || 'template',
+    customOpening: (document.getElementById('custom_opening')?.value || "").trim(),
+    customMotivation: (document.getElementById('custom_motivation')?.value || "").trim(),
+    customCapability: (document.getElementById('custom_capability')?.value || "").trim(),
+    customImpact: (document.getElementById('custom_impact')?.value || "").trim(),
+    customPriority: (document.getElementById('custom_priority')?.value || "").trim(),
+    customViability: (document.getElementById('custom_viability')?.value || "").trim()
   };
 }
 
@@ -1178,7 +1201,14 @@ function buildLetterHTML(data, signatureDataURL){
     prioritySelected,
     priorityOther,
     viabilitySelected,
-    viabilityOther
+    viabilityOther,
+    letterMode,
+    customOpening,
+    customMotivation,
+    customCapability,
+    customImpact,
+    customPriority,
+    customViability
   } = data;
 
   const effectiveRole = (refRole === "Other" && refRoleOther) ? refRoleOther : refRole;
@@ -1267,6 +1297,83 @@ function buildLetterHTML(data, signatureDataURL){
           <div class="letter-body">
             ${salutationHTML}
             ${customMessageHTML}
+            <div class="letter-closing">
+              <p>Yours faithfully,</p>
+              ${sigHTML}
+              <div class="letter-signoff">
+                <div class="name">${refName || "[Name]"}</div>
+                <div>${effectiveRole || "[Role]"}</div>
+                <div>${org || "Barts Health NHS Trust"}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Custom writing mode: Use free-text responses
+  if (letterMode === 'custom') {
+    const customNarrativeParts = [];
+
+    // Opening paragraph (referee writes their own intro)
+    if (customOpening && customOpening.trim()) {
+      customNarrativeParts.push(`<p>${customOpening.trim()}</p>`);
+    }
+
+    // 1. Personal Motivation
+    if (customMotivation && customMotivation.trim()) {
+      customNarrativeParts.push(`<p>${customMotivation.trim()}</p>`);
+    }
+
+    // 2. Personal Capability
+    if (customCapability && customCapability.trim()) {
+      customNarrativeParts.push(`<p>${customCapability.trim()}</p>`);
+    }
+
+    // 3. Clinical Impact
+    if (customImpact && customImpact.trim()) {
+      customNarrativeParts.push(`<p>${customImpact.trim()}</p>`);
+    }
+
+    // 4. Priority to the NHS
+    if (customPriority && customPriority.trim()) {
+      customNarrativeParts.push(`<p>${customPriority.trim()}</p>`);
+    }
+
+    // 5. Viability of the Innovation
+    if (customViability && customViability.trim()) {
+      customNarrativeParts.push(`<p>${customViability.trim()}</p>`);
+    }
+
+    // MBA / suitability paragraph (always included)
+    customNarrativeParts.push(
+      `<p>Alex is currently undertaking an Executive MBA with a focus on Artificial Intelligence, further developing their leadership, strategic and innovation skills. These qualities, combined with the above, align closely with the objectives of the NHS Clinical Entrepreneur Programme, and I consider Alex well suited to contribute positively to innovation within the NHS.</p>`
+    );
+
+    // Disclaimer (always included)
+    customNarrativeParts.push(
+      `<p>This letter is provided as a professional endorsement of Alex Monterubio's suitability for the NHS Clinical Entrepreneur Programme. It does not imply financial sponsorship.</p>`
+    );
+
+    const sigHTML = signatureDataURL
+      ? `<div class="letter-sign"><img src="${signatureDataURL}" alt="Signature"/></div>`
+      : "";
+
+    const customBodyHTML = customNarrativeParts.join("");
+
+    return `
+      <div class="paper" id="paper">
+        <div class="page">
+          <div class="header-row">
+            ${senderHTML}
+            ${headerHTML}
+          </div>
+          <div class="letter-date">Date: ${dateStr}</div>
+          ${recipientHTML}
+          <div class="letter-body">
+            ${salutationHTML}
+            ${customBodyHTML}
             <div class="letter-closing">
               <p>Yours faithfully,</p>
               ${sigHTML}
