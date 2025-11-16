@@ -2107,11 +2107,33 @@ function toggleLetterMode() {
   const selectedMode = document.querySelector('input[name="letter_mode"]:checked').value;
 
   if (selectedMode === 'custom') {
+    // Show custom mode, hide template
     customMode.classList.remove('hidden');
     templateMode.classList.add('hidden');
+
+    // Clear template mode selections
+    document.querySelectorAll('input[name="motivation"]:checked').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name="capability"]:checked').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name="impact"]:checked').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name="priority"]:checked').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name="viability"]:checked').forEach(cb => cb.checked = false);
+    document.getElementById('motivation_other').value = '';
+    document.getElementById('capability_other').value = '';
+    document.getElementById('impact_other').value = '';
+    document.getElementById('priority_other').value = '';
+    document.getElementById('viability_other').value = '';
   } else {
+    // Show template mode, hide custom
     customMode.classList.add('hidden');
     templateMode.classList.remove('hidden');
+
+    // Clear custom mode text areas
+    document.getElementById('custom_opening').value = '';
+    document.getElementById('custom_motivation').value = '';
+    document.getElementById('custom_capability').value = '';
+    document.getElementById('custom_impact').value = '';
+    document.getElementById('custom_priority').value = '';
+    document.getElementById('custom_viability').value = '';
   }
   updatePreview();
 }
